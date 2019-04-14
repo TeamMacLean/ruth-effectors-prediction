@@ -44,7 +44,7 @@ on `uni-prot.org`, and we will get data in `.fatsa` file format. The
 protein IDs that we obtained from
 ’phi-base.org`is around 496 protein IDs, however only 482 that are succesfully mapped on`uni-prot.org\`.
 
-![Uniprot Screnshoot](../../data/images/uniprot-screenshoot.png)
+![Uniprot Screnshoot](data/images/uniprot-screenshoot.png)
 
 ### Reading and cleaning the data
 
