@@ -3,11 +3,10 @@ title: ""
 author: "Ruth Kristianingsih"
 date: "23/01/2019"
 knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../reports") })
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../reports") })
 output:
-md_document:
-  variant: markdown_github
-pdf_document: yes
+  md_document:
+    variant: markdown_github
 ---
 
 # Getting the data and data analysis
