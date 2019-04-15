@@ -15,12 +15,12 @@ This report will present how we get and clean the data.
 
 ### Getting the Protein IDs
 
-The data are the protein amino acids sequence data. The sequences can be retrieved from `uni-prot.org` with the protein IDs obtained from `phi-base.org` by putting keyword *effector (plant avirulence determinant)*. However, due to the unavailability of then download option on `phi-base.org` website, then complete data can be obtained from `phi-base` github repository on `https://github.com/PHI-base/data/tree/master/releases`. Then we can import and clean the data on `R` using `tidyverse` library. And from the data we obtained which is `phi-base_v4-6_2018-12-05.csv`, we can filter the data only for  *effector (plant avirulence determinant)*. The data are saved into `phi-base_current.csv`.
+The data are the protein amino acids sequence data. The sequences can be retrieved from `uni-prot.org` with the protein IDs obtained from `phi-base.org` by putting keyword **effector (plant avirulence determinant)**. However, due to the unavailability of then download option on `phi-base.org` website, then the complete data can be obtained from [`phi-base` github repository](https://github.com/PHI-base/data/tree/master/releases). We can then import and clean the data on `R` using `tidyverse` library. And from the data we obtained which is `phi-base_v4-6_2018-12-05.csv` (the data are saved into `phi-base_current.csv`.), we can filter the data only for  **effector (plant avirulence determinant)**. 
 
 ```r
 library(tidyverse)
 
-phi_base <- data.table::fread("data/phi-base_current.csv", header = TRUE)
+phi_base <- data.table::fread("../../data/phi-base_current.csv", header = TRUE)
 
 # filter all of the data with 'plant avirulence determinant' information
 phi_small <- phi_base %>%
@@ -38,7 +38,7 @@ proteinID_unique <- unique(phi_proteinID) %>%
 
 ### Retriving the protein sequence
 
-After we made sure that there is no redundancy in our data, we can use the protein IDs data to retrieve the sequence amino acids sequence data on `uni-prot.org`, and we will get data in `.fatsa` file format. The protein IDs that we obtained from 'phi-base.org` is around 496 protein IDs, however only 482 that are succesfully mapped on `uni-prot.org`.
+After we made sure that there is no redundancy in our data, we can use the protein IDs data to retrieve the sequence amino acids sequence data on `uni-prot.org`, and we will get data in `.fatsa` file format. The protein IDs that we obtained from 'phi-base.org` is around 496 protein IDs, however only 482 that are succesfully mapped on `uni-prot.org` due to the deleted data. 
 
 ![Uniprot Screnshoot](/data/images/uniprot-screenshoot.png)
 
@@ -89,7 +89,7 @@ for (i in 1:num_data) {
 }
 
 # Save data frame into CSV file
-write.csv(parsed_data, "data/uniprot-data-mapped.csv", row.names = FALSE)
+write.csv(parsed_data, "../../data/uniprot-data-mapped.csv", row.names = FALSE)
 ```
 
 We have data frame with two columns, the first column is the organism pathogen name and the second one is the sequence data. 
@@ -100,7 +100,7 @@ uniprot_data <- data.table::fread("../../data/uniprot-data-mapped.csv")
 
 ### Analysing the data
 
-As we analyze further the data, the name of pathogen is not unique, since some of the organism with the same species name are the strains (those with *pv*). 
+As we analyze further the data, the name of pathogen organisms are not unique, since some of the organism have the strains (those with *pv*) with the same two first words. As an example, we can look at the data in row 40^th^ until 50^th^. 
 
 ```{r}
 library(tidyverse)
@@ -108,11 +108,11 @@ library(tidyverse)
 # view the head of the data with restricted number of strings
 uniprot_data[40:50,] %>%
   mutate(sequence = substr(sequence, 1, 30)) %>% 
-  head(20)  %>%
+  head(10)  %>%
   knitr::kable()
 ```
 
-Let us take a look further the data we have right now. Here we have many organism name which start with `Pseudomonas syringae`. Considering the perfomance of deep learning that will be better if we have more data training, then we need to be careful in defining the problem. 
+Let us take a look further the data we have right now. Here we have many organism name which start with ***Pseudomonas syringae***. Considering the perfomance of deep learning that will be better if we have more data training, then we need to be careful in defining the problem. 
 
 
 ```{r}
@@ -127,7 +127,7 @@ uniprot_data  %>%
 
 ```
 
-One alternative we can do is defining the problem as predicting the organism of effector proteins (inclusing the strains). By defining as preceding, then now we can neglect the pathovar for each species by taking the first two words of each pathogen species, by doing the following. 
+One alternative we can do is defining the problem as predicting the pathogen species which only include the first two words of their name. By defining as preceding, then now we can take only the first two words of their strain name, by doing the following. 
 
 ```r
 num <- nrow(uniprot_data)
@@ -150,13 +150,15 @@ for (i in 1:num){
 
 ```
 
-Now, we can load the data, and take an analysis further
+We can load the data, and take an analysis further. 
 
 
 ```{r}
 new_parsed_data <- data.table::fread("../../data/new_parsed_data.csv", header = TRUE) %>% 
   dplyr::select(-V1)
 ```
+
+Next, as we can see, in the row 40^th^ until 50^th^, the strain name of the species ***Pseudomonas syringae*** have only the first two words of their ancestor. 
 
 ```{r}
 # view the head of the data with restricted number of strings
@@ -166,7 +168,7 @@ new_parsed_data[40:50,] %>%
   knitr::kable()
 ```
 
-By doing previous steps, we have more training data for some pathogen species. However, some species only have single sequence which is not enough to be learned by deep learning models. 
+By doing previous steps, we have more training data for some pathogen species. However, some species only have single sequence which is not enough to be learned by deep learning models. For example, *Acinetobacter baumannii* and *Aeromonas salmonicida* has only one sequence data. 
 
 
 ```{r}
@@ -182,8 +184,8 @@ knitr::kable(count_new_pathogen)
 
 By looking at the data, and did a little analysis, we can do probably several options:
 
-1. Continue with the data obtained above, but we can limit/threshold only for the species with enough data (for instance, more than 40 sequences). Then the organism with the number sequences under the threshold will not be used as data training.
-2. The second option is to re-define the problem, for instance instead of identifying the organism as multi-class classification, we can change to binary classification (effector or non-effector) by getting non-effector proteins data.  
+1. Continue with the data obtained above, but we can set a treshold to have a minimum number of data for the species to be included in training data (for instance the treshold is 40 sequences). Then the organism with the number sequences under the threshold will not be used as training data.
+2. The second option is to re-define the problem, for instance instead of identifying the pathogen species as multi-class classification, we can change to binary classification (effector or non-effector) by getting non-effector proteins data.  
 
 
  
