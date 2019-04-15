@@ -21,5 +21,16 @@ Daily lab book April
 
 -   analysed and cleaned the sequence data from `uni-prot.org`
 
+15 April 2019 (Monday)
+----------------------
+
+- finished reading Dan's paper
+- complete hyperparameter scan
+
+**Minutes of weekly catch up meeting**
+
+- finish the hyperparameter scan! (time management and prioritizing task skill should be improved!)
+- next task: get the data of non-effector from NCBI 
+
 
 
