@@ -25,12 +25,25 @@ Daily lab book April
 ----------------------
 
 - finished reading Dan's paper
-- complete hyperparameter scan
+- tried to complete hyperparameter scan Model 1
 
 **Minutes of weekly catch up meeting**
 
 - finish the hyperparameter scan! (time management and prioritizing task skill should be improved!)
 - next task: get the data of non-effector from NCBI 
+
+16 April 2019 (Tuesday)
+------------------------
+
+- finished hyper scan Model 1 and 2 scripts (run in GPU)
+
+17 April 2019 (Wednesday)
+-------------------------
+
+- tried to finish the Model 3 scripts
+- getting the non-effector data from NCBI and phi-base
+
+
 
 
 
