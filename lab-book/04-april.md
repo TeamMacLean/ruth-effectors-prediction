@@ -43,7 +43,16 @@ Daily lab book April
 - tried to finish the Model 3 scripts
 - getting the non-effector data from NCBI and phi-base
 
+18 April 2019 (Thursday -- Half Day)
+------------------------------------
 
+- continue with getting the non-effector data
+
+**Note**
+
+- the first plan is to get the non-effector from `phi-base.org`, but some of the organism does not have sample non-effector data in `phi-base.org`. Solution: getting the sample from NCBI (using the query)
+
+- some of the organism names in `uniprot` have different name with some in `phi-base.org`, then I did mapping to get the original organism name. For example the protein ID `G2XWG3` in `phi-base`: *Botrytis cinerea*, whereas in  `uniprot`: *Botryotinia fuckeliana*. And when we search the non-effector in `phi-base` using *Botryotinia fuckeliana*, we will not find it, because it is not there. Then we need to map it back to get the original name. (The `phi-base` data is the main data for finding the non-effector data)
 
 
 
