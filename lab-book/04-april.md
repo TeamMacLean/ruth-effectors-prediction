@@ -54,5 +54,16 @@ Daily lab book April
 
 - some of the organism names in `uniprot` have different name with some in `phi-base.org`, then I did mapping to get the original organism name. For example the protein ID `G2XWG3` in `phi-base`: *Botrytis cinerea*, whereas in  `uniprot`: *Botryotinia fuckeliana*. And when we search the non-effector in `phi-base` using *Botryotinia fuckeliana*, we will not find it, because it is not there. Then we need to map it back to get the original name. (The `phi-base` data is the main data for finding the non-effector data)
 
+23 April 2019 (Tuesday)
+------------------------
+
+- obtained the intersect pathogen name of effector data from phi-base and uni-prot, identified the non-intersect one, and replace with the pathogen name from the phi-base.
+- added the running time in SBATCH scripts in tsl-gpu (one job got canceled bc of the time limit)
+
+24 April 2019 (Wednesday)
+--------------------------
+
+- focus on getting the non-effector data from phi-base big data
+
 
 
