@@ -12,7 +12,7 @@ repository](https://github.com/PHI-base/data/tree/master/releases).
 Figure is the diagram of how we get the data.
 
 ![Flow Chart of Getting the
-Data](../../data/images/getting-data-flowchart.png)
+Data](../data/images/getting-data-flowchart.png)
 
 Effector Data
 -------------
@@ -109,7 +109,7 @@ protein IDs that we obtained from
 ’phi-base.org`is around 496 protein IDs, however only 482 that are succesfully mapped on`uni-prot.org\`
 due to the deleted data.
 
-![Uniprot Screnshoot](../../data/images/uniprot-screenshoot.png)
+![Uniprot Screnshoot](../data/images/uniprot-screenshoot.png)
 
 ### Reading and cleaning the data
 
