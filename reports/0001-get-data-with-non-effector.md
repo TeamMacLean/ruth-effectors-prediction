@@ -504,23 +504,79 @@ effector_data_count_each_organism_sample_list <- effector_data_count_each_organi
 ```
 
 ``` r
-effector_data_count_each_organism_sample 
+effector_data_count_each_organism_sample %>% 
+  knitr::kable()
 ```
 
-    ## # A tibble: 67 x 2
-    ##    pathogen_short            count
-    ##    <chr>                     <int>
-    ##  1 Acinetobacter baumannii       1
-    ##  2 Aeromonas hydrophila          2
-    ##  3 Aeromonas salmonicida         1
-    ##  4 Beauveria bassiana            2
-    ##  5 Blumeria graminis             2
-    ##  6 Botrytis cinerea              2
-    ##  7 Brucella abortus              1
-    ##  8 Burkholderia glumae           1
-    ##  9 Burkholderia pseudomallei    22
-    ## 10 Campylobacter jejuni          1
-    ## # … with 57 more rows
+| pathogen\_short                |  count|
+|:-------------------------------|------:|
+| Acinetobacter baumannii        |      1|
+| Aeromonas hydrophila           |      2|
+| Aeromonas salmonicida          |      1|
+| Beauveria bassiana             |      2|
+| Blumeria graminis              |      2|
+| Botrytis cinerea               |      2|
+| Brucella abortus               |      1|
+| Burkholderia glumae            |      1|
+| Burkholderia pseudomallei      |     22|
+| Campylobacter jejuni           |      1|
+| Cercospora apii                |      1|
+| Cercospora beticola            |      1|
+| Citrobacter rodentium          |      1|
+| Clavibacter michiganensis      |      2|
+| Colletotrichum orbiculare      |      1|
+| Coxiella burnetii              |      3|
+| Cystobacter fuscus             |      1|
+| Dothistroma septosporum        |      1|
+| Edwardsiella ictaluri          |      8|
+| Erwinia amylovora              |      9|
+| Escherichia coli               |      6|
+| Francisella tularensis         |      1|
+| Fusarium oxysporum             |      9|
+| Globodera rostochiensis        |      1|
+| Helicobacter pylori            |      1|
+| Heterodera glycines            |      1|
+| Hyaloperonospora arabidopsidis |     42|
+| Legionella pneumophila         |      7|
+| Leptosphaeria maculans         |      6|
+| Listeria monocytogenes         |      2|
+| Macrosiphum euphorbiae         |      2|
+| Magnaporthe oryzae             |     25|
+| Melampsora lini                |      5|
+| Mycobacterium tuberculosis     |      1|
+| Pantoea stewartii              |      2|
+| Parastagonospora nodorum       |      2|
+| Passalora fulva                |      7|
+| Penicillium expansum           |      4|
+| Phytophthora cactorum          |      1|
+| Phytophthora capsici           |     10|
+| Phytophthora infestans         |     15|
+| Phytophthora parasitica        |      2|
+| Phytophthora sojae             |     23|
+| Pseudocercospora fuligena      |      1|
+| Pseudomonas aeruginosa         |      2|
+| Pseudomonas cichorii           |      1|
+| Pseudomonas savastanoi         |     14|
+| Pseudomonas syringae           |     42|
+| Puccinia striiformis           |      1|
+| Pythium aphanidermatum         |      1|
+| Ralstonia solanacearum         |     46|
+| Rhynchosporium commune         |      3|
+| Salmonella enterica            |     64|
+| Shigella flexneri              |      2|
+| Staphylococcus aureus          |      1|
+| Toxoplasma gondii              |      1|
+| Ustilago maydis                |      2|
+| Verticillium dahliae           |      6|
+| Vibrio parahaemolyticus        |      1|
+| Xanthomonas axonopodis         |      8|
+| Xanthomonas campestris         |     16|
+| Xanthomonas oryzae             |     22|
+| Xylella fastidiosa             |      3|
+| Yersinia enterocolitica        |      1|
+| Yersinia pestis                |      1|
+| Yersinia pseudotuberculosis    |      3|
+| Zymoseptoria tritici           |      2|
 
 ### Getting the non-effector data from the Phi-base
 
