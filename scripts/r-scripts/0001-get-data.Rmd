@@ -15,12 +15,12 @@ This report will present how we get and clean the data.
 
 ### Getting the Protein IDs
 
-The data are the protein amino acids sequence data. The sequences can be retrieved from `uni-prot.org` with the protein IDs obtained from `phi-base.org` by putting keyword **effector (plant avirulence determinant)**. However, due to the unavailability of then download option on `phi-base.org` website, then the complete data can be obtained from [`phi-base` github repository](https://github.com/PHI-base/data/tree/master/releases). We can then import and clean the data on `R` using `tidyverse` library. And from the data we obtained which is `phi-base_v4-6_2018-12-05.csv` (the data are saved into `phi-base_current.csv`.), we can filter the data only for  **effector (plant avirulence determinant)**. 
+The data are the protein amino acids sequence data. The sequences can be retrieved from `uni-prot.org` with the protein IDs obtained from `phi-base.org` by putting keyword **effector (plant avirulence determinant)**. However, due to the unavailability of then download option on `phi-base.org` website, then the complete data can be obtained from [`phi-base` github repository](https://github.com/PHI-base/data/tree/master/releases). We can then import and clean the data on `R` using `tidyverse` library. And from the data we obtained which is `phi-base_v4-6_2018-12-05.csv` (the data are saved into `phi-base-main.csv`.), we can filter the data only for  **effector (plant avirulence determinant)**. 
 
 ```r
 library(tidyverse)
 
-phi_base <- data.table::fread("../../data/phi-base_current.csv", header = TRUE)
+phi_base <- data.table::fread("../../data/phi-base-main.csv", header = TRUE)
 
 # filter all of the data with 'plant avirulence determinant' information
 phi_small <- phi_base %>%
@@ -178,6 +178,8 @@ count_new_pathogen <- new_parsed_data %>%
   summarise(count = n())
 
 knitr::kable(count_new_pathogen)
+write.csv(count_new_pathogen, '../../data/count_new_pathogen.csv')
+getwd()
 ```
 
 ### Further discussion
