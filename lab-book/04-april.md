@@ -61,12 +61,28 @@ Daily lab book April
 - added the running time in SBATCH scripts in tsl-gpu (one job got canceled bc of the time limit)
 
 24, 25, 26 April 2019 (Wednesday, Thursday, Friday)
---------------------------
+---------------------------------------------------
 
 - making reports
 - check and match the incosistency data between phi-base and uniprot
 - get data from NCBI (not complete yet)
 - focus on getting the non-effector data from phi-base big data
+
+29 April 2019 (Monday)
+-----------------------
+
+- completed the report for weekly meeting catch-up
+
+Minutes of weekly catch-up:
+
+- Ask Dan if get stucks with something (biologist consideration is important, when dealing with data)
+- any progress should be reported, not always wait for it to be completed
+- **The gathering data process:**
+    
+    1. For the non effector, to get the propotional data, no need to be in species / organism level, can be in Order level >> get the classfication of each organism in NCBI whether it is Bacteria / Fungi / Oomycetes. 
+    2. Then just find the sequence samples based on the number of Order. 
+
+
 
 
 
