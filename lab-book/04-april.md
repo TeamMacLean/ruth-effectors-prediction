@@ -60,9 +60,12 @@ Daily lab book April
 - obtained the intersect pathogen name of effector data from phi-base and uni-prot, identified the non-intersect one, and replace with the pathogen name from the phi-base.
 - added the running time in SBATCH scripts in tsl-gpu (one job got canceled bc of the time limit)
 
-24 April 2019 (Wednesday)
+24, 25, 26 April 2019 (Wednesday, Thursday, Friday)
 --------------------------
 
+- making reports
+- check and match the incosistency data between phi-base and uniprot
+- get data from NCBI (not complete yet)
 - focus on getting the non-effector data from phi-base big data
 
 
