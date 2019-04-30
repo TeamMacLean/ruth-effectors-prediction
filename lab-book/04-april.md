@@ -81,6 +81,14 @@ Minutes of weekly catch-up:
     
     1. For the non effector, to get the propotional data, no need to be in species / organism level, can be in Order level >> get the classfication of each organism in NCBI whether it is Bacteria / Fungi / Oomycetes. 
     2. Then just find the sequence samples based on the number of Order. 
+    
+
+30 April 2019 (Tuesday)
+-----------------------
+
+- completed the report for hyperparameter scan of the subcellular localisation project
+- classified the effector data organism into three families: Bacteria, Fungus, or Oomycetes. 
+- try to get the sequence data in NCBI with simple queries using 
 
 
 
