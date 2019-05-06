@@ -4,6 +4,24 @@ Getting the Non-effector data
 Getting the data from NCBI
 --------------------------
 
+``` sql
+"Bacteria"[Organism]
+NOT patent US 
+NOT virulence[All Fields] 
+NOT effector[All Fields]
+NOT elicitor[All Fields]
+NOT partial[All Fields] 
+NOT multispecies[All Fields] 
+AND ("2500"[SLEN] : "2500"[SLEN]) 
+NOT "Unknown"[Organism]
+NOT hypothetical[All Fields]
+NOT uncharacterized[All Fields]
+NOT unnamed[All Fields]
+NOT putative[All Fields]
+```
+
+### Bacteria data
+
 | Bacteria                  | Number |     | Bacteria                    | Number |
 |---------------------------|:------:|-----|-----------------------------|--------|
 | Acinetobacter baumannii   |    1   |     | Mycobacterium tuberculosis  | 1      |
@@ -24,6 +42,35 @@ Getting the data from NCBI
 | Helicobacter pylori       |    1   |     | Yersinia enterocolitica     | 1      |
 | Legionella pneumophila    |    7   |     | Yersinia pestis             | 1      |
 | Listeria monocytogenes    |    2   |     | Yersinia pseudotuberculosis | 3      |
+
+### Fungus data
+
+| Fungus                    | Number |     | Fungus                    | Number |
+|---------------------------|:------:|-----|---------------------------|--------|
+| Beauveria bassiana        |    2   |     | Melampsora lini           | 5      |
+| Blumeria graminis         |    2   |     | Parastagonospora nodorum  | 2      |
+| Botrytis cinerea          |    2   |     | Passalora fulva           | 7      |
+| Cercospora apii           |    1   |     | Penicillium expansum      | 4      |
+| Cercospora beticola       |    1   |     | Pseudocercospora fuligena | 1      |
+| Colletotrichum orbiculare |    1   |     | Puccinia striiformis      | 1      |
+| Dothistroma septosporum   |    1   |     | Rhynchosporium commune    | 3      |
+| Fusarium oxysporum        |    9   |     | Verticillium dahliae      | 6      |
+| Leptosphaeria maculans    |    6   |     | Ustilago maydis           | 2      |
+| Magnaporthe oryzae        |   25   |     | Zymoseptoria tritici      | 2      |
+
+### Oomycetes and others data
+
+| Oomycetes                      | Number |     | Others                  | Number |
+|--------------------------------|:------:|-----|-------------------------|--------|
+| Hyaloperonospora arabidopsidis |    1   |     | Globodera rostochiensis | 1      |
+| Phytophthora cactorum          |    2   |     | Heterodera glycines     | 1      |
+| Phytophthora capsici           |   10   |     | Macrosiphum euphorbiae  | 2      |
+| Phytophthora infestans         |   15   |     | Toxoplasma gondii       | 1      |
+| Phytophthora parasitica        |   17   |     |                         |        |
+| Phytophthora sojae             |   23   |     |                         |        |
+| Pythium aphanidermatum         |    5   |     |                         |        |
+| Plasmopara halstedii           |   10   |     |                         |        |
+| Phytophthora megakarya         |   11   |     |                         |        |
 
 ``` r
 parse_fasta_data_ncbi <- function(file_path) {
