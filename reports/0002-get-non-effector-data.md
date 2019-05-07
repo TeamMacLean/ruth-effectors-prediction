@@ -4,21 +4,27 @@ Getting the Non-effector data
 Getting the data from NCBI
 --------------------------
 
+In order to get data from NCBI, we can do the following simple query by
+specifying the name of organism we want to get.
+
 ``` sql
-"Bacteria"[Organism]
+"(Name of Organism)"[Organism]
 NOT patent US 
 NOT virulence[All Fields] 
 NOT effector[All Fields]
 NOT elicitor[All Fields]
 NOT partial[All Fields] 
 NOT multispecies[All Fields] 
-AND ("2500"[SLEN] : "2500"[SLEN]) 
+AND ("2000"[SLEN] : "2500"[SLEN]) 
 NOT "Unknown"[Organism]
 NOT hypothetical[All Fields]
 NOT uncharacterized[All Fields]
 NOT unnamed[All Fields]
 NOT putative[All Fields]
 ```
+
+The tables below depicts the list of the number of sequence data for
+each organism and the categorization of them.
 
 ### Bacteria data
 
@@ -43,7 +49,7 @@ NOT putative[All Fields]
 | Legionella pneumophila    |    7   |     | Yersinia pestis             | 1      |
 | Listeria monocytogenes    |    2   |     | Yersinia pseudotuberculosis | 3      |
 
-### Fungus data
+### Fungi data
 
 | Fungus                    | Number |     | Fungus                    | Number |
 |---------------------------|:------:|-----|---------------------------|--------|
@@ -71,6 +77,12 @@ NOT putative[All Fields]
 | Pythium aphanidermatum         |    5   |     |                         |        |
 | Plasmopara halstedii           |   10   |     |                         |        |
 | Phytophthora megakarya         |   11   |     |                         |        |
+
+Note here that the category others is used for the organism which are
+neither bacteria, fungi, nor oomycetes.
+
+Function to get the unique data and to create dataframe from fasta data
+-----------------------------------------------------------------------
 
 ``` r
 parse_fasta_data_ncbi <- function(file_path) {
@@ -177,12 +189,16 @@ write.csv(noneffector, "../../data/noneffector.csv", row.names = FALSE)
 View the effector and noneffector data
 --------------------------------------
 
+Afer all of the process done previously, finally we have the noneffector
+data, and we can view both effector and noneffector data as follows.
+
 ``` r
 effector <- data.table::fread("../../data/effector.csv", header = TRUE)
 noneffector <- data.table::fread("../../data/noneffector.csv", header = TRUE)
 ```
 
 ``` r
+# view the first ten data of effector
 effector %>% 
   head(10) %>%
   mutate(sequence = substr(sequence, 1, 30)) %>%
@@ -203,6 +219,7 @@ effector %>%
 | MRDEMWNTATEPIAIIGSGCKFPGGSTTPS |      1|
 
 ``` r
+# view the first ten data of non-effector
 noneffector %>% 
   head(10) %>%
   mutate(sequence = substr(sequence, 1, 30)) %>%
