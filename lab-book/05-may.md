@@ -7,7 +7,7 @@ Daily lab book May
 - figured out how to get the information / data from the `.log` file of CNN model using sep convolutional 1D
 
 
-02 - 03 May 2019 (Thursday)
+02 - 03 May 2019 (Thursday and Friday)
 ----------------------
 
 - continue the extract the information from the `.log` file
