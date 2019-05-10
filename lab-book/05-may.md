@@ -34,4 +34,9 @@ Daily lab book May
 - play a lil bit with BLAST (try using some data in a tutorial)
 - started to work with my data 
 
+10 May 2019 (Friday)
+--------------------
+
+- understanding the results and made the report using R
+
 
