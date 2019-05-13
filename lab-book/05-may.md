@@ -39,4 +39,15 @@ Daily lab book May
 
 - understanding the results and made the report using R
 
+13 May 2019 (Monday)
+--------------------
+
+- learned RNN from `Deep Learning with Python`
+- tried to retrieve data from NCBI
+
+**Weekly catch up meeting's minutes**
+
+- Draft model will be expected next monday
+- Continue finding sequences using API / Batch Entrez. Can't be done using SRA
+
 
