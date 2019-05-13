@@ -15,7 +15,7 @@ Using BLAST
 
 We can use terminal to run BLAST as follows
 
-1.  Defining database
+-   Defining database
 
 Now let us BLAST both validation or development datasets against the
 entire training datasets. First, we need to tell BLAST that the protein
@@ -26,7 +26,7 @@ sequences in training datasets are the database. That’s done by calling
 $ makeblastdb -in blast_train.fasta -dbtype prot
 ```
 
-1.  Check the query to the source data base
+-   Check the query to the source data base
 
 Next, we call BLAST to do the search.
 
@@ -35,7 +35,7 @@ $ blastp -query blast_val.fasta -db blast_train.fasta -out blast_train_x_val.tsv
 ```
 
 ``` bash
-blastp -query blast_test.fasta -db blast_train.fasta -out blast_train_x_test.tsv -outfmt "6 qseqid qlen sseqid slen length nident mismatch positive"
+$ blastp -query blast_test.fasta -db blast_train.fasta -out blast_train_x_test.tsv -outfmt "6 qseqid qlen sseqid slen length nident mismatch positive"
 ```
 
 Here, `-outfmt` indicates how we specify the output format. The option
@@ -62,14 +62,14 @@ Results Analysis using R
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 
     ## ✔ ggplot2 3.1.1       ✔ purrr   0.3.2  
     ## ✔ tibble  2.1.1       ✔ dplyr   0.8.0.1
     ## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
     ## ✔ readr   1.3.1       ✔ forcats 0.4.0
 
-    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
