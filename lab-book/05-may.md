@@ -50,4 +50,18 @@ Daily lab book May
 - Draft model will be expected next monday
 - Continue finding sequences using API / Batch Entrez. Can't be done using SRA
 
+14 May 2019 (Tuesday)
+---------------------
+
+- Effector Classification Project
+
+    - specified the categories of data that have been removed from the datasets (whether it is bacteria, fungi, or oomycetes)
+    - get new data from NCBI from Bacteria
+    
+
+- Subcellular Localisation Project
+
+    - learned about word Embedding, sequence preprocessing in R
+    - SimpleRNN, and the concepts of LSTM
+
 
