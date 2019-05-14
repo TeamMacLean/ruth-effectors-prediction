@@ -123,9 +123,14 @@ remove_from_data_sets <- function(input_seq_path, label_seq_path, drop){
   df_new <- df_input %>%
     cbind(df_label) %>%
     filter(!row_number() %in% drop)
+  
+  # Combine the input data and the label, then take the data that should be removed
+  removed_rows <- df_input %>%
+    cbind(df_label) %>%
+    filter(row_number() %in% drop)
 
   # Get the information about the removed columns
-  removed_rows <- df_label %>%
+  removed_rows_freq <- df_label %>%
     filter(row_number() %in% drop) %>%
     select(label) %>%
     table() %>%
@@ -136,7 +141,8 @@ remove_from_data_sets <- function(input_seq_path, label_seq_path, drop){
   # Create list for the results
   results_list <- list(
     df = df_new,
-    removed = removed_rows
+    removed_freq = removed_rows_freq, 
+    removed_rows = removed_rows
   )
 
   return(results_list)
@@ -174,22 +180,30 @@ get_info <- function(blast_train_x_val_path,
     unlist()
 
   results_after_removed_training <- remove_from_data_sets(input_train_path, label_train_path, intersec_training_index)
-  removed_rows_training <- results_after_removed_training[["removed"]] %>%
+  removed_rows_training_freq <- results_after_removed_training[["removed_freq"]] %>%
     mutate(type = "training")
+  removed_rows_training <- results_after_removed_training[["removed_rows"]]
 
   results_after_removed_validation <- remove_from_data_sets(input_val_path, label_val_path, query_index_train_x_val)
-  removed_rows_val <- results_after_removed_validation[["removed"]] %>%
+  removed_rows_val_freq <- results_after_removed_validation[["removed_freq"]] %>%
     mutate(type = "validation")
-
+  removed_rows_val <- results_after_removed_validation[["removed_rows"]]
+  
+  
   results_after_removed_testing <- remove_from_data_sets(input_test_path, label_test_path, query_index_train_x_test)
-  removed_rows_test <- results_after_removed_testing[["removed"]] %>%
+  removed_rows_test_freq <- results_after_removed_testing[["removed_freq"]] %>%
     mutate(type = "testing")
+  removed_rows_test <- results_after_removed_testing[["removed_rows"]]
 
+  all_removed_rows_freq <- removed_rows_training_freq %>%
+    rbind(., removed_rows_val_freq) %>%
+    rbind(., removed_rows_test_freq)
+  
   all_removed_rows <- removed_rows_training %>%
     rbind(., removed_rows_val) %>%
     rbind(., removed_rows_test)
 
-  all_ <- reshape2::dcast(all_removed_rows, label ~ type, value.var = "freq") %>%
+  all_ <- reshape2::dcast(all_removed_rows_freq, label ~ type, value.var = "freq") %>%
     as.data.frame()
 
   results_list <- list(
@@ -198,6 +212,8 @@ get_info <- function(blast_train_x_val_path,
     removed_training = results_after_removed_training, 
     removed_validation = results_after_removed_validation, 
     removed_testing = results_after_removed_testing,
+    all_removed_rows_freq = all_removed_rows_freq, 
+    all_removed_rows = all_removed_rows,
     all = all_
   )
 
@@ -231,7 +247,7 @@ all_results <-  get_info(blast_train_x_val_path,
 
 #### Results for comparing the validation data set and training dataset
 
-Here is teh result of the data that need to be removed since they are
+Here is the result of the data that need to be removed since they are
 considered as identical (90%):
 
 ``` r
@@ -527,3 +543,138 @@ summary %>%
 |:------------|--------:|---------:|-----------:|
 | effector    |       11|        21|           6|
 | noneffector |       28|        76|          36|
+
+``` r
+all_removed_rows <- all_results[["all_removed_rows"]]
+
+removed_all_effector <- all_removed_rows %>% 
+  filter(., label == 1)
+
+removed_all_noneffector <- all_removed_rows %>% 
+  filter(., label == 0)
+
+removed_all_noneffector %>% 
+  nrow()
+```
+
+    ## [1] 140
+
+View how the data looks like
+
+``` r
+bacteria <- c("Acinetobacter baumannii", 
+"Aeromonas hydrophila", 
+"Aeromonas salmonicida", 
+"Brucella abortus", 
+"Burkholderia glumae", 
+"Burkholderia pseudomallei", 
+"Campylobacter jejuni", 
+"Citrobacter rodentium", 
+"Clavibacter michiganensis", 
+"Coxiella burnetii", 
+"Cystobacter fuscus", 
+"Edwardsiella ictaluri", 
+"Erwinia amylovora", 
+"Escherichia coli", 
+"Francisella tularensis", 
+"Helicobacter pylori", 
+"Legionella pneumophila",  
+"Listeria monocytogenes", 
+"Mycobacterium tuberculosis", 
+"Pantoea stewartii", 
+"Pseudomonas aeruginosa", 
+"Pseudomonas cichorii", 
+"Pseudomonas savastanoi", 
+"Pseudomonas syringae", 
+"Ralstonia solanacearum", 
+"Salmonella enterica", 
+"Shigella flexneri", 
+"Staphylococcus aureus", 
+"Vibrio parahaemolyticus", 
+"Xanthomonas axonopodis", 
+"Xanthomonas campestris", 
+"Xanthomonas oryzae", 
+"Xylella fastidiosa", 
+"Yersinia enterocolitica", 
+"Yersinia pestis", 
+"Yersinia pseudotuberculosis")
+
+fungi <- c("Beauveria bassiana",
+"Blumeria graminis",
+"Botrytis cinerea",
+"Cercospora apii",
+"Cercospora beticola",
+"Colletotrichum orbiculare",
+"Dothistroma septosporum",
+"Fusarium oxysporum",
+"Leptosphaeria maculans",
+"Magnaporthe oryzae",
+"Melampsora lini",
+"Parastagonospora nodorum",
+"Passalora fulva",
+"Penicillium expansum",
+"Pseudocercospora fuligena",
+"Puccinia striiformis",
+"Rhynchosporium commune",
+"Verticillium dahliae",
+"Ustilago maydis",
+"Zymoseptoria tritici")
+
+oomycetes <- c("Hyaloperonospora arabidopsidis", 
+"Phytophthora cactorum", 
+"Phytophthora capsici", 
+"Phytophthora infestans", 
+"Phytophthora parasitica", 
+"Phytophthora sojae", 
+"Pythium aphanidermatum", 
+"Plasmopara halstedii", 
+"Phytophthora megakarya")
+```
+
+``` r
+effector_data <- data.table::fread("../../data/effector_with_IDs_organism.csv")
+
+effector_removed_with_species <- removed_all_effector %>%
+  left_join(effector_data, by = "sequence") %>% 
+  select(sequence, label, pathogen_short) %>% 
+  mutate(category = ifelse(pathogen_short %in% bacteria, "bacteria", 
+                    ifelse(pathogen_short %in% fungi, "fungus", 
+                    ifelse(pathogen_short %in% oomycetes, "oomycetes", "others")))) %>% 
+  group_by(category) %>% 
+  summarise(count = n())
+
+noneffector_data <- data.table::fread("../../data/noneffector_with_IDs_organism.csv")
+
+noneffector_removed_with_species <- removed_all_noneffector %>%
+  left_join(noneffector_data, by = "sequence") %>% 
+  unique() %>% 
+  select(sequence, label, pathogen_short) %>%
+  mutate(category = ifelse(pathogen_short %in% bacteria, "bacteria",
+                    ifelse(pathogen_short %in% fungi, "fungus",
+                    ifelse(pathogen_short %in% oomycetes, "oomycetes", "others")))) %>% 
+  group_by(category) %>% 
+  summarise(count = n())
+
+effector_removed_with_species %>% 
+  knitr::kable()
+```
+
+| category  |  count|
+|:----------|------:|
+| bacteria  |     27|
+| fungus    |     11|
+| oomycetes |      6|
+
+``` r
+noneffector_removed_with_species %>% 
+  knitr::kable()
+```
+
+| category  |  count|
+|:----------|------:|
+| bacteria  |    122|
+| fungus    |      2|
+| oomycetes |     16|
+
+Identify the Classification of the sequences that are removed
+-------------------------------------------------------------
