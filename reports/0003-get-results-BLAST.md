@@ -26,7 +26,7 @@ sequences in training datasets are the database. That’s done by calling
 $ makeblastdb -in blast_train.fasta -dbtype prot
 ```
 
--   Check the query to the source data base
+-   Check the query to the subject data base
 
 Next, we call BLAST to do the search.
 
@@ -82,8 +82,8 @@ blast_results <- function(result_path){
   df_identical_protein <- df_results %>% 
     filter(percent_indentical > 90)
 
-  # Get the row indices of the source data for all of the identical percentage > 90%
-  source_index_list_to_remove <- df_results %>%
+  # Get the row indices of the subject data for all of the identical percentage > 90%
+  subject_index_list_to_remove <- df_results %>%
     filter(percent_indentical > 90) %>%
     select(sseqid) %>%
     unique() %>%
@@ -100,7 +100,7 @@ blast_results <- function(result_path){
   list_results <- list(
     df = df_results,
     df_identical_protein = df_identical_protein,
-    source_index = source_index_list_to_remove,
+    subject_index = subject_index_list_to_remove,
     query_index = query_index_list_to_remove
   )
 
@@ -122,12 +122,12 @@ remove_from_data_sets <- function(input_seq_path, label_seq_path, drop){
   # Combine the input data and the label, then drop the rows based on the list
   df_new <- df_input %>%
     cbind(df_label) %>%
-    filter(!row_number() %in% drop)
+    dplyr::filter(!(row_number() %in% drop))
   
   # Combine the input data and the label, then take the data that should be removed
   removed_rows <- df_input %>%
     cbind(df_label) %>%
-    filter(row_number() %in% drop)
+    dplyr::filter(row_number() %in% drop)
 
   # Get the information about the removed columns
   removed_rows_freq <- df_label %>%
@@ -162,20 +162,20 @@ get_info <- function(blast_train_x_val_path,
   # Getting the results from comparing validation dataset and training dataset
   blast_results_train_x_val <- blast_results(blast_train_x_val_path)
   df_train_x_val <- blast_results_train_x_val[["df"]]
-  source_index_train_x_val <- blast_results_train_x_val[["source_index"]]
+  subject_index_train_x_val <- blast_results_train_x_val[["subject_index"]]
   query_index_train_x_val <- blast_results_train_x_val[["query_index"]]
 
   # Getting the results from comparing testing dataset and training dataset
   blast_results_train_x_test <- blast_results(blast_train_x_test_path)
   df_train_x_test <- blast_results_train_x_test[["df"]]
-  source_index_train_x_test <- blast_results_train_x_test[["source_index"]]
+  subject_index_train_x_test <- blast_results_train_x_test[["subject_index"]]
   query_index_train_x_test <- blast_results_train_x_test[["query_index"]]
 
   # Remove all of the rows of the training data
   # Since there might be intersection between index on the training when comparing them with validation and testing sets,
   # we need to find the intesections
 
-  intersec_training_index <- c(source_index_train_x_val, source_index_train_x_test) %>%
+  intersec_training_index <- c(subject_index_train_x_val, subject_index_train_x_test) %>%
     unique() %>%
     unlist()
 
@@ -202,9 +202,12 @@ get_info <- function(blast_train_x_val_path,
   all_removed_rows <- removed_rows_training %>%
     rbind(., removed_rows_val) %>%
     rbind(., removed_rows_test)
+  
+  all_ <- all_removed_rows_freq %>%
+    reshape2::melt(id.var = "label")
 
-  all_ <- reshape2::dcast(all_removed_rows_freq, label ~ type, value.var = "freq") %>%
-    as.data.frame()
+  # all_ <- reshape2::dcast(all_removed_rows_freq, label ~ type, value.var = "freq") %>%
+    # as.data.frame()
 
   results_list <- list(
     all_val = blast_results_train_x_val,
@@ -243,6 +246,10 @@ all_results <-  get_info(blast_train_x_val_path,
                          label_val_path,
                          input_test_path,
                          label_test_path)
+
+all_removed_rowss_freq <- all_results[["all_removed_rows_freq"]]
+
+write.csv(all_removed_rowss_freq, "../../data/all_removed_rows_freq.csv", row.names = FALSE)
 ```
 
 #### Results for comparing the validation data set and training dataset
@@ -263,7 +270,6 @@ df_iden_train_x_val %>%
          "No Identical Matches" = nident,
          "% Identical Matches" =  percent_indentical
           ) %>%
-  head(10) %>% 
   knitr::kable()
 ```
 
@@ -279,6 +285,100 @@ df_iden_train_x_val %>%
 |            26|          2048|             273|            2047|              2048|                  2040|             99.60938|
 |            26|          2048|              84|            2048|              2048|                  2041|             99.65820|
 |            27|          2339|              51|            2339|              2339|                  2339|            100.00000|
+|            27|          2339|             542|            2401|              2401|                  2177|             90.67055|
+|            29|          2046|             530|            2049|              2049|                  2042|             99.65837|
+|            29|          2046|             332|            2050|              2050|                  2038|             99.41463|
+|            29|          2046|             480|            2053|              2053|                  2039|             99.31807|
+|            29|          2046|             249|            2053|              2053|                  2038|             99.26936|
+|            29|          2046|             117|            2055|              2055|                  2037|             99.12409|
+|            29|          2046|              31|            2067|              2067|                  2034|             98.40348|
+|            33|          1140|             180|            1140|              1140|                  1140|            100.00000|
+|            33|          1140|             385|            1141|              1140|                  1098|             96.23138|
+|            34|          2419|             145|            2421|              2419|                  2188|             90.37588|
+|            37|          2053|             480|            2053|              2053|                  2047|             99.70774|
+|            37|          2053|             249|            2053|              2053|                  2044|             99.56162|
+|            37|          2053|             117|            2055|              2055|                  2041|             99.31873|
+|            37|          2053|             332|            2050|              2053|                  2039|             99.31807|
+|            37|          2053|             530|            2049|              2053|                  2036|             99.17194|
+|            37|          2053|              31|            2067|              2067|                  2038|             98.59700|
+|            40|          2043|             390|            2043|              2043|                  2043|            100.00000|
+|            40|          2043|             505|            2037|              2044|                  2009|             98.33578|
+|            40|          2043|             540|            2039|              2045|                  1991|             97.45472|
+|            42|          2339|              34|            2314|              2314|                  2287|             97.77683|
+|            42|          2339|             234|            2303|              2303|                  2266|             96.87901|
+|            43|          2003|             275|            2003|              2003|                  2003|            100.00000|
+|            53|          2053|             249|            2053|              2053|                  2049|             99.80516|
+|            53|          2053|             480|            2053|              2053|                  2042|             99.46420|
+|            53|          2053|             332|            2050|              2053|                  2042|             99.46420|
+|            53|          2053|             117|            2055|              2055|                  2040|             99.27007|
+|            53|          2053|             530|            2049|              2053|                  2039|             99.31807|
+|            53|          2053|              31|            2067|              2067|                  2039|             98.64538|
+|            54|           561|             268|             561|               561|                   561|            100.00000|
+|            70|          2393|             331|            2393|              2393|                  2384|             99.62390|
+|            75|          2073|             520|            2073|              2072|                  1969|             94.98312|
+|            75|          2073|             338|            2073|              2072|                  1971|             95.07959|
+|            75|          2073|             573|            2073|              2072|                  1989|             95.94790|
+|            77|          2276|              44|            2276|              2276|                  2276|            100.00000|
+|            82|          1095|               3|            1096|              1096|                   994|             90.69343|
+|            91|          2393|             331|            2393|              2393|                  2384|             99.62390|
+|            93|          2154|             100|            2154|              2154|                  2085|             96.79666|
+|            93|          2154|             420|            2154|              2154|                  1948|             90.43640|
+|            93|          2154|             285|            2152|              2154|                  1944|             90.25070|
+|            97|           352|             523|             352|               352|                   350|             99.43182|
+|            97|           352|             370|             352|               352|                   350|             99.43182|
+|            98|          2056|             184|            2023|              2066|                  1981|             96.35214|
+|            98|          2056|             412|            2001|              2057|                  1963|             95.47665|
+|           103|          2455|             465|            2475|              2454|                  2450|             98.98990|
+|           103|          2455|             177|            2386|              2384|                  2304|             93.84929|
+|           107|           311|             352|             311|               311|                   308|             99.03537|
+|           107|           311|             443|             311|               311|                   306|             98.39228|
+|           108|          2053|             480|            2053|              2053|                  2042|             99.46420|
+|           108|          2053|             249|            2053|              2053|                  2039|             99.31807|
+|           108|          2053|             530|            2049|              2053|                  2041|             99.41549|
+|           108|          2053|              31|            2067|              2067|                  2043|             98.83890|
+|           108|          2053|             117|            2055|              2055|                  2038|             99.17275|
+|           108|          2053|             332|            2050|              2053|                  2038|             99.26936|
+|           109|          2049|             530|            2049|              2049|                  2042|             99.65837|
+|           109|          2049|             249|            2053|              2053|                  2040|             99.36678|
+|           109|          2049|             480|            2053|              2053|                  2039|             99.31807|
+|           109|          2049|             117|            2055|              2055|                  2039|             99.22141|
+|           109|          2049|             332|            2050|              2053|                  2039|             99.46341|
+|           109|          2049|              31|            2067|              2067|                  2040|             98.69376|
+|           117|          2035|             423|            2041|              2035|                  1991|             97.55022|
+|           117|          2035|             508|            2035|              2035|                  1991|             97.83784|
+|           117|          2035|             367|            2041|              2035|                  1982|             97.10926|
+|           124|          2260|             340|            2260|              2260|                  2256|             99.82301|
+|           124|          2260|             417|            2260|              2260|                  2231|             98.71681|
+|           125|          2310|             151|            2412|              2312|                  2284|             94.69320|
+|           125|          2310|             564|            2395|              2310|                  2278|             95.11482|
+|           125|          2310|             247|            2237|              2236|                  2179|             94.32900|
+|           130|           163|             208|             163|               163|                   162|             99.38650|
+|           132|          2006|             437|            2006|              2006|                  1995|             99.45165|
+|           132|          2006|             427|            2006|              2006|                  1995|             99.45165|
+|           132|          2006|             353|            2006|              2006|                  1995|             99.45165|
+|           132|          2006|             221|            2006|              2006|                  1986|             99.00299|
+|           132|          2006|             455|            2003|              2006|                  1987|             99.05284|
+|           132|          2006|             192|            2006|              2005|                  1980|             98.70389|
+|           132|          2006|             307|            2006|              2006|                  1981|             98.75374|
+|           134|          1752|             330|            1752|              1752|                  1752|            100.00000|
+|           135|          2290|              92|            2290|              2290|                  2286|             99.82533|
+|           135|          2290|             125|            2437|              2290|                  2254|             92.49077|
+|           154|          2493|             465|            2475|              2475|                  2436|             97.71360|
+|           154|          2493|             177|            2386|              2384|                  2292|             91.93742|
+|           162|          2276|              44|            2276|              2276|                  2275|             99.95606|
+|           170|          2046|             117|            2055|              2055|                  2037|             99.12409|
+|           170|          2046|             249|            2053|              2053|                  2034|             99.07453|
+|           170|          2046|             480|            2053|              2053|                  2035|             99.12323|
+|           170|          2046|             332|            2050|              2053|                  2035|             99.26829|
+|           170|          2046|              31|            2067|              2067|                  2034|             98.40348|
+|           170|          2046|             530|            2049|              2053|                  2030|             99.07272|
+|           171|          2442|             191|            2425|              2442|                  2332|             95.49550|
+|           177|          2152|             100|            2154|              2154|                  2024|             93.96472|
+|           178|          2224|             361|            2212|              2212|                  2212|             99.46043|
+|           178|          2224|              32|            2210|              2193|                  2053|             92.31115|
+|           182|          1028|               3|            1096|              1096|                  1005|             91.69708|
+|           192|          2057|             528|            2057|              2057|                  2030|             98.68741|
+|           192|          2057|             106|            2035|              2035|                  2008|             97.61789|
 
 Below result is one of the example for pairwise for each sequence:
 
@@ -537,12 +637,11 @@ summary <- all_results[["all"]]
 
 summary %>% 
   knitr::kable()
-```
 
-| label       |  testing|  training|  validation|
-|:------------|--------:|---------:|-----------:|
-| effector    |       11|        21|           6|
-| noneffector |       28|        76|          36|
+# save summary to .csv
+
+write.csv(summary, "../../data/summary_count_data_removed.csv", row.names = FALSE
+```
 
 ``` r
 all_removed_rows <- all_results[["all_removed_rows"]]
@@ -654,7 +753,9 @@ noneffector_removed_with_species <- removed_all_noneffector %>%
                     ifelse(pathogen_short %in% oomycetes, "oomycetes", "others")))) %>% 
   group_by(category) %>% 
   summarise(count = n())
+```
 
+``` r
 effector_removed_with_species %>% 
   knitr::kable()
 ```
@@ -676,5 +777,150 @@ noneffector_removed_with_species %>%
 | fungus    |      2|
 | oomycetes |     16|
 
-Identify the Classification of the sequences that are removed
--------------------------------------------------------------
+Get a new additional effector and non-effector data
+---------------------------------------------------
+
+``` r
+df_training_new_after_removed <- all_results[["removed_training"]][["df"]]
+df_validation_new_after_removed <- all_results[["removed_validation"]][["df"]]
+df_testing_new_after_removed <- all_results[["removed_testing"]][["df"]]
+
+# save them to .csv format
+write.csv(df_training_new_after_removed, "../../data/df_training_new_after_removed.csv", col.names = TRUE)
+write.csv(df_testing_new_after_removed, "../../data/df_testing_new_after_removed.csv", col.names = TRUE)
+write.csv(df_validation_new_after_removed, "../../data/df_validation_new_after_removed.csv", col.names = TRUE)
+```
+
+According to the blast results we obtained previously, there are some
+data that need to be removed since they are identical with other protein
+sequences.
+
+### Load the data for each datasets that has been removed
+
+``` r
+df_train <- data.table::fread("../../data/df_training_new_after_removed.csv", drop = "V1")
+df_val <- data.table::fread("../../data/df_validation_new_after_removed.csv", drop = "V1")
+df_test <- data.table::fread("../../data/df_testing_new_after_removed.csv", drop = "V1")
+```
+
+### Load fasta data
+
+After some process that has been done previously and resulting `.fasta`
+file data, then now we can read the fasta file and add them to the data
+frame without any identical protein sequence data.
+
+``` r
+parse_fasta_data_ncbi <- function(file_path) {
+  # Read FASTA file
+  fasta_data <- seqinr::read.fasta(file_path)
+  # Number of entries
+  num_data <- fasta_data %>% length()
+
+
+  # Create empty data frame
+  parsed_data <- data.frame(
+    protein_id = rep(NA, num_data),
+    protein_fun = rep(NA, num_data),
+    pathogen = rep(NA, num_data),
+    sequence = rep(NA, num_data)
+  )
+
+  for (i in 1:num_data) {
+    # Read 'Annot' attribute and parse the string between 'OS=' and 'OX='
+    pathogen <- fasta_data[[i]] %>%
+      attr("Annot") %>%
+      sub(".*\\[ *(.*?) *\\].*", "\\1", .)
+
+    protein_id <- fasta_data[[i]] %>%
+      attr("name")
+
+    protein_fun <- fasta_data[[i]] %>%
+      attr("Annot") %>%
+      stringr::str_remove(protein_id) %>%
+      sub(".*> *(.*?) *\\[.*", "\\1", .)
+
+    # Concatenate the vector of the sequence into a single string
+    sequence <- fasta_data[[i]] %>%
+      as.character() %>%
+      toupper() %>%
+      paste(collapse = "")
+
+    # Input values into data frame
+    parsed_data[i,] <- cbind(protein_id, protein_fun, pathogen, sequence)
+  }
+
+  return(parsed_data)
+}
+```
+
+``` r
+# path 
+
+add_effector_path <- "../../data/BLAST-data/additional-data-fasta/batch_entrez_effector.fasta"
+add_noneffector_path <- "../../data/BLAST-data/additional-data-fasta/batch_entrez_noneffector.fasta"
+
+add_effector_parsed <- parse_fasta_data_ncbi(add_effector_path)
+add_noneffector_parsed <- parse_fasta_data_ncbi(add_noneffector_path)
+
+# 
+add_noneffector <- add_noneffector_parsed %>% 
+  select(sequence) %>% 
+  mutate(label = as.factor(0))
+
+add_effector <- add_effector_parsed %>% 
+  select(sequence) %>% 
+  mutate(label = as.factor(1))
+
+all_removed_rows_freq <- data.table::fread("../../data/all_removed_rows_freq.csv")
+
+all_removed_rows_freq %>%
+  knitr::kable()
+```
+
+``` r
+# Add the data of non-effector and effector to the training data
+
+df_train <- df_train %>%
+  rbind(., add_noneffector[1:76, ]) %>% 
+  rbind(., add_effector[1:21, ])
+
+df_val <- df_val %>% 
+  rbind(., add_noneffector[77:112, ]) %>% 
+  rbind(., add_effector[22:27, ])
+
+df_test <- df_test %>% 
+  rbind(., add_noneffector[113:140, ]) %>% 
+  rbind(., add_effector[28:38, ])
+
+write.csv(df_train, "../../data/BLAST-data/0003-new-data-sets/training-data.csv", col.names = TRUE)
+write.csv(df_val, "../../data/BLAST-data/0003-new-data-sets/validation-data.csv", col.names = TRUE)
+write.csv(df_test, "../../data/BLAST-data/0003-new-data-sets/testing-data.csv", col.names = TRUE)
+```
+
+### View the new data
+
+``` r
+df_train <- data.table::fread("../../data/BLAST-data/0003-new-data-sets/training-data.csv")
+df_val <- data.table::fread("../../data/BLAST-data/0003-new-data-sets/validation-data.csv")
+df_test <- data.table::fread("../../data/BLAST-data/0003-new-data-sets/testing-data.csv")
+```
+
+#### Training data
+
+``` r
+nrow(df_train)
+```
+
+    ## [1] 578
+
+``` r
+nrow(df_val)
+```
+
+    ## [1] 193
+
+``` r
+nrow(df_test)
+```
+
+    ## [1] 193
