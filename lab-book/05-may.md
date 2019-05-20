@@ -63,5 +63,30 @@ Daily lab book May
 
     - learned about word Embedding, sequence preprocessing in R
     - SimpleRNN, and the concepts of LSTM
+    
+15, 16, 17 May 2019 (Wednesday, Thursday. and Friday)
+------------------------------------------------------
+
+- read and learn about LSTM, GRU architectures
+- create the draft of architecture models
+- added the additional effector and noneffector data to dataframe without identical protein sequence
+- check the models that have been running in GPUs
+
+20 May 2019 (Monday)
+--------------------
+
+- updated the report
+- checked how much progress that has been achieved of the model running in cluster
+
+**Weekly catch up meeting's minutes**
+
+- think about grow structure, think carefully how each layer actually impact on the data and results (end to end process) >> balancing the layers
+- try to work with epoch max 40 (in the range 20 -- 40)
+- it is better to have simple model that run quickly and can be analysed and give results quickly
+
+**Next steps**
+
+- create simpler model with considering the grow structure (for CNN and also CNN + LSTM)
+- start to encode the data that has been ready 
 
 
