@@ -29,6 +29,7 @@ from keras import layers
 from keras import losses
 from keras import metrics
 from keras import optimizers
+from keras.layers import Dense, Dropout
 ```
 
 Load the encoded data
@@ -81,8 +82,6 @@ Fully connected model with integer encoded data
 -----------------------------------------------
 
 ``` python
-from keras.layers import Dense, Dropout
-
 model_first = models.Sequential()
 model_first.add(Dense(3, activation = 'relu', input_dim = 2500))
 model_first.add(Dense(1, activation='sigmoid'))
@@ -164,7 +163,7 @@ model_first.compile(optimizer = 'sgd',
                     
 history = model_first.fit(x = x_train_integer, 
                           y = y_train, 
-                          epochs = 20, 
+                          epochs = 7, 
                           batch_size = 16,
                           verbose = 0)
 
@@ -174,13 +173,13 @@ results = model_first.evaluate(x_test_integer, y_test)
 
     ## 
     ##  32/193 [===>..........................] - ETA: 0s
-    ## 193/193 [==============================] - 0s 581us/step
+    ## 193/193 [==============================] - 0s 840us/step
 
 ``` python
 print(results)
 ```
 
-    ## [0.31557006678433, 0.9378238341968912]
+    ## [0.38564500382527167, 0.917098445595855]
 
 Fully connected model with One hot encoded data
 -----------------------------------------------
@@ -269,7 +268,7 @@ model_first.compile(optimizer = 'sgd',
                     
 history_onehot = model_first.fit(x = x_train_onehot, 
                           y = y_train, 
-                          epochs = 30, 
+                          epochs = 4, 
                           batch_size = 32,
                           verbose = 0)
                           
@@ -277,12 +276,12 @@ results = model_first.evaluate(x_test_onehot, y_test)
 ```
 
     ## 
-    ##  32/193 [===>..........................] - ETA: 0s
-    ## 192/193 [============================>.] - ETA: 0s
-    ## 193/193 [==============================] - 0s 961us/step
+    ##  32/193 [===>..........................] - ETA: 1s
+    ## 160/193 [=======================>......] - ETA: 0s
+    ## 193/193 [==============================] - 0s 2ms/step
 
 ``` python
 print(results)                  
 ```
 
-    ## [0.1403142991017338, 0.9585492227979274]
+    ## [0.3909824167817368, 0.917098445595855]
