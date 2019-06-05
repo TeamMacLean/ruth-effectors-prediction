@@ -35,6 +35,9 @@ from keras.layers import Dense, Dropout
 Load the encoded data
 ---------------------
 
+There are two kind of data that will be used for each model, which are
+encoded by integer encoding and also onehot encoding.
+
 ``` python
 x_train_integer = np.load('../../../data/0001-encoded-data/integer/x_train.npy')
 x_dev_integer = np.load('../../../data/0001-encoded-data/integer/x_val.npy')
@@ -96,8 +99,9 @@ history = model_first.fit(x = x_train_integer,
                           verbose = 0)
 ```
 
+### Visualizing the result
+
 ``` python
-### Visualizing the results
 import matplotlib.pyplot as plt
 
 history_dict = history.history
@@ -125,11 +129,15 @@ print(epochs)
 ``` python
 plt.plot(epochs, loss_values, 'bo', label="Training loss")
 plt.plot(epochs, val_loss_values, 'b', label="Validation loss")
+plt.title('Training and validation loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
 
 plt.show()
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0001-dense-model_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` python
 plt.clf()
@@ -144,11 +152,17 @@ print(epochs)
 ``` python
 plt.plot(epochs, acc_values, 'go', label="Training Acc")
 plt.plot(epochs, val_acc_values, 'ro', label="Validation Acc")
+plt.title('Training and validation accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
 
 plt.show()
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0001-dense-model_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-9-1.png)
+
+### Predict the test data
 
 ``` python
 #  retrain the model
@@ -173,13 +187,13 @@ results = model_first.evaluate(x_test_integer, y_test)
 
     ## 
     ##  32/193 [===>..........................] - ETA: 0s
-    ## 193/193 [==============================] - 0s 840us/step
+    ## 193/193 [==============================] - 0s 581us/step
 
 ``` python
 print(results)
 ```
 
-    ## [0.38564500382527167, 0.917098445595855]
+    ## [0.32939290382701497, 0.927461139896373]
 
 Fully connected model with One hot encoded data
 -----------------------------------------------
@@ -201,8 +215,9 @@ history_onehot = model_first.fit(x = x_train_onehot,
                           verbose = 0)
 ```
 
-``` python
 ### Visualizing the results
+
+``` python
 import matplotlib.pyplot as plt
 
 history_dict_onehot = history_onehot.history
@@ -230,11 +245,15 @@ print(epochs)
 ``` python
 plt.plot(epochs, loss_values, 'bo', label="Training loss")
 plt.plot(epochs, val_loss_values, 'b', label="Validation loss")
+plt.title('Training and validation loss (One hot encoding data)')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
 
 plt.show()
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0001-dense-model_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 ``` python
 plt.clf()
@@ -249,11 +268,17 @@ print(epochs)
 ``` python
 plt.plot(epochs, acc_values, 'go', label="Training Acc")
 plt.plot(epochs, val_acc_values, 'g', label="Validation Acc")
+plt.title('Training and validation accuracy (One hot encoding data)')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
 
 plt.show()
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0001-dense-model_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-14-1.png)
+
+### Predict the test data
 
 ``` python
 from keras.layers import Dense, Dropout
@@ -276,12 +301,12 @@ results = model_first.evaluate(x_test_onehot, y_test)
 ```
 
     ## 
-    ##  32/193 [===>..........................] - ETA: 1s
-    ## 160/193 [=======================>......] - ETA: 0s
-    ## 193/193 [==============================] - 0s 2ms/step
+    ##  32/193 [===>..........................] - ETA: 0s
+    ## 192/193 [============================>.] - ETA: 0s
+    ## 193/193 [==============================] - 0s 1ms/step
 
 ``` python
 print(results)                  
 ```
 
-    ## [0.3909824167817368, 0.917098445595855]
+    ## [0.44383453180135224, 0.8652849740932642]
