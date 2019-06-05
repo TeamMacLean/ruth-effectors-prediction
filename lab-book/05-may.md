@@ -69,7 +69,7 @@ Daily lab book May
 
 - read and learn about LSTM, GRU architectures
 - create the draft of architecture models
-- added the additional effector and noneffector data to dataframe without identical protein sequence
+- added the additional effector and noneffector data to dataframe without identical protein sequence (retrieve the fasta data on NCBI)
 - check the models that have been running in GPUs
 
 20 May 2019 (Monday)
@@ -88,5 +88,41 @@ Daily lab book May
 
 - create simpler model with considering the grow structure (for CNN and also CNN + LSTM)
 - start to encode the data that has been ready 
+
+21 May 2019 (Tuesday)
+---------------------
+
+- TSL annual talks
+
+22 May 2019 (Wednesday)
+-----------------------
+
+- BLAST again the last datasets (after the additional effector and non-effector)
+- create new model for the CNN sep models (since the last one was cancelled)
+
+23 May 2019 (Thursday)
+----------------------
+
+- demo to the SAB
+- encoding the data 
+
+24 May 2019 (Friday)
+--------------------
+
+- continued with encoding data
+- created some models arcihtecture for subcellular localisation
+
+27, 28 May (Monday - Tuesday)
+------------------------------
+
+- BANK HOLIDAY
+
+29, 30, 31 May (Wednesday)
+--------------------------
+
+- training each of the model architecture created -- baby sitting
+- data-preprocessing for effector and noneffector protein 
+
+
 
 
