@@ -160,7 +160,7 @@ plt.legend()
 plt.show()
 ```
 
-![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](0001-dense-model_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ### Predict the test data
 
@@ -253,7 +253,7 @@ plt.legend()
 plt.show()
 ```
 
-![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](0001-dense-model_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 ``` python
 plt.clf()
@@ -276,7 +276,7 @@ plt.legend()
 plt.show()
 ```
 
-![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](0001-dense-model_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 ### Predict the test data
 
