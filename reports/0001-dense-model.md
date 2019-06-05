@@ -137,7 +137,7 @@ plt.legend()
 plt.show()
 ```
 
-![](~/0001-dense-model_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0001-dense-model_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` python
 plt.clf()
