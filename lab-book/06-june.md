@@ -34,3 +34,12 @@ Daily lab book June
 - finished the hyperparameter scan scripts for Conv1D + LSTM
 - find out other options of encoding amino acids
 - tried to download the data as non-effector control sets
+
+07 June 2019 (Friday)
+------------------------
+
+- testing new models for subcellular localisation if it is using more filter
+- read papers about possible encoding methods
+- getting data for control sets
+
+
