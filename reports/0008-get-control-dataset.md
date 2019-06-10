@@ -327,6 +327,22 @@ control_set_data_complete <- control_set_data %>%
 write.csv(control_set_data_complete, "../../data/0002-getting-control-sets/control_set_data_complete.csv", row.names = FALSE)
 ```
 
+``` r
+# getting information about the complete data sets
+
+library(tidyverse)
+control_set_data <- data.table::fread("../../data/0002-getting-control-sets/control_set_data_complete.csv")
+
+# print the number of data
+data.frame(table(control_set_data$category))
+```
+
+    ##        Var1 Freq
+    ## 1  bacteria 1244
+    ## 2     fungi  991
+    ## 3 oomycetes  125
+    ## 4    Others   29
+
 Encoding the data
 -----------------
 
