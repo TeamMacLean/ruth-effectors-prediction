@@ -326,3 +326,17 @@ control_set_data_complete <- control_set_data %>%
 
 write.csv(control_set_data_complete, "../../data/0002-getting-control-sets/control_set_data_complete.csv", row.names = FALSE)
 ```
+
+Encoding the data
+-----------------
+
+The encoding process is done in a separated file script.
+
+``` python
+import numpy as np
+
+x_control_data = np.load('../../data/0002-getting-control-sets/control-data/x_control.npy')
+print("Shape of the ecoded sequence data:", x_control_data.shape)
+```
+
+    ## ('Shape of the ecoded sequence data:', (2375, 2500, 20))
