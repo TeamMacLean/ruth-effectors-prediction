@@ -42,4 +42,53 @@ Daily lab book June
 - read papers about possible encoding methods
 - getting data for control sets
 
+10 June 2019 (Monday)
+----------------------
+
+- made the report
+- continued the encoding parts of the control datasets
+- read about the encoding method alternatives
+
+**Weekly catch up minutes**
+
+- Project 1
+
+    - trying the parallel running: reduce the hyperparameters into several groups
+    - using intuition: pick one of the encoding method that is do-able
+    - if I want to try something with model: read about benchmarking for code run
+    
+- Project 2
+
+    - get again the data from NCBI not from from Phi-base
+    - the next step is doing multiclass classification
+    - recognizing signal peptide carrying using `SignalP`
+    
+11, 12 June 2019 (Tuesday and Wednesday)
+-----------------------
+
+- retrieve data 
+- Chaos Game Representation (CGR)
+- investigate the encoding method that may be do-able
+
+13 June 2019 (Thursday)
+-----------------------
+
+- sick day
+
+14 June 2019 (Friday)
+----------------------
+
+- retrieving data
+
+17 June 2019 (Monday)
+----------------------
+
+- continue the report of retrieving data
+
+**Weekly catch up minutes**
+
+- Project 1: prioritize the parallelism (naively) -- may need CSV file to break down the hyperparameters, CGR, and getting one encoding method 
+
+- Project 2: present to Dan better about the data obtained
+
 
