@@ -37,7 +37,7 @@ phi_plant_effector <- phi_base %>%
 In this `phi_plant_effector` data, we have several cases that we need to
 consider:
 
-1.  Many duplicate protein IDS
+### Many duplicate protein IDS
 
 ``` r
 phi_protein_with_duplicated_pathogen_species <- phi_plant_effector %>% 
@@ -73,7 +73,7 @@ phi_protein_with_duplicated_pathogen_species %>%
 | A0A2R2Z561 | Phytophthora capsici | Pc537                                             |
 | A0A2R2Z561 | Phytophthora capsici | Pc537                                             |
 
-1.  Pathogen species that have same protein IDs
+### Pathogen species that have same protein IDs
 
 ``` r
 phi_effector_same_ID_diff_pathogen <- phi_plant_effector %>%
