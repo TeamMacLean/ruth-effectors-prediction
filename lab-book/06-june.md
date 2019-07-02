@@ -80,15 +80,23 @@ Daily lab book June
 
 - retrieving data
 
-17 June 2019 (Monday)
+17 -- 21 June 2019 (A week)
 ----------------------
 
-- continue the report of retrieving data
+- continue the report of retrieving data 
+- getting data from the beginning. (All was wrong since the first step of filtering)
+- making the parallism code for the subcellular localisation
 
 **Weekly catch up minutes**
 
 - Project 1: prioritize the parallelism (naively) -- may need CSV file to break down the hyperparameters, CGR, and getting one encoding method 
 
 - Project 2: present to Dan better about the data obtained
+
+24 -- 28 June 2019 (A week)
+-------------------------------
+
+- getting again effector data (step by step)
+- made report of the best model in the test data (not inlcuded in the previous scripts)
 
 
