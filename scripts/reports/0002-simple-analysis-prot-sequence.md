@@ -64,7 +64,7 @@ ggplot(seq_info) +
   labs(x = "Length of Sequence", y = "Count", fill = "Data")
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/reports/0002-simple-analysis-prot-sequence_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](0002-simple-analysis-prot-sequence_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ``` r
 # Show how many data have length for more than 2000 chars
@@ -173,4 +173,4 @@ ggplot(test_summary) +
   labs(x = "Amino Acids", y = "Percentage")
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/reports/0002-simple-analysis-prot-sequence_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](0002-simple-analysis-prot-sequence_files/figure-markdown_github/unnamed-chunk-10-1.png)
