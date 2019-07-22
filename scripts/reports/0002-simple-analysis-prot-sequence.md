@@ -109,6 +109,77 @@ ggseqlogo(seqs, seq_type='aa')
 # + theme(axis.text.x = element_blank())
 ```
 
+``` r
+effector_data %>% 
+  dplyr::filter(!stringr::str_starts(Sequence, "M")) %>% 
+  select(-c("V1")) %>% 
+  mutate(Sequence = substr(Sequence, 1, 30)) %>% 
+  knitr::kable()
+```
+
+| ProteinID |  PathogenID| Pathogenspecies                 | Sequence                       |
+|:----------|-----------:|:--------------------------------|:-------------------------------|
+| G0X7F2    |        5270| Ustilago\_maydis                | VIATRYTNVFNLYNSETPHESPAARLPDHL |
+| G0X7K3    |        5270| Ustilago\_maydis                | SLLTAVCMAAIGVPHLNREPSPEPPVDNVN |
+| G0X7L8    |        5270| Ustilago\_maydis                | ELIPPHKLASKFYRLSFLEGDPDRPFAIHH |
+| G0X7M4    |        5270| Ustilago\_maydis                | LALATRSAPELASEPNSVDIPQVQNDFYDD |
+| G0X7S0    |        5270| Ustilago\_maydis                | VCLAAFSEAARRSEQPFEPSDIAVDIVDTS |
+| G0X7S7    |        5270| Ustilago\_maydis                | CRGAESDGGLDLDWNPFIDDQIEDTATANA |
+| G0X7U0    |        5270| Ustilago\_maydis                | VVVACRAVERIQPFQPVTPYADLQHNMAMT |
+| G0X7V8    |        5270| Ustilago\_maydis                | SCVGIVLAAPRQEGPPSHRPQRGPISQVLD |
+| G0X7X3    |        5270| Ustilago\_maydis                | LIPLVRSASTNLDPYPGAPAANIHFHVIQQ |
+| G0X7Y1    |        5270| Ustilago\_maydis                | CCLALMGLGAPVSVEFSSSLAVFVDRLEDA |
+| G0X7Z5    |        5270| Ustilago\_maydis                | ADKSKSARSRGTKSTIGKGLVTDQVASFLA |
+| G0X801    |        5270| Ustilago\_maydis                | TIVSVRTQPIPPTIFDTSSAILGDIDDTTR |
+| G0X809    |        5270| Ustilago\_maydis                | VLAQFSCHTCAASDDELDIFDYHHSIGAAD |
+| G0X828    |        5270| Ustilago\_maydis                | AAGLLPLNFRWNGGGLPKEAPPTKVSTSRH |
+| G0X840    |        5270| Ustilago\_maydis                | LHCFATGGFDYENLASSSSSSGHHDYRLES |
+| G0X849    |        5270| Ustilago\_maydis                | LHAWALPSQKPALSDKESPHLEKRDPTQRY |
+| G0X854    |        5270| Ustilago\_maydis                | LGFLLCTLPVFVLAGGVFSSGRSRDYSKIG |
+| G0X860    |        5270| Ustilago\_maydis                | VIATGGSGEPSGAQGPVSSAPVNGDPYDGE |
+| G0X877    |        5270| Ustilago\_maydis                | PTTLAVRSARVLPIDPEPQSPPPESRVNMP |
+| G3C9L0    |      272952| Hyaloperonospora\_arabidopsidis | ASGGMETPASGAQEPESSSATKFLKTRSTN |
+| G3C9L1    |      272952| Hyaloperonospora\_arabidopsidis | LVPDSIPDVSTRSDAMNQEDTPSSRRSGSS |
+| G3C9N5    |      272952| Hyaloperonospora\_arabidopsidis | LNGLETLSSGADVDELTTATRLLRAAHLDR |
+| G3C9N6    |      272952| Hyaloperonospora\_arabidopsidis | HRSPRNLRRVAAAGEENDVRMKALIPTTSI |
+| G3C9N8    |      272952| Hyaloperonospora\_arabidopsidis | DSSYASTATTSSLFTQVRQLTEDHADASTT |
+| G3C9N9    |      272952| Hyaloperonospora\_arabidopsidis | VESTATSTDLIRSLGTAPSADQLNVQSLRS |
+| G3C9P0    |      272952| Hyaloperonospora\_arabidopsidis | YVSTLGGGHFLCRHLNHSTLLAKLQIGISM |
+| G3C9P1    |      272952| Hyaloperonospora\_arabidopsidis | AATVAASTHGLEVVPDPVKFSLLQATAETG |
+| G3C9P6    |      272952| Hyaloperonospora\_arabidopsidis | RTLNDDETDVSVRRFLRSNTAEAGRVDGQS |
+| G3C9P9    |      272952| Hyaloperonospora\_arabidopsidis | LPMDPAHSSVHTLSAADRHIGERVTRQRHL |
+| G3C9Q4    |      272952| Hyaloperonospora\_arabidopsidis | RSLRAQKLEEDGNAIVTSGDFCVNGGGENV |
+| G3C9Q5    |      272952| Hyaloperonospora\_arabidopsidis | RYLRTEAPDAADANNDENQEGVASGMVEER |
+| G3C9Q7    |      272952| Hyaloperonospora\_arabidopsidis | RSLRVQEQEEDKKDGNDDTYGYGFSSINEE |
+| G3C9Q9    |      272952| Hyaloperonospora\_arabidopsidis | RSLRTEEKRGQSDLGEERGRGNLPTTDSFS |
+| G3C9R3    |      272952| Hyaloperonospora\_arabidopsidis | VPDAANLSPLQTSTEVQHQTNVAEKTERFL |
+| G3C9R4    |      272952| Hyaloperonospora\_arabidopsidis | IVFPGSLHIDNRNGHVQRDLRSADNGNEER |
+| G3C9S3    |      272952| Hyaloperonospora\_arabidopsidis | TLPSPAAGKTSEMNMPDEDPATQTDISSNR |
+| G3C9S7    |      272952| Hyaloperonospora\_arabidopsidis | LQVVSDSASDLQRTDEARQQPYINDKTKRF |
+| G3C9T3    |      272952| Hyaloperonospora\_arabidopsidis | SPISNRIQFLISSKSRDLERSLRLHYPDLL |
+| G3C9T8    |      272952| Hyaloperonospora\_arabidopsidis | GIEPEAVTSGARTLDQETVKRQLRTSNSGV |
+| G3C9U1    |      272952| Hyaloperonospora\_arabidopsidis | YIAKDPHPKPSEATSPANARDQDPVIQEVR |
+| G3CK59    |        5270| Ustilago\_maydis                | SAPRTSKSRSTRFRGAKATIRKGQITDQVQ |
+| G3CK64    |        5270| Ustilago\_maydis                | ICIALIQESRAVAKPGSAFSRKSRDRQISS |
+| G9J651    |       66269| Pantoea\_stewartii              | HACPLADDNQFHAGWNLSDALIINNQLGLN |
+| M1T205    |       13131| Macrosiphum\_euphorbiae         | QSIQPLIDQDYMKVKAALYDLGEVGMNLMD |
+| M1T210    |       13131| Macrosiphum\_euphorbiae         | RVSQGFPYESLDWPTMPDISGSSPTGYDKS |
+| Q9FDG1    |         347| Xanthomonas\_oryzae             | HAWRNALTGAPLNLTPDQVVAIASNIGGKQ |
+| R4TJS0    |         347| Xanthomonas\_oryzae             | LTPAQRSMLAELGVADTPVLTPTEAAVLRE |
+
+``` r
+non_effector_data %>% 
+  dplyr::filter(!stringr::str_starts(sequence, "M")) %>% 
+  mutate(sequence = substr(sequence, 1, 30)) %>% 
+  knitr::kable()
+```
+
+|  rowid|  txid| id       | sequence                       |
+|------:|-----:|:---------|:-------------------------------|
+|     25|  4784| 6IUQ     | XXNKFPGVYKESFTRDYERLHNKISKEVCD |
+|     48|   305| 6GL5     | XSVQTAATSWGTVPSIRVYTANNGXITERC |
+|    194|  4784| P15571.1 | ATCTTTQQTAAYVALVSILSDSSFNQCATD |
+
 ### Plot of the proportion using bar chart for each position
 
 ``` r
@@ -245,7 +316,7 @@ ggplot(sep_seqs_proportion_melt) +
                                "T" = "forestgreen"))
 ```
 
-![](0002-simple-analysis-prot-sequence_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](0002-simple-analysis-prot-sequence_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 ``` r
   # viridis::scale_fill_viridis(discrete = TRUE)
