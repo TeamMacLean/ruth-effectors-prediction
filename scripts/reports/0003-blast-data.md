@@ -15,30 +15,6 @@ As alternative of scikit-learn that we use in Python, we can use caret
 package.
 
 ``` r
-library(caret)
-```
-
-    ## Loading required package: lattice
-
-    ## Loading required package: ggplot2
-
-``` r
-library(tidyverse)
-```
-
-    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
-
-    ## ✔ tibble  2.1.3     ✔ purrr   0.3.2
-    ## ✔ tidyr   0.8.3     ✔ dplyr   0.8.3
-    ## ✔ readr   1.3.1     ✔ stringr 1.4.0
-    ## ✔ tibble  2.1.3     ✔ forcats 0.4.0
-
-    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-    ## ✖ purrr::lift()   masks caret::lift()
-
-``` r
 # Read CSV of the effector data
 effector_data <- data.table::fread("effector_data.csv") %>% 
   dplyr::select(-V1) %>% 
@@ -51,6 +27,8 @@ non_effector_data <- data.table::fread("non_effector_data.csv") %>%
   dplyr::select(-rowid) %>%
   mutate(data = 0) %>% 
   dplyr::select(sequence, data)
+
+non_effector_data
 ```
 
 ``` r
@@ -90,11 +68,6 @@ rbind("Training set" = nrow(training)/nrow(data_to_split),
       "Testing set" = nrow(testing)/nrow(data_to_split)) %>% 
        round(2)*100
 ```
-
-    ##                [,1]
-    ## Training set     60
-    ## Validation set   20
-    ## Testing set      20
 
 Take the label into separated data frame
 
@@ -266,45 +239,6 @@ blast_results <- function(result_path){
   # Return the lists
   return(list_results)
 }
-
-# Function to remove from the list
-
-remove_from_data_sets <- function(input_seq_path, label_seq_path, drop){
-
-  # Read the data from the .csv file
-  df_input <- data.table::fread(input_seq_path, header = FALSE) %>%
-    setNames("sequence")
-  df_label <- data.table::fread(label_seq_path, header = FALSE) %>%
-    setNames("label")
-
-  # Combine the input data and the label, then drop the rows based on the list
-  df_new <- df_input %>%
-    cbind(df_label) %>%
-    dplyr::filter(!(row_number() %in% drop))
-  
-  # Combine the input data and the label, then take the data that should be removed
-  removed_rows <- df_input %>%
-    cbind(df_label) %>%
-    dplyr::filter(row_number() %in% drop)
-
-  # Get the information about the removed columns
-  removed_rows_freq <- df_label %>%
-    filter(row_number() %in% drop) %>%
-    select(label) %>%
-    table() %>%
-    as.data.frame() %>%
-    setNames(c("label", "freq")) %>%
-    mutate(label = ifelse(label == 1, "effector", "noneffector"))
-
-  # Create list for the results
-  results_list <- list(
-    df = df_new,
-    removed_freq = removed_rows_freq, 
-    removed_rows = removed_rows
-  )
-
-  return(results_list)
-}
 ```
 
 ``` r
@@ -380,7 +314,14 @@ id_to_be_removed_validation <- validation_VS_training_results[["query_index"]]
 ``` r
 # View all of the index that needs to be removed 
 training_id_from_test <- testing_VS_training_results[["subject_index"]]
+
+training_id_from_test
 ```
+
+    ##  sseqid1  sseqid2  sseqid3  sseqid4  sseqid5  sseqid6  sseqid7  sseqid8 
+    ##      282      347      281      346      120      175      184      208 
+    ##  sseqid9 sseqid10 sseqid11 sseqid12 sseqid13 sseqid14 
+    ##      209      103      260      269      309      355
 
 ``` r
 # View all of the index that needs to be removed 
@@ -398,27 +339,281 @@ training_id_from_test <- testing_VS_training_results[["subject_index"]]
 ```
 
 ``` r
+# Take the intersect data from BLAST results training vs val and training vs testing
 id_to_be_removed_training <- c(training_id_from_val, training_id_from_test) %>%
     unique() %>%
     unlist() 
+```
+
+Load all of the data
+
+``` r
+# Header = FALSE since the first column of the data is not the header
+
+# Training data
+training_seq <- data.table::fread("data-sets/training_input.csv", header = FALSE) %>% 
+  rename(sequence = V1)
+
+training_label <- data.table::fread("data-sets/training_label.csv", header = FALSE) %>% 
+  rename(label = V1)
+
+# Validation data
+validation_seq <- data.table::fread("data-sets/validation_input.csv", header = FALSE) %>% 
+  rename(sequence = V1)
+
+validation_label <- data.table::fread("data-sets/validation_label.csv", header = FALSE) %>% 
+  rename(label = V1)
+
+# Testing data
+testing_seq <- data.table::fread("data-sets/testing_input.csv", header = FALSE) %>% 
+  rename(sequence = V1)
+
+testing_label <- data.table::fread("data-sets/testing_label.csv", header = FALSE) %>% 
+  rename(label = V1)
 ```
 
 ``` r
 #  MAking a dataframe from all results 
 
 after_blast_summary <- data.frame("Total" = c(nrow(training_seq), nrow(validation_seq), nrow(testing_seq))) %>% 
-  mutate(Removed = c(length(id_to_be_removed_training), length(id_to_be_removed_validation), length(id_to_be_removed_testing))) %>% 
+  mutate("To be removed" = c(length(id_to_be_removed_training), length(id_to_be_removed_validation), length(id_to_be_removed_testing))) %>% 
   mutate(Datasets = c("Training", "Validation", "Testing")) %>% 
   select(Datasets, everything())
 ```
 
 ``` r
+# Print the summary of the datasets (Total data and data needed to be removed)
 after_blast_summary %>% 
   knitr::kable()
 ```
 
-| Datasets   |  Total|  Removed|
-|:-----------|------:|--------:|
-| Training   |    480|       18|
-| Validation |    160|        7|
-| Testing    |    160|       10|
+| Datasets   |  Total|  To be removed|
+|:-----------|------:|--------------:|
+| Training   |    480|             18|
+| Validation |    160|              7|
+| Testing    |    160|             10|
+
+Since the percentage of data that need to be removed is considered to be
+quite small then we do not need to replace with the new data. Now we
+just need to remove the data that are identical by using the index we
+already had.
+
+``` r
+# Function to remove from the list
+remove_from_data_sets <- function(input_seq_path, label_seq_path, drop){
+
+  # Read the data from the .csv file
+  df_input <- data.table::fread(input_seq_path, header = FALSE) %>%
+    setNames("sequence")
+  df_label <- data.table::fread(label_seq_path, header = FALSE) %>%
+    setNames("label")
+
+  # Combine the input data and the label, then drop the rows based on the list
+  df_new <- df_input %>%
+    cbind(df_label) %>%
+    dplyr::filter(!(row_number() %in% drop))
+  
+  # Combine the input data and the label, then take the data that should be removed
+  removed_rows <- df_input %>%
+    cbind(df_label) %>%
+    dplyr::filter(row_number() %in% drop)
+
+  # Get the information about the removed columns
+  removed_rows_freq <- df_label %>%
+    filter(row_number() %in% drop) %>%
+    select(label) %>%
+    table() %>%
+    as.data.frame() %>%
+    setNames(c("label", "freq")) %>%
+    mutate(label = ifelse(label == 1, "effector", "noneffector"))
+
+  # Create list for the results
+  results_list <- list(
+    df = df_new,
+    removed_freq = removed_rows_freq, 
+    removed_rows = removed_rows
+  )
+
+  return(results_list)
+}
+```
+
+``` r
+# Get the new dataframe after removing the identical sequence data
+training <- remove_from_data_sets("data-sets/training_input.csv", "data-sets/training_label.csv", id_to_be_removed_training)[["df"]]
+
+validation <- remove_from_data_sets("data-sets/validation_input.csv", "data-sets/validation_label.csv", id_to_be_removed_validation)[["df"]]
+
+testing <- remove_from_data_sets("data-sets/testing_input.csv", "data-sets/testing_label.csv", id_to_be_removed_testing)[["df"]]
+
+# Save the dataframe to CSV
+write_csv(training, "data-sets/new_training_data.csv")
+write_csv(validation, "data-sets/new_validation_data.csv")
+write_csv(testing, "data-sets/new_testing_data.csv")
+```
+
+Encoding the data using Pandas
+------------------------------
+
+``` r
+# Load keras library
+library(keras)
+```
+
+Import the library that we need to reprocess the data.
+
+``` python
+import pandas as pd
+import numpy as np
+```
+
+``` python
+import os
+cwd = os.getcwd()
+print(cwd)
+```
+
+    ## /Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/r-scripts/getting-data-current
+
+### Load the data
+
+``` python
+training_data = pd.read_csv('data-sets/new_training_data.csv', index_col = False)
+validation_data = pd.read_csv('data-sets/new_validation_data.csv', index_col = False)
+testing_data = pd.read_csv('data-sets/new_testing_data.csv', index_col = False)
+```
+
+``` python
+# Define the input and the label of data 
+
+# Training datasets
+input_train = training_data[["sequence"]]
+label_train = training_data[["label"]]
+
+# Validation datasets
+input_val = validation_data[["sequence"]]
+label_val = validation_data[["label"]]
+
+# Testing data 
+input_test= testing_data[["sequence"]]
+label_test = testing_data[["label"]]
+```
+
+``` python
+from collections import Counter
+field_length_train = input_train.sequence.astype(str).map(len) 
+field_length_val = input_val.sequence.astype(str).map(len)
+field_length_test = input_test.sequence.astype(str).map(len) 
+
+print(max(field_length_train)) 
+```
+
+    ## 4034
+
+``` python
+print(max(field_length_val)) 
+```
+
+    ## 2574
+
+``` python
+print(max(field_length_test))
+```
+
+    ## 1795
+
+``` python
+import matplotlib.pyplot as plt
+plt.clf()
+plt.hist(field_length_train, bins=100)
+```
+
+    ## (array([16., 35., 52., 37., 28., 37., 32., 33., 29., 16., 29., 19.,  8.,
+    ##        10., 12., 12., 12.,  4.,  1.,  3.,  5.,  7.,  3.,  2.,  1.,  1.,
+    ##         0.,  2.,  1.,  2.,  3.,  1.,  0.,  2.,  1.,  0.,  0.,  0.,  0.,
+    ##         0.,  0.,  0.,  1.,  0.,  1.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,
+    ##         0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.,
+    ##         0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+    ##         0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+    ##         0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.]), array([  40.  ,   79.94,  119.88,  159.82,  199.76,  239.7 ,  279.64,
+    ##         319.58,  359.52,  399.46,  439.4 ,  479.34,  519.28,  559.22,
+    ##         599.16,  639.1 ,  679.04,  718.98,  758.92,  798.86,  838.8 ,
+    ##         878.74,  918.68,  958.62,  998.56, 1038.5 , 1078.44, 1118.38,
+    ##        1158.32, 1198.26, 1238.2 , 1278.14, 1318.08, 1358.02, 1397.96,
+    ##        1437.9 , 1477.84, 1517.78, 1557.72, 1597.66, 1637.6 , 1677.54,
+    ##        1717.48, 1757.42, 1797.36, 1837.3 , 1877.24, 1917.18, 1957.12,
+    ##        1997.06, 2037.  , 2076.94, 2116.88, 2156.82, 2196.76, 2236.7 ,
+    ##        2276.64, 2316.58, 2356.52, 2396.46, 2436.4 , 2476.34, 2516.28,
+    ##        2556.22, 2596.16, 2636.1 , 2676.04, 2715.98, 2755.92, 2795.86,
+    ##        2835.8 , 2875.74, 2915.68, 2955.62, 2995.56, 3035.5 , 3075.44,
+    ##        3115.38, 3155.32, 3195.26, 3235.2 , 3275.14, 3315.08, 3355.02,
+    ##        3394.96, 3434.9 , 3474.84, 3514.78, 3554.72, 3594.66, 3634.6 ,
+    ##        3674.54, 3714.48, 3754.42, 3794.36, 3834.3 , 3874.24, 3914.18,
+    ##        3954.12, 3994.06, 4034.  ]), <a list of 100 Patch objects>)
+
+``` python
+plt.ylabel('Count')
+plt.xlabel('Length')
+plt.title('Histogram of Length of Sequences')
+plt.show()
+```
+
+![](0003-blast-data_files/figure-markdown_github/unnamed-chunk-24-1.png)
+
+### One hot encoding
+
+``` python
+def get_key(mydict, element):
+    key = list(mydict.keys())[list(mydict.values()).index(element)]
+    return(key)
+
+amino = ['R', 'K', 'D', 'E', 'Q', 'N', 'H', 'S', 'T', 'Y', 'C', 'W', 'A', 'I', 'L', 'M', 'F', 'V', 'P', 'G']
+token_index = dict(zip(range(1, (len(amino)+1)), amino))
+
+max_length = 4034
+def get_encoding(mydata, max_length):
+    results = np.zeros((len(mydata), max_length, max(token_index.keys())))
+    for i, sample in enumerate(mydata):
+        for j, character in enumerate(sample):
+            if character in token_index.values():
+                index = get_key(token_index, character) - 1
+                results[i, j, index] = 1. 
+            else:
+                results[i, j, :] = results[i, j, :]
+    return results
+```
+
+``` python
+# Change the data to list
+x_train = input_train.sequence.tolist()
+x_val = input_val.sequence.tolist()
+x_test = input_test.sequence.tolist()
+
+# Encoding by calling the function get_encoding()
+one_hot_train = get_encoding(x_train, max_length)
+one_hot_val = get_encoding(x_val, max_length)
+one_hot_test = get_encoding(x_test, max_length)
+```
+
+### Change the label into list data format
+
+``` python
+# Change the data into 
+y_train = label_train.label.tolist()
+y_val = label_val.label.tolist()
+y_test = label_test.label.tolist()
+```
+
+### Save all of the data
+
+``` python
+# Save the input data
+np.save('data-sets/x_train.npy', one_hot_train)
+np.save('data-sets/x_val.npy', one_hot_val)
+np.save('data-sets/x_test.npy', one_hot_test)
+
+# Save the label data 
+np.save('data-sets/y_train.npy', y_train)
+np.save('data-sets/y_val.npy', y_val)
+np.save('data-sets/y_test.npy', y_test)
+```
