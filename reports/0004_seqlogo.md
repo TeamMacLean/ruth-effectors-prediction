@@ -284,7 +284,7 @@ GGally::ggmatrix(
     theme(strip.placement = "outside")
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0004_seqlogo_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](0004_seqlogo_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ``` r
 ac_prop_effector <- sep_seq_effector_transpose_proportion_melt %>% 
@@ -306,7 +306,7 @@ ggplot(ac_prop_all) +
   facet_wrap(~ aminoacid, nrow = 5)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0004_seqlogo_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](0004_seqlogo_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ``` r
 ggplot(ac_prop_all) +
@@ -316,4 +316,4 @@ ggplot(ac_prop_all) +
   facet_wrap(~ aminoacid, nrow = 5)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0004_seqlogo_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](0004_seqlogo_files/figure-markdown_github/unnamed-chunk-10-1.png)
