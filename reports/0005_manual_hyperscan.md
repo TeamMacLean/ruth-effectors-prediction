@@ -274,7 +274,7 @@ ggplot(results_gridsearch) +
   scale_x_continuous(breaks = seq(0.6, 0.8, 0.01))
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/0005_manual_hyperscan_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](0005_manual_hyperscan_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 According the result above, we can see that from the Gridsearch of the
 hyperparamaters space we cannot get the results with accuracy more than
