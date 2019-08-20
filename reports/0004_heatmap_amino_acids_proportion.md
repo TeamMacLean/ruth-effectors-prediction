@@ -456,7 +456,7 @@ acids between effector and non-effector data are bigger than other amino
 acids.
 
 In order to see further how the proportion values of these amino acids
-spreads, we can take a look on this stastical summary below.
+spreads, we can take a look on this statistical summary below.
 
 ``` r
 prop_diff_data <- (effector_prop - non_effector_prop) %>%
@@ -492,12 +492,12 @@ ggplot(prop_diff_data) +
 
 ![](0004_heatmap_amino_acids_proportion_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
-The black on the figure above shows the average value of the proportion
+The black dot on the figure above shows the average value of the proportion
 of each amino acid. Amino acid A has the highest average value, followed
 by amino acid L with almost similar average value and standard deviation
 with amino acid A. It can be seen that the higher the average value, the
 larger spread the data around the mean (higher standard deviation). The
-spread of the amino acid proportion is shown on the figure below.
+spread of the amino acid proportion is shown by the scatter plot below.
 
 ``` r
 plot_all_aminos(diff_data_without_limiting)
@@ -509,7 +509,7 @@ plot_all_aminos(diff_data_without_limiting)
 plot_density(hist_without_limiting, x_max = 0.05)
 ```
 
-    ## Warning: Removed 33023 rows containing non-finite values (stat_density).
+Plot of density function below also can give you clue of how difference effector and noneffctor data for each amino acid. However, it can barely seen. 
 
 ![](0004_heatmap_amino_acids_proportion_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
@@ -555,15 +555,18 @@ Apparently, as we plot the heatmap with limiting the length of the
 sequence, we have better idea about the composition of amino acids in
 protein sequences. Amino acid `A` between effector and non effector data
 in the first 100 position has quite bigger difference (depicted by
-yellow color) in comparison to amino acid `C` in genreal. However, not
+yellow color) in comparison to amino acid `C` in general. However, not
 in every position it has the same exact color, as it suggests that the
-difference of each amino acid in every position is not always the same.
+impact of each amino acid in every position is not always the same.
+
+By looking at the plot of density function below, we can see that there are 
+some amino acids that have obvious difference between effector and non-effector data, 
+such as amino acid `F`, `G`, `L`, `S`, and so on. 
 
 ``` r
 plot_density(hist_len250, x_max = 0.25)
 ```
 
-    ## Warning: Removed 2 rows containing non-finite values (stat_density).
 
 ![](0004_heatmap_amino_acids_proportion_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
@@ -608,7 +611,7 @@ The composition of the amino acid varies from a position to other
 positions. At glance, for first 32 position, amino acid `S` give the
 biggest difference. After position 10, amino acid `L` is dominated by
 yellow, meaning that `L` has high influence on how differ the
-composition of amino acis sequence between effector amd non-effector.
+composition of amino acis sequence between effector and non-effector mainly on the poisition after 10.
 
 Conclusion
 ----------
