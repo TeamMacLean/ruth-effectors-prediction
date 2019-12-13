@@ -1,0 +1,172 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+get_formatted_date <- function(curr_date, comment = NULL) {
+  date_text <- curr_date %>%
+    lubridate::ymd() %>%
+    base::format("%d %B %Y (%A)")
+
+  date_text <- paste(
+    date_text,
+    ifelse(
+      is.null(comment),
+      "",
+      paste("–", stringr::str_to_title(comment))
+    )
+  )
+
+  return(date_text)
+}
+
+get_formatted_date_range <- function(curr_date, to_date, comment = NULL) {
+  days_list <- seq(as.Date(curr_date), as.Date(to_date), 1)
+
+  days_text <- days_list %>%
+    lubridate::ymd() %>%
+    base::format("%d") %>%
+    stringr::str_c(collapse = ", ")
+
+  monthyear_text <- days_list %>%
+    lubridate::ymd() %>%
+    base::format("%B %Y") %>%
+    unique()
+
+  weekdays_text <- days_list %>%
+    lubridate::ymd() %>%
+    base::format("%a") %>%
+    stringr::str_c(collapse = ", ")
+
+  date_text <- paste0(
+    days_text, " ",
+    monthyear_text,
+    " (", weekdays_text, ") ",
+    ifelse(
+      is.null(comment),
+      "",
+      paste("–", stringr::str_to_title(comment))
+    )
+  )
+
+  return(date_text)
+}
+
+```
+
+# December 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+##  `r "2019-12-02" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on
+
+- Heatmap and reports.
+
+#### Weekly catch up meeting
+
+##### Effector and non-effector prediction
+
+- Based on the results of CNN-LSTM and CNN-GRU, the model can learn quite good for each separated, and they were not optimised models, then we can find the optimised one using hyperparameter scans for each
+
+- About the strange behaviour on CNN-LSTM layer on fungi data, check again the code, it might be simple mistake on the code (for instance can be indexing), also can check the sequence length of fungi data
+
+- using the signalP, try to get the secreted protein sequences of organisms and include them on the datasets (also train them on the current models, just to see if the convolutional network actually recognises the signal peptide of the sequences)
+
+
+##  `r "2019-12-03" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on
+
+- Created some scripts of effector prediction and run in `tsl-gpu` and `tsl-long`:
+
+  - CNN-LSTM models for each bacteria, fungi, and oomycete data.
+  - CNN-GRU models for each bacteria, fungi, and oomycete data.
+
+- Installed the SignalP 5.0, and read the instruction.
+
+
+##  `r "2019-12-04" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on
+
+- All jobs killed at 9 am due to the service discruption.
+- Run all jobs again, and the jobs got killed again at around 12 pm (HPC is down).
+- Read about the secretory pathway protein - the process and the relationship between effector protein and secreted protein.
+- Checking the bug on my heatmap code.
+  - Check the length of fungi sequences (apparently, the length of fungi dataset is very low, see the 0010_getting_info_data_each_class.Rmd), so its definitely the problem with code or method.
+  
+
+##  `r "2019-12-05" -> curr_date; "2019-12-06" -> to_date; get_formatted_date_range(curr_date, to_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
+
+#### Worked on
+
+- Focus to see what is wrong with my code, I have found the bugs but seems it is not the only bugs I have. 
+- Created a function in R to run SignalP.
+
+
+***
+
+
+##  `r "2019-12-09" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Weekly catch up meeting
+
+##### Effector and non-effector prediction
+
+- Finding bugs:
+
+  - Try to put everything in one function to maintain consistency (DRY-Dont Repeat Yourself), use docstring so that if one try to get `help()`, it will print the documentation written in docstring.
+  - Try to use Unit-test.
+  - Make a python module - to organise python function in one file.
+  
+- Regarding to the protein data:
+
+  - Use SignalP 2 not signalP 5.
+  - Try to get secreted data forthe organism.
+
+
+##  `r "2019-12-10" -> curr_date; "2019-12-12" -> to_date; get_formatted_date_range(curr_date, to_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
+
+#### Worked on
+
+- Downloaded SignalP 2.0, but I could not install it on my laptop. There is no SignalP 2.0 in cluster. 
+- Learning to understand properly how to get protein from the same genome in NCBI data (tried to undestand the process, and if it is possible to retrieve the data esily)
+- Wrote a script to retrive the protein data using `library("rentrez")`, I tried created create a script to access the NCBI site, and read the html file using `readLines()`, but I found that using `rentrez` library is easier. 
+
+
+##  `r "2019-12-13" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on
+
+
+
+
+***
