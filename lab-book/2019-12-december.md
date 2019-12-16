@@ -127,7 +127,7 @@ Commits: 2
 
 ## 16 December 2019 (Monday)
 
-Commits: 3
+Commits: 8
 
 #### Worked on
 
@@ -140,5 +140,7 @@ Commits: 3
         model](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/heatmap_cnn_lstm.ipynb)
       - [Heatmaps for fungi data on different layers of CNN-LSTM
         models](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/fungi-test/heatmap_cnn_lstm_fungi_test.ipynb)
+
+  - updated new function to retrive protein datasets
 
 -----

@@ -180,6 +180,8 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - [Heatmaps for CNN-GRU model](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/heatmap_cnn_gru.ipynb)
   - [Heatmaps for CNN-LSTM model](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/heatmap_cnn_lstm.ipynb)
   - [Heatmaps for fungi data on different layers of CNN-LSTM models](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/fungi-test/heatmap_cnn_lstm_fungi_test.ipynb)
+  
+- updated new function to retrive protein datasets
 
 
 ***
