@@ -112,8 +112,33 @@ Commits: 0
 
 ## 13 December 2019 (Friday)
 
-Commits: 0
+Commits: 2
 
 #### Worked on
+
+  - investigated the bug on heatmap scripts (found that only conv1d\_4
+    behaves differently, Ho: this is due to the fact that last
+    convolutional layer is concatenation layer)
+  - continued the process on getting the secreted protein data for
+    different cases where the protein data does not have the Gene term
+    and also if the protein data does not have genomic sequence in NCBI
+    database. The script report is available on
+    [0001\_get\_secreted\_data.md](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/reports/getting-data-secreted/0001_get_secreted_data.md)
+
+## 16 December 2019 (Monday)
+
+Commits: 3
+
+#### Worked on
+
+  - completing report of heatmaps investigation for the strange
+    behaviour on the last concatenation layer (`conv1d_4`)
+    
+      - [Heatmaps for CNN-GRU
+        model](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/heatmap_cnn_gru.ipynb)
+      - [Heatmaps for CNN-LSTM
+        model](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/heatmap_cnn_lstm.ipynb)
+      - [Heatmaps for fungi data on different layers of CNN-LSTM
+        models](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/fungi-test/heatmap_cnn_lstm_fungi_test.ipynb)
 
 -----
