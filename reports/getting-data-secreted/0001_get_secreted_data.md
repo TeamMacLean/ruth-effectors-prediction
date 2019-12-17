@@ -314,14 +314,14 @@ gene_with_genomic_seq_NA
     ## [11] "HaRxL106"   "HaRxLL3a"   "HaRxLL108"  "HaRxLL470b" "hrmA"      
     ## [16] "Brg11"
 
-### Retriving genomic sequence ID for the proteins that have Gene ID
+### Retriving genomic sequence ID for the proteins that have Gene ID from phi\_base data
 
 ``` r
 # Define a function to get the protein ids if the Gene ID is known
 get_protein_NCBI_id <- function(gene_id){
   
   # Retrive the genomic seq NCBI ID id the Gene ID is known 
-  get_genomic_id <- entrez_link(dbfrom='protein', id = gene_id , db='all')$links$protein_nucleotide
+  get_genomic_id <- entrez_link(dbfrom='protein', id = gene_id , db='all')$links$protein_nuccore
   
   # Get all of protein IDs using 
   protein_ids <- entrez_link(dbfrom = "nuccore", id = get_genomic_id, db = "all")$links$nuccore_protein
@@ -431,26 +431,50 @@ Get information the negative sequence for protein data that do not have neither 
 -----------------------------------------------------------------------------------------------------------------------------------
 
 ``` r
-phi_base_prot %>% 
-  dplyr::filter(Gene %in% gene_with_genomic_seq_NA) %>% 
-  knitr::kable()
+eff_info_without_NCBI_GeneID <- phi_base_prot %>% 
+  dplyr::filter(Gene %in% gene_with_genomic_seq_NA) 
+
+eff_info_without_NCBI_GeneID
 ```
 
-| ProteinIDsource | ProteinID  | GeneIDsource | GeneID | Gene       |  PathogenID| Pathogenspecies                |  PathogenstrainID| Pathogenstrain             |
-|:----------------|:-----------|:-------------|:-------|:-----------|-----------:|:-------------------------------|-----------------:|:---------------------------|
-| Uniprot         | A0A1B0RFQ0 |              |        | Avr4       |      685502| Pseudocercospora fuligena      |                NA|                            |
-| Uniprot         | C6ZEZ6     |              |        | AvrPiz-t   |      318829| Magnaporthe oryzae             |                NA| Guy11                      |
-| Uniprot         | G0T341     |              |        | AvrBsT     |         339| Xanthomonas campestris         |            316273| pv. vesicatoria str. 85-10 |
-| Uniprot         | G3C9L0     |              |        | HaRxL2     |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9L1     |              |        | HaRxL24    |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9N6     |              |        | HaRxL18    |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9P0     |              |        | HaRxL36    |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9Q4     |              |        | HaRxL68    |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9Q5     |              |        | HaRxL70    |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9Q7     |              |        | HaRxL73    |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9R4     |              |        | HaRxL106   |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9S3     |              |        | HaRxLL3a   |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9S7     |              |        | HaRxLL108  |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | G3C9U1     |              |        | HaRxLL470b |      272952| Hyaloperonospora arabidopsidis |            559515| Emoy2                      |
-| Uniprot         | Q08370     |              |        | hrmA       |         317| Pseudomonas syringae           |               321| pv. syringae 61            |
-| Uniprot         | Q8XYE3     |              |        | Brg11      |         305| Ralstonia solanacearum         |            267608| GMI1000                    |
+    ## # A tibble: 16 x 9
+    ## # Groups:   ProteinID, ProteinIDsource [16]
+    ##    ProteinIDsource ProteinID GeneIDsource GeneID Gene  PathogenID
+    ##    <chr>           <chr>     <chr>        <chr>  <chr>      <int>
+    ##  1 Uniprot         A0A1B0RF… ""           ""     Avr4      685502
+    ##  2 Uniprot         C6ZEZ6    ""           ""     AvrP…     318829
+    ##  3 Uniprot         G0T341    ""           ""     AvrB…        339
+    ##  4 Uniprot         G3C9L0    ""           ""     HaRx…     272952
+    ##  5 Uniprot         G3C9L1    ""           ""     HaRx…     272952
+    ##  6 Uniprot         G3C9N6    ""           ""     HaRx…     272952
+    ##  7 Uniprot         G3C9P0    ""           ""     HaRx…     272952
+    ##  8 Uniprot         G3C9Q4    ""           ""     HaRx…     272952
+    ##  9 Uniprot         G3C9Q5    ""           ""     HaRx…     272952
+    ## 10 Uniprot         G3C9Q7    ""           ""     HaRx…     272952
+    ## 11 Uniprot         G3C9R4    ""           ""     HaRx…     272952
+    ## 12 Uniprot         G3C9S3    ""           ""     HaRx…     272952
+    ## 13 Uniprot         G3C9S7    ""           ""     HaRx…     272952
+    ## 14 Uniprot         G3C9U1    ""           ""     HaRx…     272952
+    ## 15 Uniprot         Q08370    ""           ""     hrmA         317
+    ## 16 Uniprot         Q8XYE3    ""           ""     Brg11        305
+    ## # … with 3 more variables: Pathogenspecies <chr>, PathogenstrainID <int>,
+    ## #   Pathogenstrain <chr>
+
+``` r
+eff_info_without_NCBI_GeneID <- eff_info_without_NCBI_GeneID %>% 
+  ungroup() %>% 
+  select("PathogenID", "PathogenstrainID")
+
+eff_info_without_NCBI_GeneID <- eff_info_without_NCBI_GeneID %>% 
+  dplyr::mutate(pathogen_strain_id = ifelse(!is.na(PathogenstrainID), PathogenstrainID, PathogenID))
+
+eff_info_without_NCBI_GeneID_ids <- eff_info_without_NCBI_GeneID %>% 
+  pull(pathogen_strain_id)
+```
+
+``` r
+eff_info_without_NCBI_GeneID_ids
+```
+
+    ##  [1] 685502 318829 316273 559515 559515 559515 559515 559515 559515 559515
+    ## [11] 559515 559515 559515 559515    321 267608
