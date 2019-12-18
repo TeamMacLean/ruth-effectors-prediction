@@ -127,7 +127,7 @@ Commits: 2
 
 ## 16 December 2019 (Monday)
 
-Commits: 8
+Commits: 9
 
 #### Worked on
 
@@ -142,5 +142,36 @@ Commits: 8
         models](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/jupyter-note/heatmaps/fungi-test/heatmap_cnn_lstm_fungi_test.ipynb)
 
   - updated new function to retrive protein datasets
+
+## 17 December 2019 (Tuesday)
+
+Commits: 1
+
+#### Worked on
+
+  - added the function to get protein data from NCBI using geneID and
+    get the genome sequence ID ===\> this is wrong step, needs to get
+    the data from EnsEMBL instead and also it has signal Peptide
+    prediction already, so that perhaps does not need to use SignalP to
+    predict the signal peptide
+  - tried to install SignalP 2.0 with Martin’s help, but it can’t be
+    installed (the version is too old)
+  - installing the biomaRt package and reading the documentation of
+    biomaRt
+  - understanding how the ensEMBL database works for each organism
+
+#### Weekly catch up meeting
+
+##### Effector and non-effector prediction
+
+  - For the transfer learning, Dan agreed that I can go in getting data
+    from previous research about effector prediction (effectorP for
+    fungi), and others.  
+  - Think about what it means with why some convolutional layers are
+    differently activated.
+  - For retrieving data or in general, keep it in mind that if what we
+    are doing is not specific in this topic, then there must be
+    something has been developed before (need to develop a sense like
+    this) – ensEmbl database by EMBL.
 
 -----
