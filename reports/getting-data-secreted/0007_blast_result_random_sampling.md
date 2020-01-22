@@ -374,6 +374,7 @@ blast_results("../../../data/secreted_data/data_processed_after_signalp/effector
 </tr>
 </tbody>
 </table>
+
 ### Summary / Conclusion
 
 Based on teh results above, as we can see that there is no identical
