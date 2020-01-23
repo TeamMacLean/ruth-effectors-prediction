@@ -66,17 +66,17 @@ effector_seq_oomycete <- get_seq_each_class(effector_seq_with_class, "oomycete")
 ### Get the non-effector candidate data from sampling the SignalP prediction data
 
 ```{r}
-non_effector_seq_fungi <- readRDS("../../../data/secreted_data/data_processed_after_signalp/fungi_non_eff_secreted_data.RDS") %>%
+non_effector_seq_fungi <- readRDS("../../../data/secreted_data/updated_signalp_results/fungi_non_eff_secreted_data.RDS") %>%
   dplyr::select(c(ID, sequence))
 ```
 
 ```{r}
-non_effector_seq_bacteria <- readRDS("../../../data/secreted_data/data_processed_after_signalp/bacteria_non_eff_secreted_data.RDS") %>% 
+non_effector_seq_bacteria <- readRDS("../../../data/secreted_data/updated_signalp_results/bacteria_non_eff_secreted_data.RDS") %>% 
   dplyr::select(c(ID, sequence))
 ```
 
 ```{r}
-non_effector_seq_oomycete <- readRDS("../../../data/secreted_data/data_processed_after_signalp/oomycete_non_eff_secreted_data.RDS") %>% 
+non_effector_seq_oomycete <- readRDS("../../../data/secreted_data/updated_signalp_results/oomycete_non_eff_secreted_data.RDS") %>% 
   dplyr::select(c(ID, sequence))
 ```
 
