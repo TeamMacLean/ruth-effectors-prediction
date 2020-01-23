@@ -132,3 +132,39 @@ Commits:
 
   - found that there are no identical protein sequence between the
     effector data and the negative datasets
+
+## 23 January 2020 (Thursday)
+
+Commits:
+3
+
+<!-- Total time: `#r get_total_worktime(curr_date, time_in = "9:25", time_out = "20:38", time_lunch = "00:45")` -->
+
+#### Worked on
+
+  - On the [SignalP 3.0 usage
+    instructions](http://www.cbs.dtu.dk/services/SignalP-3.0/instructions.php)
+    , it is explained that to use SignalP 3.0 at once, there should not
+    be more than `2,000 sequences` and `200,000 amino acids in toto` in
+    one submission. And also the sequences may not be longer than 6,000
+    amino acids. In my `.fasta` data, I usually have more than 2000
+    sequences. Therefore I splited up one fasta file per organism into
+    several fasta files that for each file only contains less then 200o
+    sequences. However, for some reason the signalP 3.0 did not work,
+    and I tried to split them into smaller sequence number (which was
+    500 sequences per file). It worked. However, Wednesday (23/01), I
+    tried to split the data into smaller number of sequences which are
+    around 100 sequences per file, apparently signalP can give more
+    prediction. Therefore the last updated sampling results are from the
+    newest signalP prediction with only 100 sequences per file.
+
+  - Updated [Process signalp prediction
+    results](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/reports/getting-data-secreted/0005_process_signalp_data.md),
+    there are several bash scripts used to run this pipeline and [report
+    on blast-ing the negative datasets using the newest SignalP
+    prediction
+    results](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/reports/getting-data-secreted/0007_blast_result_random_sampling.md)
+
+  - created a scripts in .R scripts to label the data into binary and
+    multiclass classification, and also function to to split the data
+    into different datasets
