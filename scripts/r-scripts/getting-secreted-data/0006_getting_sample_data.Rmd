@@ -290,7 +290,7 @@ fungi_non_eff_secreted_data %>%
 ### Checking the debug
 
 ```{r}
-fungi_non_eff_secreted_count <- fungi_non_eff_secreted_data %>% 
+fungi_non_eff_secreted_count <- readRDS("../../../data/secreted_data/updated_signalp_results/fungi_non_eff_secreted_data.RDS") %>% 
   group_by(organism_name) %>% 
   summarise(count = n())
 
@@ -307,6 +307,8 @@ data.frame(table = c("result", "lookup"),
 ```
 
 ```{r}
+fungi_non_eff_secreted_data <- readRDS("../../../data/secreted_data/updated_signalp_results/fungi_non_eff_secreted_data.RDS")
+
 fungi_debug <- left_join(
   fungi_lookup_table %>%
     dplyr::mutate_at(
@@ -373,7 +375,8 @@ oomycete_full_table <- oomycete_full_table %>%
   )
 ```
 
-```{r}
+```r
+# Only run once
 oomycete_non_eff_secreted_data <- sample_from_lookup_table(
   data = oomycete_full_table,
   data_var = organism_name,
@@ -387,6 +390,7 @@ oomycete_non_eff_secreted_data %>%
 
 
 ```{r}
+oomycete_non_eff_secreted_data <- readRDS("../../../data/secreted_data/updated_signalp_results/oomycete_non_eff_secreted_data.RDS")
 oomycete_debug <- left_join(
   oomycete_lookup_table %>%
     dplyr::mutate_at(
@@ -401,9 +405,9 @@ oomycete_debug <- left_join(
 not_available_oomycete_list <- 
   oomycete_debug %>% 
   group_by(base_names) %>% 
-  slice(1) %>% 
   filter(is.na(organism_name)) %>%
-  select(base_names)
+  select(base_names) %>% 
+  pull(base_names)
 ```
 
 
@@ -496,6 +500,43 @@ num_seq_na <- oomycete_lookup_table %>%
 data.frame(desc = c("retrieved_seq", "lookup_table_seq", "na_seq"), 
            count = c(num_seq_retrieved, num_seq_needed, num_seq_na)) %>% 
   knitr::kable()
+```
+
+### Get rid of the effector data where the non-effector data does not exist
+
+```{r}
+effector_species_proteinID <- readRDS("../../../data/secreted_data/data_processed_after_signalp/effector_data_info.RDS") %>% 
+  dplyr::select(c("Pathogenspecies", "ProteinID"))
+```
+
+
+```{r}
+effector_proteinID_seq_class <- readRDS("../../../data/secreted_data/data_processed_after_signalp/eff_seq_with_class.RDS")
+```
+
+We then need to left join them
+
+```{r}
+effector_complete <- effector_proteinID_seq_class %>% 
+  left_join(., effector_species_proteinID, by = "ProteinID") %>% 
+  dplyr::filter(class %in% c("fungi", "oomycete", "bacteria")) 
+
+effector_complete <- effector_complete %>%
+  dplyr::mutate(Pathogenspecies = stringr::str_to_lower(Pathogenspecies)) %>%
+  dplyr::mutate(Pathogenspecies = stringr::str_replace_all(Pathogenspecies, " ", "_")) %>% 
+  dplyr::select(-c(ProteinID))
+
+effector_complete %>% 
+  saveRDS("../../../data/secreted_data/data_processed_after_signalp/effector_complete_three_pathogens.RDS")
+```
+
+```r
+effector_complete <- readRDS("../../../data/secreted_data/data_processed_after_signalp/effector_complete_three_pathogens.RDS") %>% 
+  dplyr::filter(!(Pathogenspecies %in% c(not_available_fungi_list, not_available_oomycete_list)))
+
+effector_complete %>% 
+  saveRDS("../../../data/secreted_data/data_processed_after_signalp/effector_final_after_blast.RDS")
+
 ```
 
 
