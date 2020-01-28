@@ -102,7 +102,10 @@ Commits:
 
 ##### Effector and non-effector prediction
 
-  - 
+  - Base factor method can be applied at the end of the pipeline, to see
+    better the likelihood of two distribution
+  - continue with the data splitting - encoding and train the data
+
 #### Worked on
 
   - checking the bugs on the lookup table and the sampling results for
@@ -136,7 +139,7 @@ Commits:
 ## 23 January 2020 (Thursday)
 
 Commits:
-3
+4
 
 <!-- Total time: `#r get_total_worktime(curr_date, time_in = "9:25", time_out = "20:38", time_lunch = "00:45")` -->
 
@@ -168,3 +171,36 @@ Commits:
   - created a scripts in .R scripts to label the data into binary and
     multiclass classification, and also function to to split the data
     into different datasets
+
+## 27 January 2020 (Monday)
+
+Commits: 2
+
+#### Worked on
+
+  - Tuning the bacteria splitting and blasting function
+  - Encoding the data set for oomycete and fungi
+  - Making the the scripts CNN-LSTM and CNN-GRU for oomycete and fungi
+
+## 28 January 2020 (Tuesday)
+
+Commits: 3
+
+#### Weekly catch up-meeting
+
+##### Effector prediction
+
+  - Wrong method in randomly sampling data –\> should have done BLAST
+    while selecting for the sequences, not in splitting data. Dan’s
+    method:
+
+![Getting sample of sequences](figures/IMG_8790.jpg)
+
+  - After getting all of the data, continue doing the hyperparameter
+    scan for all of the new datasets (with the Cross-Validation of of
+    course since the data is very small. It will help.)
+
+##### Subcellular - Localisation
+
+  - trying to do ensembling and see how it will help to improve the
+    perfomance
