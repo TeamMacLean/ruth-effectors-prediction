@@ -1,0 +1,193 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "29/01/2020"
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Re-do the resampling data with BLAST 
+
+## Background
+
+Based on the innefective sampling methods I have done before, I was not effective, since I did not do BLAST while sampling the data, this results on the additional effort to do BLAST while splitting the data which there was no point since if we have identical protein sequences on our dataset, no matter how hard we blast to avoiud identical data between datasets, it will still be identical protein sequences inside (this is useless). 
+
+## Approach
+
+A new way to tackle this issue (not to have identical protein data inside the datasets) are doing BLAST while doing the sampling process. 
+
+## Execution
+
+### Load libraries
+
+```{r setup}
+library(tidyverse)
+library(dplyr)
+
+# Source functions
+source(here::here("scripts/r-scripts/r-functions", "blast_data.R"))
+source(here::here("scripts/r-scripts/r-functions", "dealing_with_df.R"))
+source(here::here("scripts/r-scripts/r-functions", "getting_sample_data.R"))
+```
+
+### Test function
+
+```{r}
+test_dataframe <- data.frame(
+  organism = c("organism_1", "organism_1", "organism_1", "organism_1", "organism_2", "organism_2"),
+  ID = c("ID_1", "ID_2", "ID_3", "ID_4", "ID_5", "ID_6"),
+  seq = c(
+    "MRLHILLFTLSSSTSLALTGSTTMDPFHPSVDTLLAADRHIGERVTRQRHLREEVGPETLKVEQVTAMIAKHESDLMALADSLGMHPLNFLVALKKRNPKKKVILLADQYRERWKIKNGDTTPSRPHRF",
+    "MRLHILLFTLSSSTSLALTGSTTMDPFHPSVDTLLAADRHIGERVTRQRHLREEVGPETLKVEQVTAMIAKHESDLMALADSLGMHPRNFLVALKKRNPKKKVILLADQYRERWKIKNGDTTPSRPHRFALTG",
+    "MRLHILLFTLSSSTSLALTGSTTMDPFHPSVDTLLAADRHIGERVTRQRHLREEVGPETLKVEQVTAMIALHESDLMALADSLGMHPLNFLVALKKRNPKKKVILLADQYRERWKIKNGDTTPSRPHRFDLS",
+    "MRFLLVAVVAMMALVSSSTAAVAETSNDINTMNNNQEFARSLRNTEERSIAAILAEAGEEDRAAWRINYRAWYKAKLTPTQVKTVLGVSQAEMNNVAKQLQRLYLGYYSFYTAMEKKKEEKKRLATP",
+    "MRFLLVAVVAMMALVSSSTAAVAETSNDINTMNNNQEFARSLRNTEERSIAAILAEAGEEDRAAWRINYRAWYKAKLTPTQVKTVLGVSQAEMNNVAKQLQRLYLGYYSFYTAMEKKKEEK",
+    "MRFLLVAVVAMMALVSSSTAAVAETSNDINTMNNNQEFARSLRNTEERSIAAILAEAGEEDRAAWRINYRAWYKAKLTPTQVKTVLGVSQAEMNNVAKQLQRLYLGYYSFYTAMEKKKEEKKRLATPAA"
+  )
+)
+
+# test_dataframe %>%
+#   knitr::kable()
+```
+
+```{r}
+# Lookup dummy
+
+lookup_dummy <- data.frame(
+  organism = c("organism_1", "organism_2"),
+  count = c(2, 3)
+)
+
+lookup_dummy["count"][2, ]
+```
+
+
+```{r}
+getting_sample_data(
+  tbl = test_dataframe,
+  col_organism = organism,
+  col_id = ID,
+  col_seq = seq,
+  organism_name = "organism_2",
+  num_sample = 3
+)
+```
+
+
+
+```{r}
+df_list <- list()
+
+for (i in 1:nrow(lookup_dummy)) {
+  print(i)
+  # df <- getting_sample_data(test_dataframe, lookup_dummy["organism"][i,], lookup_dummy["count"][i,], max_iterations = 5)
+  df <- getting_sample_data(test_dataframe, as.character(lookup_dummy[["organism"]][i]), lookup_dummy[["count"]][i])
+
+  df_list[[i]] <- df
+}
+
+df <- df_list %>%
+  purrr::reduce(rbind)
+```
+
+```{r}
+df
+```
+
+
+### Run with bacteria
+
+```{r}
+# Read the full table pf the prediction result of the SignalP
+
+bacteria_full_table <- data.table::fread("../../../data/secreted_data/updated_signalp_results/bacteria_full_table.csv") %>%
+  # Make the name of organisms consistent with the lookup table
+  mutate(
+    organism_name = organism_name %>%
+      stringr::str_replace_all("^_", "") %>%
+      stringr::str_to_lower()
+  ) %>%
+  dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+
+
+bacteria_lookup_table <- data.table::fread("../../../data/secreted_data/dataset-download-scripts/pathogen_species_final.csv") %>%
+  `colnames<-`(c("Pathogenspecies", "Count")) %>%
+  group_by(Pathogenspecies) %>%
+  summarise(total_count = sum(Count))
+
+bacteria_lookup_table <- bacteria_lookup_table %>%
+  mutate(
+    Pathogenspecies = Pathogenspecies %>%
+      stringr::str_to_lower() %>%
+      stringr::str_remove_all("\\.") %>%
+      stringr::str_replace_all(" ", "_")
+  )
+
+bacteria_lookup_table <- bacteria_lookup_table %>%
+  ungroup() %>%
+  # Manual name fixes
+  mutate(
+    Pathogenspecies = Pathogenspecies %>%
+      stringr::str_replace_all("\\(", "") %>%
+      stringr::str_replace_all("\\)", "") %>%
+      stringr::str_replace_all("-", "_"),
+    Pathogenspecies = ifelse(
+      Pathogenspecies == "xanthomonas_citri_subsp_malvacearum",
+      "xanthomonas_citri_pv_malvacearum",
+      Pathogenspecies
+    ),
+    Pathogenspecies = ifelse(
+      Pathogenspecies == "pantoea_stewartii_subsp_stewartii",
+      "pantoea_stewartii",
+      Pathogenspecies
+    )
+  ) %>%
+  # Fix repeated Pathogenspecies
+  group_by(Pathogenspecies) %>%
+  summarise(total_count = sum(total_count))
+```
+
+
+```{r}
+getting_sample_data(
+  tbl = bacteria_full_table %>% dplyr::rename(organism_nameee = organism_name),
+  col_organism = organism_nameee,
+  col_id = ID,
+  col_seq = sequence,
+  organism_name = "pseudomonas_syringae.gaw0119_1.0_311105",
+  num_sample = 200
+)
+```
+
+```{r}
+# for testing
+
+lookup_test <- bacteria_lookup_table %>%
+  head(3)
+```
+
+
+```{r}
+lookup_test
+```
+
+```{r}
+# Tesr using actual data
+df_list <- list()
+
+for (i in 1:nrow(lookup_dummy)) {
+  print(i)
+
+  df <- getting_sample_data(tbl = bacteria_full_table, col_organism = "organism_name", organism_name = as.character(lookup_test[["Pathogenspecies"]][i]), num_sample = lookup_test[["total_count"]][i])
+
+  df_list[[i]] <- df
+}
+
+df <- df_list %>%
+  purrr::reduce(rbind)
+```
+
+
