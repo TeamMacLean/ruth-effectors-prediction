@@ -8,8 +8,8 @@ getting_sample_data <- function(tbl,
   # Getting the bag of sequence data only for the given organism name
   table_processed <- tbl %>%
     # Remove the duplicate data
-    dplyr::filter({ col_organism } == organism_name) %>%
-    dplyr::group_by(col_seq) %>%
+    dplyr::filter({{ col_organism }} == organism_name) %>%
+    dplyr::group_by({{ col_seq }}) %>%
     dplyr::slice(1) %>%
     dplyr::ungroup()
 
@@ -23,7 +23,12 @@ getting_sample_data <- function(tbl,
     dplyr::sample_n(size = 1, replace = FALSE)
 
   table_processed <- table_processed %>%
-    dplyr::filter({{ col_id }} != list_of_df[["seq1"]][[col_id]])
+    dplyr::filter(
+      {{ col_id }} != list_of_df[["seq1"]] %>% pull({{ col_id }})
+    )
+
+  # Create temporary folder
+  temp_dir <- tempdir()
 
   # Setting the condition of the sample availability
   for (i in 2:max_iterations) {
@@ -43,16 +48,15 @@ getting_sample_data <- function(tbl,
 
     # Update the table by removing the element that is taken already
     table_processed <- table_processed %>%
-      dplyr::filter({{ col_id }} != list_of_df[[paste0("seq", i)]][[col_id]])
-
-    # Create temporary folder
-    temp_dir <- tempdir()
+      dplyr::filter(
+        {{ col_id }} != list_of_df[[paste0("seq", i)]] %>% pull({{ col_id }})
+      )
 
     # FASTA from previous sequences
     get_fasta_from_df(
-      df = list_of_df[seq(1, i - 1, 1)] %>% purrr::reduce(rbind),
-      column_id = col_id,
-      column_seq = col_seq,
+      df = list_of_df[seq(1, length(list_of_df) - 1, 1)] %>% purrr::reduce(rbind),
+      column_id = {{ col_id }},
+      column_seq = {{ col_seq }},
       fasta_name = "fasta_1",
       dir_path = temp_dir
     )
@@ -60,8 +64,8 @@ getting_sample_data <- function(tbl,
     # FASTA from new sequence
     get_fasta_from_df(
       df = list_of_df[[paste0("seq", i)]],
-      column_id = col_id,
-      column_seq = col_seq,
+      column_id = {{ col_id }},
+      column_seq = {{ col_seq }},
       fasta_name = "fasta_2",
       dir_path = temp_dir
     )
@@ -89,7 +93,7 @@ getting_sample_data <- function(tbl,
     }
 
     # Delete temporary folder
-    unlink(temp_dir)
+    # unlink(temp_dir)
 
     # Notify about reaching the maximum possible iterations
     if (i == max_iterations) {

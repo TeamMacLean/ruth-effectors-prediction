@@ -4,29 +4,40 @@ library(tidyverse)
 library(Biostrings)
 library(seqRFLP)
 
-
-
-get_fasta_from_df <- function(df, fasta_name = NULL, dir_path = "data/secreted_data/split-blast/fasta_files") {
-  #' Function to automatically chnage the dataframe to fasta data
+get_fasta_from_df <- function(df, column_id, column_seq, label = NULL, fasta_name = NULL, dir_path = "data/secreted_data/split-blast/fasta_files") {
+  #' Function to automatically change the dataframe to fasta data
   #'
   #' @param df dataframe. The dataframe we want to change to fasta data (need to be R dataframe not tibble)
   #' @param dir_path path string. String contains path where we will save the data
 
   if (is.null(fasta_name)) {
-  df_name <- deparse(substitute(df))
+    df_name <- deparse(substitute(df))
   } else {
     df_name <- fasta_name
   }
 
   # Change the label to become ID name
-  df <- df %>%
-    dplyr::mutate(ProteinID = stringr::str_c(ProteinID, label, sep = "_")) %>%
-    select(c(ProteinID, Sequence))
-
+  if (!is.null(label)) {
+    df <- df %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(
+        {{ column_id }} := stringr::str_c({{ column_id }}, label, sep = "_")
+      ) %>%
+      dplyr::select(
+        {{ column_id }}, {{ column_seq }}
+      )
+  } else {
+    df <- df %>%
+      # dplyr::ungroup() %>%
+      dplyr::select(
+        {{ column_id }}, {{ column_seq }}
+      )
+  }
 
   data_fa <- df %>%
     as.data.frame() %>%
-    seqRFLP::dataframe2fas(file = here::here(dir_path, paste0(df_name, ".fasta")))
+    seqRFLP::dataframe2fas(file = paste0(dir_path, "/", df_name, ".fasta"))
+  message("The data frame has been saved in ", paste0(dir_path, "/", df_name, ".fasta"))
 }
 
 get_blast_data <- function(database_fasta_path, query_fasta_path, dir_path = "data/secreted_data/split-blast/blast_files") {
@@ -54,13 +65,15 @@ get_blast_data <- function(database_fasta_path, query_fasta_path, dir_path = "da
   # List of data to blast
   db_name <- get_name(database_fasta_path, query_fasta_path)[1]
   query_name <- get_name(database_fasta_path, query_fasta_path)[2]
-  result_name <- here::here(dir_path, paste0(db_name, "_vs_", query_name, ".tsv"))
+  # result_name <- here::here(dir_path, paste0(db_name, "_vs_", query_name, ".tsv"))
+  result_name <- paste0(dir_path, "/", db_name, "_vs_", query_name, ".tsv")
 
   # Making the database
   system(paste("makeblastdb ", "-in ", database_fasta_path, "-dbtype ", "prot"), intern = TRUE)
 
   # Blast the database against the query name
   system(paste("blastp ", "-query ", query_fasta_path, "-db ", database_fasta_path, "-out ", result_name, " -outfmt ", "\"6  qseqid qlen sseqid slen length nident mismatch positive\""))
+  # message("The BLAST results have been saved in ", result_name %>% stringr::str_remove_all("/Users/kristian/Documents/Workspace/ruth-effectors-prediction/"))
 }
 
 
@@ -84,7 +97,7 @@ blast_results <- function(result_path, percent_threshold) {
   df_results <- data.table::fread(result_path) %>%
     setNames(c("qseqid", "qlen", "sseqid", "slen", "length", "nident", "mismatch", "positive")) %>%
     rowwise() %>%
-    mutate(
+    dplyr::mutate(
       percent_indentical = (nident / max(qlen, slen)) * 100, # The percentage of identical sequence over the longer sequence
       percent_positive = (positive / max(qlen, slen)) * 100 # The percentage of positive sequence over the longer sequence
     )
