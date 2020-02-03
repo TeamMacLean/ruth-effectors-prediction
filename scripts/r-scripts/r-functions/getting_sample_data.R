@@ -1,17 +1,56 @@
-getting_sample_data <- function(tbl,
-                                col_organism,
-                                col_id,
-                                col_seq,
-                                organism_name,
-                                num_sample) {
+merge_data_with_lookup_table <- function(bag_data, bag_var, lookup_data, lookup_var) {
+  # Create lookup pattern for base_name
+  lookup_pattern <- lookup_data %>%
+    # Arrange by level of "specificity"
+    dplyr::mutate(
+      specificity_level = stringr::str_count({{ lookup_var }}, "_")
+    ) %>%
+    dplyr::arrange(dplyr::desc(specificity_level)) %>%
+    # Get vector
+    dplyr::pull({{ lookup_var }}) %>%
+    as.character() %>%
+    # Create regex pattern
+    paste0("^", ., collapse = "|")
+
+  merged_table <- dplyr::left_join(
+    # Data with new base_names column
+    bag_data %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(
+        base_names =
+          stringr::str_match(
+            string = {{ bag_var }},
+            pattern = lookup_pattern
+          ) %>%
+          .[1] %>%
+          as.character()
+      ),
+    # Lookup table with base_names
+    lookup_data %>%
+      dplyr::mutate(
+        {{ lookup_var }} := as.character({{ lookup_var }})
+      ) %>%
+      dplyr::select(base_names = {{ lookup_var }}, samples_needed),
+    by = "base_names"
+  ) %>%
+    dplyr::select(-base_names) %>%
+    dplyr::ungroup()
+
+  return(merged_table)
+}
+
+get_sample_data <- function(tbl, col_id, col_seq, col_num_sample) {
 
   # Getting the bag of sequence data only for the given organism name
   table_processed <- tbl %>%
     # Remove the duplicate data
-    dplyr::filter({{ col_organism }} == organism_name) %>%
     dplyr::group_by({{ col_seq }}) %>%
     dplyr::slice(1) %>%
     dplyr::ungroup()
+
+  num_sample <- table_processed %>%
+    pull({{ col_num_sample }}) %>%
+    .[1]
 
   # Initialize list of data frames
   list_of_df <- list()
@@ -84,7 +123,7 @@ getting_sample_data <- function(tbl,
 
     percent <- res_list[["df"]] %>%
       dplyr::filter(qseqid != sseqid) %>%
-      pull(percent_indentical)
+      pull(percent_identical)
 
     message("Checking percentages...")
     if (any(percent > 90)) {
@@ -106,4 +145,33 @@ getting_sample_data <- function(tbl,
     purrr::reduce(rbind)
 
   return(df_combined)
+}
+
+map_sampleing_function <- function(df, col_organism, col_id, col_seq) {
+  df %>%
+    # Nest by organism name
+    dplyr::group_by({{col_organism}}) %>%
+    tidyr::nest() %>%
+    # Map get_sample_data into nested data
+    dplyr::mutate(
+      sampled_data = purrr::map(
+        .x = data,
+        .f = function(x) {
+          get_sample_data(
+            tbl = x,
+            col_id = {{col_id}},
+            col_seq = {{col_seq}},
+            col_num_sample = samples_needed
+          )
+        }
+      )
+    ) %>%
+    # Get rid of unsampled, full data
+    dplyr::select(-data) %>%
+    # Unnest sampled data
+    tidyr::unnest(cols = c(sampled_data)) %>%
+    dplyr::group_by(organism_name) %>%
+    # Count actual sampled
+    dplyr::mutate(samples_obtained = n()) %>%
+    dplyr::ungroup()
 }

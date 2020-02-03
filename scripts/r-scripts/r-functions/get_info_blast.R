@@ -18,21 +18,21 @@ library(magrittr)
     setNames(c("qseqid", "qlen", "sseqid", "slen", "length", "nident", "mismatch", "positive")) %>%
     rowwise() %>%
     mutate(
-      percent_indentical = (nident/max(qlen, slen))*100, # The percentage of identical sequence over the longer sequence
+      percent_identical = (nident/max(qlen, slen))*100, # The percentage of identical sequence over the longer sequence
       percent_positive = (positive/max(qlen, slen))*100 # The percentage of positive sequence over the longer sequence
       ) %>%
     ungroup()
 
   # Get the row indices of the source data for all of the identical percentage > 90%
   source_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > 90) %>%
+    filter(percent_identical > 90) %>%
     select(sseqid) %>%
     unique() %>%
     unlist()
 
   # Get the row indices of the query data for all of the identical percentage > 90%
   query_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > 90) %>%
+    filter(percent_identical > 90) %>%
     select(qseqid) %>%
     unique() %>%
     unlist()

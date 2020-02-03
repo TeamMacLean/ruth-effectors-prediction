@@ -78,7 +78,7 @@ get_blast_data <- function(database_fasta_path, query_fasta_path, dir_path = "da
 
 
 # function to read the results and get the list of row index
-blast_results <- function(result_path, percent_threshold) {
+blast_results <- function(result_path, percent_threshold = 95) {
   #' Function to read all of the data
   #'
   #' @param result_path path string. Path of blast result done using function get_blast_data()
@@ -94,28 +94,34 @@ blast_results <- function(result_path, percent_threshold) {
   # mismatch means Number of mismatches
   # positive means Number of positive-scoring matches
 
-  df_results <- data.table::fread(result_path) %>%
+  df_results <- data.table::fread(result_path)
+
+  if (nrow(df_results) == 0) {
+    df_results <- df_results %>% rbind(t(rep(NA, 8)))
+  }
+
+  df_results <- df_results %>%
     setNames(c("qseqid", "qlen", "sseqid", "slen", "length", "nident", "mismatch", "positive")) %>%
     rowwise() %>%
     dplyr::mutate(
-      percent_indentical = (nident / max(qlen, slen)) * 100, # The percentage of identical sequence over the longer sequence
+      percent_identical = (nident / max(qlen, slen)) * 100, # The percentage of identical sequence over the longer sequence
       percent_positive = (positive / max(qlen, slen)) * 100 # The percentage of positive sequence over the longer sequence
     )
 
   # Get the data frame where the percent identical > 90
   df_identical_protein <- df_results %>%
-    filter(percent_indentical > percent_threshold)
+    filter(percent_identical > percent_threshold)
 
   # Get the row indices of the subject data for all of the identical percentage > 90%
   subject_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > percent_threshold) %>%
+    filter(percent_identical > percent_threshold) %>%
     select(sseqid) %>%
     unique() %>%
     unlist()
 
   # Get the row indices of the query data for all of the identical percentage > 90%
   query_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > percent_threshold) %>%
+    filter(percent_identical > percent_threshold) %>%
     select(qseqid) %>%
     unique() %>%
     unlist()
@@ -130,4 +136,31 @@ blast_results <- function(result_path, percent_threshold) {
 
   # Return the lists
   return(list_results)
+}
+
+blast_with_ifself <- function(df, col_id, col_seq, percent_threshold) {
+  temp_dir <- tempdir()
+
+  get_fasta_from_df(
+    df = df,
+    column_id = {{ col_id }},
+    column_seq = {{ col_seq }},
+    fasta_name = "fasta_self",
+    dir_path = temp_dir
+  )
+
+  get_blast_data(
+    database_fasta_path = paste0(temp_dir, "/fasta_self.fasta"),
+    query_fasta_path = paste0(temp_dir, "/fasta_self.fasta"),
+    dir_path = temp_dir
+  )
+
+  blast_results(
+    result_path = paste0(temp_dir, "/fasta_self_vs_fasta_self.tsv"),
+  )[["df"]] %>%
+    filter(
+      qseqid != sseqid,
+      percent_identical > percent_threshold
+    ) %>%
+    arrange(desc(percent_identical))
 }
