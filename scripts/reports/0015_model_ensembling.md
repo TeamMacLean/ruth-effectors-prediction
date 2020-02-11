@@ -260,7 +260,7 @@ plot_confusion_matrices(
 )
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/reports/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](/ruth-effectors-prediction/scripts/reports/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ### Pearson Correlation Matrix
 
@@ -268,10 +268,10 @@ plot_confusion_matrices(
 plot_cormat(ensemble_results %>% dplyr::select(-c(sequence)), cor_trans = NULL, variable = NULL)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/reports/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](/ruth-effectors-prediction/scripts/reports/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ``` r
 plot_cormat(ensemble_results %>% dplyr::select(-c(sequence)), cor_trans = "abs", variable = NULL)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/reports/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](/ruth-effectors-prediction/scripts/reports/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-10-1.png)
