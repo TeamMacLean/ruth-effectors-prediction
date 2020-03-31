@@ -1,0 +1,209 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+```
+
+# May 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+## `r "2019-05-01" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Figured out how to get the information / data from the `.log` file of CNN model using sep convolutional 1D.
+
+## `r "2019-05-02" -> curr_date; "2019-05-03" -> to_date; get_formatted_date(curr_date, to_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Continue the extract the information from the `.log` file.
+- Getting the non-effector data from the NCBI (per organism, put inside the collection).
+
+
+***
+
+
+## `r "2019-05-06" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+
+## `r "2019-05-07" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Add the verbose to get more info in the log file of the scripts that will be run in the GPU cluster.
+- Install BLAST and learn how it works.
+
+#### Weekly catch up minutes
+
+- Make sure focus on what the objectives are (not to overdoing something).
+- While waiting for the first model run to finish, I can create another model for sub-cellular localisation (LSTM + CNN model).
+- Get the training, validation, and testing data. Compare the sequence in those set of data using BLAST, and report to Dan on Monday which data will get rid of. 
+
+
+## `r "2019-05-08" -> curr_date; "2019-05-09" -> to_date; get_formatted_date(curr_date, to_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Play a little bit with BLAST (try using some data in a tutorial).
+- Started to work with my data.
+
+
+## `r "2019-05-10" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Understanding the results and made the report using R.
+
+
+***
+
+
+## `r "2019-05-13" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Learned RNN from *Deep Learning with Python*.
+- Tried to retrieve data from NCBI.
+
+#### Weekly catch up meeting's minutes
+
+- Draft model will be expected next Monday.
+- Continue finding sequences using API / Batch Entrez. Can't be done using SRA.
+
+
+## `r "2019-05-14" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date, to_date)` -->
+
+#### Worked on
+
+##### Effector Classification Project
+
+- Specified the categories of data that have been removed from the datasets (whether it is bacteria, fungi, or oomycetes)
+- Get new data from NCBI from Bacteria
+    
+
+##### Subcellular Localisation Project
+
+- Learned about word Embedding, sequence preprocessing in R
+- SimpleRNN, and the concepts of LSTM
+
+
+***
+
+
+## `r "2019-05-15" -> curr_date; "2019-05-17" -> to_date; get_formatted_date(curr_date, to_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Read and learn about LSTM, GRU architectures
+- Create the draft of architecture models.
+- Added the additional effector and noneffector data to dataframe without identical protein. sequence (retrieve the fasta data on NCBI).
+- Check the models that have been running in GPUs.
+
+
+***
+
+
+## `r "2019-05-20" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Updated the report.
+- Checked how much progress that has been achieved of the model running in cluster.
+
+#### Weekly catch up meeting's minutes
+
+- Think about grow structure, think carefully how each layer actually impact on the data and results (end to end process) >> balancing the layers.
+- Try to work with epoch max 40 (in the range 20 -- 40).
+- It is better to have simple model that run quickly and can be analysed and give results quickly.
+
+#### Next steps
+
+- Create simpler model with considering the grow structure (for CNN and also CNN + LSTM).
+- Start to encode the data that has been ready.
+
+## `r "2019-05-21" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- TSL annual talks.
+
+## `r "2019-05-22" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- BLAST again the last datasets (after the additional effector and non-effector).
+- Create new model for the CNN sep models (since the last one was cancelled).
+
+## `r "2019-05-23" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Demo to the SAB.
+- Encoding the data.
+
+## `r "2019-05-24" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Continued with encoding data.
+- Created some models arcihtecture for subcellular localisation.
+
+***
+
+## `r "2019-05-27" -> curr_date; "2019-05-28" -> to_date; get_formatted_date(curr_date, to_date, comment = "Bank Holiday")`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+
+## `r "2019-05-29" -> curr_date; "2019-05-31" -> to_date; get_formatted_date(curr_date, to_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Training each of the model architecture created -- baby sitting.
+- Data-preprocessing for effector and noneffector protein.

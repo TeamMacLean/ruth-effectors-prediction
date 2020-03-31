@@ -1,0 +1,225 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+```
+
+# November 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+## `r "2019-11-01" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Finished the confusion matrix.
+- Checked the jobs of subcellular multicompartment.
+- Make report for both.
+- Finishing lab books September, October.
+
+
+***
+
+## `r "2019-11-04" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Weekly catch up minutes
+
+##### Sub-cellular protein project
+
+- The better model so far is CNN with 16 filter CNN and filter LSTM since it has more generality than with filter 64 by 64 or 48 by 48 (with acc= 40 % better than random) ==> suggests that CNN did not give any good representation of the model, so then we need to change the network ( for sequence maybe CNN only is better).
+
+##### Effector-non effector project
+
+- From conffusion matrix, it suggests that the model is conservative, it tends to say no if they can not recognise the sequence, the difference between false negative and false positive is around 1/4.
+- For next step:
+  - Make the heatmap from the layer of CNN after activation to see effector motives.
+
+## `r "2019-11-05" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Did the Visa documents scanning and uploading.
+- Tried to understand how to visualize the result of CNN filter on the matrix one hot encoding data:
+  - Got an error `ImportError: Could not import PIL.Image. The use of `array_to_img` requires PIL.
+  - Solved error by installing `conda install pillow`.
+
+## `r "2019-11-06" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Going to talks in Autumn Symposium.
+
+## `r "2019-11-07" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Going to Croydon for the Visa application.
+
+## `r "2019-11-08" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Continue with heatmap for the effector and non-effector project.
+- Thinking about the next step of the subcellular localisation (after the diagram that Dan showed).
+
+
+***
+
+
+## `r "2019-11-11" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Finishing the heatmap.
+- Read the GAN for generating sequences.
+
+#### Weekly catch up minutes
+
+##### Sub-cellular protein project
+
+- I proposed an idea to start with GAN and data augmentation for this project, and Dan agreed.
+
+##### Effector-non effector project
+
+- I did wrong way to get the heatmap for the sequence data (looked at the book of Chollet).
+
+## `r "2019-11-12" -> curr_date; "2019-11-13" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Figure out the formula for Grad-Cam and how to implement it on sequence data.
+- Did the plot and tried to combine for both the original plot of sequence data and heatmap.
+- Install library `OpenCV` on tensorflow env, but it downgrade the hdf5, and the pretarined model does not want to load properly.
+- Uninstall OpenCV: `conda remove -n tensorflow opencv`.
+- `conda update -n tensorflow h5py hdf5`.
+
+## `r "2019-11-14" -> curr_date; get_formatted_date(curr_date, comment = "Annual Leave")`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+- Took a day off from the Annual Leave (moving to a new place).
+
+## `r "2019-11-15" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Tried to fix the error on `tensorflow` conda env.
+
+
+***
+
+
+## `r "2019-11-18" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Making the heatmap using the OpenCV.
+- Could not get the result using the work PC, therefore using the personal PC to get the result.
+
+## `r "2019-11-19" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Weekly catch up meeting
+
+##### Sub-cellular protein project
+
+- For the Discriminator network, Dan said it is okay to use the current models we have (CNN-LSTM).
+
+##### Effector-non effector project
+
+- Making all of the of the combined from all of matrices for each datasets (training, validation, and testing).
+- Soon to wrap it up become a paper that we can publish.
+- What if we combine with the model that already exist? next week: purpose some models (published model).
+
+## `r "2019-11-20" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Making the matrix heatmap calculation.
+- Could not run in the cluster (`Error: there is no keras/tensorflow module`).
+
+## `r "2019-11-21" -> curr_date; "2019-11-22" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Fixed the bugs from the matrix heatmap calculations (takes a lot of memory).
+- Try to create the GAN architecture.
+- Getting the value of 8 physicochemical attributes (Kawashima, Ogata and Kanehisa, 1998).
+
+
+***
+
+
+## `r "2019-11-25" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Weekly catch up meeting
+
+##### Sub-cellular protein project
+
+- Can be postponed first and prioritize the effector and non-effector one as the result is more obvious.
+
+##### Effector and non-effector prediction
+
+- There are two things to do in order to see how the model behave specifically:
+  - Shrink the datasets into different genus and run it spearately.
+  - Or tweak the model into multiclass classification for different genus.
+
+- Ensemble the current model with any model, can be deep learning or can be other models, as long as the models resulting in the same classifocation with the model that we have now (and also as long as it classify all kind of effector).
+
+## `r "2019-11-26" -> curr_date; "2019-11-28" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Get the data grouping for both cases.
+- Encode them.
+- Had problem with my conda env.
+
+## `r "2019-11-29" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Train all of the datasets in 2 different models (CNN-LSTM, CNN-GRU).

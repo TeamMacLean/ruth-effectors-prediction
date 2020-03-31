@@ -1,0 +1,163 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+```
+
+# June 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+## `r "2019-06-03" -> curr_date; "2019-06-04" -> to_date; get_formatted_date(curr_date, to_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Made report of the models for both effector--noneffector and subcellular protein data.
+- Wrote scripts hyperparameter scans for effector and noneffector protein data.
+
+
+## `r "2019-06-05" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Had meeting at 10 AM.
+- Made the hyper-parameter scripts for the Conv1D model.
+
+#### Weekly catch up minutes
+
+##### Project 1 (Subcellular Localisation)
+
+- Try to think alternative of other encoding method for the amino acids protein sequence (K-mer, CGR, or n-grams from K-mer).
+- For the CGR, due to the memory limitation, then probably the best mac depth is 5.
+    
+##### Project 2 (Effector - Noneffector protein)
+
+- Since the results are too good, too good to be true, I need to do further analysis on my data sets.
+- Present to Dan for next meeting about the training data set I have.
+- I can do the bootstrap random to select control set for the non-effector data sets.
+
+## `r "2019-06-06" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Finished the hyperparameter scan scripts for Conv1D + LSTM.
+- Find out other options of encoding amino acids.
+- Tried to download the data as non-effector control sets.
+
+## `r "2019-06-07" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Testing new models for subcellular localisation if it is using more filter.
+- Read papers about possible encoding methods.
+- Getting data for control sets.
+
+
+***
+
+
+## `r "2019-06-10" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Made the report.
+- Continued the encoding parts of the control datasets.
+- Read about the encoding method alternatives.
+
+#### Weekly catch up minutes
+
+##### Project 1
+
+- Trying the parallel running: reduce the hyperparameters into several groups.
+- Using intuition: pick one of the encoding method that is do-able.
+- If I want to try something with model: read about benchmarking for code run.
+    
+##### Project 2
+
+- Get again the data from NCBI not from from Phi-base.
+- The next step is doing multiclass classification.
+- Recognizing signal peptide carrying using `SignalP`.
+
+
+## `r "2019-06-11" -> curr_date; "2019-06-12" -> to_date; get_formatted_date(curr_date, to_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Retrieve data.
+- Chaos Game Representation (CGR).
+- Investigate the encoding method that may be do-able.
+
+
+## `r "2019-06-13" -> curr_date; get_formatted_date(curr_date, comment = "Sick Day")`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+
+## `r "2019-06-14" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Retrieving data.
+
+
+***
+
+
+## `r "2019-06-17" -> curr_date; "2019-06-21" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Continue the report of retrieving data.
+- Getting data from the beginning. (All was wrong since the first step of filtering).
+- Making the parallism code for the subcellular localisation.
+
+#### Weekly catch up minutes
+
+##### Project 1
+- Prioritize the parallelism (naively) -- may need CSV file to break down the hyperparameters, CGR, and getting one encoding method.
+
+##### Project 2 
+- Present to Dan better about the data obtained.
+
+
+***
+
+
+## `r "2019-06-24" -> curr_date; "2019-06-28" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Getting again effector data (step by step).
+- Made report of the best model in the test data (not inlcuded in the previous scripts).

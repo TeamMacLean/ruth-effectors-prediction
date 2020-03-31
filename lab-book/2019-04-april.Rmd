@@ -14,54 +14,7 @@ knitr::opts_chunk$set(
 library(tidyverse)
 
 # Formatting functions
-get_formatted_date <- function(curr_date, comment = NULL) {
-  date_text <- curr_date %>%
-    lubridate::ymd() %>%
-    base::format("%d %B %Y (%A)")
-
-  date_text <- paste(
-    date_text,
-    ifelse(
-      is.null(comment),
-      "",
-      paste("–", stringr::str_to_title(comment))
-    )
-  )
-
-  return(date_text)
-}
-
-get_formatted_date_range <- function(curr_date, to_date, comment = NULL) {
-  days_list <- seq(as.Date(curr_date), as.Date(to_date), 1)
-
-  days_text <- days_list %>%
-    lubridate::ymd() %>%
-    base::format("%d") %>%
-    stringr::str_c(collapse = ", ")
-
-  monthyear_text <- days_list %>%
-    lubridate::ymd() %>%
-    base::format("%B %Y") %>%
-    unique()
-
-  weekdays_text <- days_list %>%
-    lubridate::ymd() %>%
-    base::format("%a") %>%
-    stringr::str_c(collapse = ", ")
-
-  date_text <- paste0(
-    days_text, " ",
-    monthyear_text,
-    " (", weekdays_text, ") ",
-    ifelse(
-      is.null(comment),
-      "",
-      paste("–", stringr::str_to_title(comment))
-    )
-  )
-
-  return(date_text)
-}
+source("formatting_functions.R")
 ```
 
 # April 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
@@ -165,7 +118,7 @@ get_formatted_date_range <- function(curr_date, to_date, comment = NULL) {
 - Added the running time in SBATCH scripts in tsl-gpu (one job got canceled bc of the time limit).
 
 
-##  `r "2019-04-24" -> curr_date; "2019-04-26" -> to_date; get_formatted_date_range(curr_date, to_date)
+##  `r "2019-04-24" -> curr_date; "2019-04-26" -> to_date; get_formatted_date(curr_date, to_date)
 `
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)` -->

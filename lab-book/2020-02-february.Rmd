@@ -26,9 +26,6 @@ source("formatting_functions.R")
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
-<!-- Total time: `#r get_total_worktime(curr_date, time_in = "9:00", time_out = "NA", time_lunch = "1:00")` -->
-
-
 #### Weekly meeting minutes: 
 
 - need to run all of the four models we got for all different datasets and see the results
@@ -42,8 +39,6 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
-
-
 #### Worked on
 
 - created scripts for all models in different datasets : `LSTM_emb` and `GRU-emb` and get it running in cluster
@@ -52,21 +47,19 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - created a function to make the pearson correlation matrix (ggplot)
 - made function of weighted average and voting classifier ensemble
 
+
 ***
+
 
 ##  `r "2020-02-10" -> curr_date; get_formatted_date(curr_date)`
 
-Commits: `r gitlogr::get_git_commit_count(curr_date)`
+#### Activities:
 
-
-
-Going for a german visa application in London. 
+- Going for a German visa application in London. 
 
 ##  `r "2020-02-11" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
-
-
 
 #### Weekly meeting minutes:
 
@@ -79,8 +72,6 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 ##  `r "2020-02-12" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
-
-
 
 #### Worked on:
 
@@ -95,9 +86,6 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 ##  `r "2020-02-13" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
-
-
-
  
 #### Worked on: 
 
@@ -109,9 +97,6 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 ##  `r "2020-02-14" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
-
-
-
 
 #### Worked on: 
 
@@ -128,7 +113,6 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
-
 #### Worked on:
 
 - tuning manually the model with the extra epochs 
@@ -140,7 +124,6 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 ##  `r "2020-02-18" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
-
 
 #### Weekly minutes:
 
@@ -163,5 +146,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - moved all the results to local directories for fungi, all, and bacteria
 
 ## `r "2020-02-24" -> curr_date; "2020-02-28" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+#### Activities:
 
 - went to Germany for an interview

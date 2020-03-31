@@ -1,0 +1,29 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+```
+
+# August 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+## `r "2019-08-30" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `#r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Meeting Recap

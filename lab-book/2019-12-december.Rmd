@@ -14,55 +14,7 @@ knitr::opts_chunk$set(
 library(tidyverse)
 
 # Formatting functions
-get_formatted_date <- function(curr_date, comment = NULL) {
-  date_text <- curr_date %>%
-    lubridate::ymd() %>%
-    base::format("%d %B %Y (%A)")
-
-  date_text <- paste(
-    date_text,
-    ifelse(
-      is.null(comment),
-      "",
-      paste("–", stringr::str_to_title(comment))
-    )
-  )
-
-  return(date_text)
-}
-
-get_formatted_date_range <- function(curr_date, to_date, comment = NULL) {
-  days_list <- seq(as.Date(curr_date), as.Date(to_date), 1)
-
-  days_text <- days_list %>%
-    lubridate::ymd() %>%
-    base::format("%d") %>%
-    stringr::str_c(collapse = ", ")
-
-  monthyear_text <- days_list %>%
-    lubridate::ymd() %>%
-    base::format("%B %Y") %>%
-    unique()
-
-  weekdays_text <- days_list %>%
-    lubridate::ymd() %>%
-    base::format("%a") %>%
-    stringr::str_c(collapse = ", ")
-
-  date_text <- paste0(
-    days_text, " ",
-    monthyear_text,
-    " (", weekdays_text, ") ",
-    ifelse(
-      is.null(comment),
-      "",
-      paste("–", stringr::str_to_title(comment))
-    )
-  )
-
-  return(date_text)
-}
-
+source("formatting_functions.R")
 ```
 
 # December 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
@@ -116,7 +68,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - Check the length of fungi sequences (apparently, the length of fungi dataset is very low, see the 0010_getting_info_data_each_class.Rmd), so its definitely the problem with code or method.
   
 
-##  `r "2019-12-05" -> curr_date; "2019-12-06" -> to_date; get_formatted_date_range(curr_date, to_date)`
+##  `r "2019-12-05" -> curr_date; "2019-12-06" -> to_date; get_formatted_date(curr_date, to_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 
@@ -149,7 +101,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - Try to get secreted data forthe organism.
 
 
-##  `r "2019-12-10" -> curr_date; "2019-12-12" -> to_date; get_formatted_date_range(curr_date, to_date)`
+##  `r "2019-12-10" -> curr_date; "2019-12-12" -> to_date; get_formatted_date(curr_date, to_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 
@@ -209,7 +161,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - apparently we can't use `biomaRt` package in R in ensEmbl genomes, we need to write query to retrieve the protein data
 - `biomaRt` can be only used for `ensemble.org`
 
-##  `r "2019-12-19" -> curr_date; "2019-12-20" -> to_date; get_formatted_date_range(curr_date, to_date)`
+##  `r "2019-12-19" -> curr_date; "2019-12-20" -> to_date; get_formatted_date(curr_date, to_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 
