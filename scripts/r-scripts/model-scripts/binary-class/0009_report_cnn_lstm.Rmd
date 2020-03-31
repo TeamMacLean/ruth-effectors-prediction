@@ -1,0 +1,202 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "14/10/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+
+# Report on Manually training the model CNN-LSTM
+
+## Load library
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(reshape)
+```
+
+
+## Define function to get the plot of the accuracy 
+
+```{r}
+get_gg_acc <- function(acc_train_data, acc_val_data){
+  
+  # Melt data
+  acc_train_data_melt <- melt(acc_train_data, id=c("V1"))
+  acc_val_data_melt <- melt(acc_val_data, id=c("V1"))
+  
+  # Rename the data column
+  acc_train_data_melt <- acc_train_data_melt %>%
+  `colnames<-`(c("epochs", "CV", "acc_train"))
+
+  acc_val_data_melt <- acc_val_data_melt %>%
+  `colnames<-`(c("epochs", "CV", "acc_val"))
+  
+  # Left join into 1 dataframe
+  train_val_acc_data <- acc_train_data_melt %>% 
+  left_join(., acc_val_data_melt, by = c("epochs", "CV")) %>% 
+  mutate(epochs = epochs + 1)
+  
+  # Plot the accuracy data
+  gg_accuracy <- ggplot(train_val_acc_data) +
+      aes(x = epochs, group = CV, color = as.factor(CV)) + 
+      geom_line(aes(y = acc_train, linetype = "train")) +
+      geom_line(aes(y = acc_val, linetype = "val")) +
+      geom_point(aes(y = acc_train), size = 1.5) +
+      geom_point(aes(y = acc_val), size = 1.5) +
+      labs(x = "Epochs", y = "Accuracy", color = "CV") +
+      labs(title = "Accuracy for Training and Validation")
+  
+  return(gg_accuracy)
+}
+```  
+
+## Model 1
+
+```{r}
+acc_train_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best1.csv")
+acc_val_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best1.csv")
+acc_test_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best1.csv")
+```
+
+
+```{r}
+get_gg_acc(acc_train_best1, acc_val_best1)
+```
+
+```{r}
+acc_test_best1 <- acc_test_best1 %>% 
+  `colnames<-`(c("CV", "Test Acc", "Sensitivity", "Specitivity")) %>% 
+  mutate(CV = CV + 1)
+
+acc_test_best1
+```
+
+```{r}
+mean(acc_test_best1[["Test Acc"]])
+```
+
+
+## Model 2 
+
+```{r}
+acc_train_best2 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best2.csv")
+acc_val_best2 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best2.csv")
+acc_test_best2 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best2.csv")
+```
+
+```{r}
+get_gg_acc(acc_train_best2, acc_val_best2)
+```
+
+```{r}
+acc_test_best2 <- acc_test_best2 %>% 
+  `colnames<-`(c("CV", "Test Acc", "Sensitivity", "Specitivity")) %>% 
+  mutate(CV = CV + 1)
+
+acc_test_best2
+```
+
+```{r}
+mean(acc_test_best2[["Test Acc"]])
+```
+
+## Model 3
+
+```{r}
+acc_train_best3 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best3.csv")
+acc_val_best3 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best3.csv")
+acc_test_best3 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best3.csv")
+```
+
+```{r}
+get_gg_acc(acc_train_best3, acc_val_best3)
+```
+
+```{r}
+acc_test_best3 <- acc_test_best3 %>% 
+  `colnames<-`(c("CV", "Test Acc", "Sensitivity", "Specitivity")) %>% 
+  mutate(CV = CV + 1)
+
+acc_test_best3 
+```
+
+```{r}
+mean(acc_test_best3[["Test Acc"]])
+```
+
+## Model 4
+
+```{r}
+acc_train_best_model8 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best_model8.csv")
+acc_val_best_model8 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best_model8.csv")
+acc_test_best_model8 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best_model8.csv")
+```
+
+```{r}
+get_gg_acc(acc_train_best_model8, acc_val_best_model8)
+```
+
+```{r}
+acc_test_best_model8 <- acc_test_best_model8 %>% 
+  `colnames<-`(c("CV", "Test Acc", "Sensitivity", "Specitivity")) %>% 
+  mutate(CV = CV + 1)
+
+acc_test_best_model8
+```
+
+```{r}
+mean(acc_test_best_model8[["Test Acc"]])
+```
+
+## Model 5
+
+```{r}
+acc_train_best_model13 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best_model13.csv")
+acc_val_best_model13 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best_model13.csv")
+acc_test_best_model13 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best_model13.csv")
+```
+
+```{r}
+get_gg_acc(acc_train_best_model13, acc_val_best_model13)
+```
+
+```{r}
+acc_test_best_model13 <- acc_test_best_model13 %>% 
+  `colnames<-`(c("CV", "Test Acc", "Sensitivity", "Specitivity")) %>% 
+  mutate(CV = CV + 1)
+
+acc_test_best_model13
+```
+
+```{r}
+mean(acc_test_best_model13[["Test Acc"]])
+```
+
+## Model 6
+
+```{r}
+acc_train_best_model20 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best_model20.csv")
+acc_val_best_model20 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best_model20.csv")
+acc_test_best_model20 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best_model20.csv")
+```
+
+```{r}
+get_gg_acc(acc_train_best_model20, acc_val_best_model20)
+```
+
+```{r}
+acc_test_best_model20 <- acc_test_best_model20 %>% 
+  `colnames<-`(c("CV", "Test Acc", "Sensitivity", "Specitivity")) %>% 
+  mutate(CV = CV + 1)
+
+acc_test_best_model20
+```
+
+```{r}
+mean(acc_test_best_model20[["Test Acc"]])
+```

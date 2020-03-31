@@ -1,0 +1,72 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "28/07/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Hyperparameters scan of fully connected dense network to predict effector protein
+
+## Aim 
+
+### Question
+
+Can the simplest deep learning model (fully connected model) with certain combination of hyperparamaters give us a good accuracy to predict effector and non-effector protein? Which hyperparamater combination will give the best accuracy?
+
+### Purpose
+
+My purpose is to find the hyperparamater combination that can give us best accuracy model. 
+
+## Method
+
+### Procedure
+
+In order to achieve what I aim for, I will conduct a hyperparameter scan using simple fully connected dense network as a base model. I will use RandomizedSearchCV() from Scikit-learn that will scan the combination of hyperparameters randomly. 
+
+## Execution
+
+I sent a job in GPUs, the scripts is available on github.
+
+
+## Results 
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+Load the all of the results of hyperparameter scan and show the best 30 models. 
+
+```{r}
+# Read the CSV files
+result_hyper_scan <- data.table::fread("../../../../data/model_scripts/result_hyper_tuned_old.csv", drop = 'V1') %>% 
+  dplyr::select(params, mean_train_score, mean_test_score)
+
+# Show the best 30 models
+result_hyper_scan %>% 
+  arrange(desc(mean_test_score)) %>% 
+  slice(1:30) %>% 
+  knitr::kable() 
+```
+
+Then now, print the results of the predicition on the test data using the first 30 models with the best validation accuracy (so called `mean_test_score` on the table above). 
+
+```{r}
+# Read the CSV of the prediction results on the test data
+predict_results <- data.table::fread("../../../../data/model_scripts/df_result_prediction_old.csv", drop = "V1")
+
+# Show the results by sort the accuracy
+predict_results %>% 
+  arrange(Accuracy) %>%  
+  knitr::kable()
+```
+
+## Conclusion
+
+By randomly selecting 100 combination of hyperparameters, and evaluate the first 30 models with the best validation accuracy on the test data, we obtained the best accuracy 77.33 % on the test data. Then, another hypothesis: if we take more than 100 randomly combination of hyperparameters, we may get better accuracy on test data prediction (more than 77.33%). 
+
+## Next Step 
+
+I sent a script on GPU to run a hyperparameter scan by selecting 250 randomly hyperparameter combination and select 100 first models with the best validation accuracy and evaluate on the test data. 

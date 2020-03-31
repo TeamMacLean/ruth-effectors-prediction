@@ -1,0 +1,622 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "27/09/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Current Results of Hyperparameters Scanning after the jobs got killed on 20 – 22 September 2019
+
+## Introduction
+
+According to the last results after there was an HPC service discruption, there are severak items need to be done according to Dan's suggestions:
+
+1. Do prediction to the test data for the hyperparamaters space that gave the best accuracy, for the model: 
+
+    - CNN-LSTM
+    - CNN-GRU
+    
+2. Do grid search on the model LSTM
+
+3. Do again RandomizedSearchCV on the model GRU
+    
+
+## Execution and Results
+
+### Evaluating on the test data for the model with the combination of hyperparamaters that gives the best accuracy training dan validation data
+
+#### CNN - LSTM with the best parameters
+
+```
+Predict using test data using random_search:
+
+  8/150 [>.............................] - ETA: 23s
+ 16/150 [==>...........................] - ETA: 15s
+ 24/150 [===>..........................] - ETA: 13s
+ 32/150 [=====>........................] - ETA: 11s
+ 40/150 [=======>......................] - ETA: 10s
+ 48/150 [========>.....................] - ETA: 9s 
+ 56/150 [==========>...................] - ETA: 8s
+ 64/150 [===========>..................] - ETA: 7s
+ 72/150 [=============>................] - ETA: 6s
+ 80/150 [===============>..............] - ETA: 5s
+ 88/150 [================>.............] - ETA: 5s
+ 96/150 [==================>...........] - ETA: 4s
+104/150 [===================>..........] - ETA: 3s
+112/150 [=====================>........] - ETA: 3s
+120/150 [=======================>......] - ETA: 2s
+128/150 [========================>.....] - ETA: 1s
+136/150 [==========================>...] - ETA: 1s
+144/150 [===========================>..] - ETA: 0s
+150/150 [==============================] - 12s 81ms/step
+acc y_pred_random_search: 0.7133333333333334
+```
+
+#### CNN - GRU with the best paramaters
+
+
+```
+Parameters:
+	optimizers: Adam
+	opt_recurrent_regs: <keras.regularizers.L1L2 object at 0x7f7d0257ed68>
+	opt_kernel_regs: <keras.regularizers.L1L2 object at 0x7f7d0257ed68>
+	opt_go_backwards: TRUE
+	opt_dropout_recurrent: 0
+	opt_dropout: 0
+	maxpool_size: 3
+	kernel_size: 2
+	gru_hidden_units: 64
+	filter_conv: 48
+	epochs: 30
+	batch_size: 8
+	activation_conv: relu
+
+  8/150 [>.............................] - ETA: 38s
+ 16/150 [==>...........................] - ETA: 24s
+ 24/150 [===>..........................] - ETA: 19s
+ 32/150 [=====>........................] - ETA: 16s
+ 40/150 [=======>......................] - ETA: 13s
+ 48/150 [========>.....................] - ETA: 12s
+ 56/150 [==========>...................] - ETA: 10s
+ 64/150 [===========>..................] - ETA: 9s 
+ 72/150 [=============>................] - ETA: 8s
+ 80/150 [===============>..............] - ETA: 7s
+ 88/150 [================>.............] - ETA: 6s
+ 96/150 [==================>...........] - ETA: 5s
+104/150 [===================>..........] - ETA: 4s
+112/150 [=====================>........] - ETA: 3s
+120/150 [=======================>......] - ETA: 3s
+128/150 [========================>.....] - ETA: 2s
+136/150 [==========================>...] - ETA: 1s
+144/150 [===========================>..] - ETA: 0s
+150/150 [==============================] - 15s 102ms/step
+acc: 0.7133333333333334
+```
+### CNN - LSTM parallel
+
+According to those results above, using the models with the combination of hyperparameters with the best results did not really give the good or massive improvements on the accuracy (comparing with the best results from fully connected dense layers). Therefore, for these models, a grid search will be done, and the scripts will be divided into 4 to minimize the time for the jobs to run: 
+
+Here are the hyperparamaters and parameters division for each script:
+
+| Script 	| Batch 	| Hidden Unit 	| Filters  	| Filters LSTM    	| Strides 	| Padding 	| Activation Convolution 	| Activation LSTM 	| Optimizers           	| Batch Normalizations 	| Epochs 	|
+|--------	|-------	|-------------	|----------	|-----------------	|---------	|---------	|------------------------	|-----------------	|----------------------	|----------------------	|--------	|
+| 1      	| 16    	| 16          	| [16, 32] 	| [8, 16, 32, 48] 	| 1       	| Valid   	| None                   	| tanh            	| ['Adam', 'Adadelta'] 	| yes                  	| 30     	|
+| 2      	| 16    	| 32          	| [16, 32] 	| [8, 16, 32, 48] 	| 1       	| Valid   	| None                   	| tanh            	| ['Adam', 'Adadelta'] 	| yes                  	| 30     	|
+| 3      	| 32    	| 16          	| [16, 32] 	| [8, 16, 32, 48] 	| 1       	| Valid   	| None                   	| tanh            	| ['Adam', 'Adadelta'] 	| yes                  	| 30     	|
+| 4      	| 32    	| 32          	| [16, 32] 	| [8, 16, 32, 48] 	| 1       	| Valid   	| None                   	| tanh            	| ['Adam', 'Adadelta'] 	| yes                  	| 30     	|
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+
+
+```{r include=FALSE}
+# Functions ------------------------------------------------
+
+read_log_into_df_with_params_list <- function(file, params_list, numeric_params) {
+  # Filter needed info from raw log, store in a vector of strings
+  # lines <- system(paste("grep -E 'loss:.*acc:|Epoch'", file), intern = TRUE)
+  # lines <- system(paste("grep -E 'loss:.*acc:|Epoch|\\[CV\\]'", file, "| grep -v 'total'"), intern = TRUE)
+  lines <- system(paste("cat ", file, " | tr -d '\\000' | grep -E 'loss:.*acc:|Epoch|\\[CV\\]' | grep -v 'total'"), intern = TRUE)
+
+  # Calculate size of vector
+  num_lines <- length(lines)
+  num_headers <- grep("Epoch", lines) %>% length()
+  num_clean_lines <- num_lines - num_headers
+
+  # We initialize the output vector of strings
+  clean_lines <- rep(NA, num_clean_lines)
+  count <- 1
+  run_count <- 0
+
+  # Loop for processing the lines
+  params_str <- NULL
+  for (i in 1:num_lines) {
+    line <- lines[[i]]
+    if (stringr::str_detect(line, "\\[CV\\]")) {
+      params_str <- line
+    } else if (stringr::str_detect(line, "Epoch")) {
+      # Store epoch "header"
+      epoch_str <- line
+      run_count <- run_count + 1
+    } else {
+      # Store data/log line
+      raw_str <- line
+
+      # Paste and save processed lines
+      clean_lines[[count]] <- paste(run_count, "-", params_str, "-", epoch_str, "-", raw_str)
+      count <- count + 1
+    }
+  }
+
+  # Transform vector of strings into data frame
+  df <- data.frame(as.list(clean_lines)) %>%
+    t() %>%
+    as_tibble() %>%
+    tibble::remove_rownames()
+
+  # Separate single column into desired columns
+  df <- df %>%
+    tidyr::separate(V1, c("run", "params", "epoch", "step", "eta", "loss", "accuracy"), sep = "-") %>%
+    tidyr::separate(params, params_list, sep = ", ") %>%
+    dplyr::mutate_at(vars(params_list), function(x) stringr::str_split(x, "=", simplify = TRUE)[, 2]) %>%
+    dplyr::mutate_at(
+      numeric_params,
+      as.numeric
+    )
+
+  return(df)
+}
+```
+
+```{r include=FALSE}
+clean_log_df_with_params <- function(data) {
+
+  # Use regex for getting the relevant content of each raw column
+  data <- data %>%
+    dplyr::mutate(
+      epoch = stringr::str_extract(epoch, "[0-9]*/[0-9]*"),
+      step = stringr::str_extract(step, "[0-9]*/[0-9]*"),
+      loss = stringr::str_extract(loss, "[0-9]*\\.[0-9]*"),
+      accuracy = stringr::str_extract(accuracy, "[0-9]*\\.[0-9]*")
+    )
+
+  # Change data types and remove useless column
+  data <- data %>%
+    mutate(
+      run = as.numeric(run),
+      loss = as.numeric(loss),
+      accuracy = as.numeric(accuracy)
+    ) %>%
+    select(-eta)
+
+  return(data)
+}
+
+
+summarise_log_data_with_params_list <- function(data, params_list) {
+  data <- data %>%
+    # Get last step of each single run
+    group_by_at(vars(c("run", "epoch", params_list))) %>%
+    slice(n()) %>%
+    # Divide epoch into current and max epoch
+    mutate(
+      curr_epoch = stringr::str_split(epoch, "/") %>% unlist %>% .[1] %>% as.numeric(),
+      max_epoch = stringr::str_split(epoch, "/") %>% unlist %>% .[2] %>% as.numeric(),
+    ) %>%
+    ungroup() %>%
+    # Get final loss/accuracy of each epoch
+    dplyr::filter(curr_epoch == max_epoch) %>%
+    select(-c(step, epoch, run, curr_epoch)) %>%
+    dplyr::rename(epochs = max_epoch) %>%
+    mutate(epochs = as.factor(epochs)) %>%
+    # Create model variable (5 runs)
+    tibble::rowid_to_column(var = "run") %>%
+    mutate(
+      model = cut(run, breaks = seq(0,1000,5), label = 1:200)
+    ) %>%
+    select(-run) %>%
+    # Summarise results
+    group_by_at(vars(c("model", "epochs", params_list))) %>%
+    summarise(
+      loss_mean = mean(loss),
+      loss_sd = sd(loss),
+      acc_mean = mean(accuracy),
+      acc_sd = sd(accuracy)
+    )
+
+  return(data)
+}
+```
+
+#### Script 1
+
+```{r}
+src_file_cnn_lstm_1 <- "../../../../results/results/0001-cnn-lstm-scan-batch16-unit16.log"
+
+src_params_list_cnn_lstm <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", "epochs_raw", "bn",
+  "batch_size", "activation_convolution", "activation_LSTM"
+)
+src_numeric_params_cnn_lstm <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs_raw", "batch_size"
+)
+```
+
+```{r}
+data_cnn_lstm_1 <- src_file_cnn_lstm_1 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm, src_numeric_params_cnn_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm_1 <- data_cnn_lstm_1 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm)
+```
+
+```{r}
+new_data_cnn_lstm_1 %>% 
+  dplyr::select(-c(loss_sd, acc_sd)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+
+#### Script 2 
+
+```{r}
+src_file_cnn_lstm_2 <- "../../../../results/results/0002-cnn-lstm-scan-batch16-unit32.log"
+```
+
+```{r}
+data_cnn_lstm_2 <- src_file_cnn_lstm_2 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm, src_numeric_params_cnn_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm_2 <- data_cnn_lstm_2 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm)
+```
+
+```{r}
+new_data_cnn_lstm_2 %>% 
+  dplyr::select(-c(loss_sd, acc_sd)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 3
+
+```{r}
+src_file_cnn_lstm_3 <- "../../../../results/results/0003-cnn-lstm-scan-batch32-unit16.log"
+```
+
+```{r}
+data_cnn_lstm_3 <- src_file_cnn_lstm_3 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm, src_numeric_params_cnn_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm_3 <- data_cnn_lstm_3 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm)
+```
+
+```{r}
+new_data_cnn_lstm_3 %>% 
+  dplyr::select(-c(loss_sd, acc_sd)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 4 (Finished)
+
+```{r}
+results_script4_train_val <- data.table::fread("../../../../results/results/all_scan_results_0004-cnn-lstm-scan-batch32-unit32.csv")
+
+results_script4_train_val %>% 
+  select(params, mean_train_score, mean_test_score) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+results_script4_test <- data.table::fread("../../../../results/results/df_pred_results_0004-cnn-lstm-scan-batch32-unit32.csv",  drop = 'V1')
+
+results_script4_test %>% 
+  knitr::kable()
+```
+
+
+
+
+
+### CNN - GRU
+
+| Script 	| Batch 	| GRU Hidden Unit 	| Filters  	| Kernel Size 	| Maxpool Size 	| Dropout 	| Dropout Recurrent 	| Activation Convolution 	| Go Backwards 	| Optimizers 	| Regularizer rates 	| Epochs 	|
+|--------	|-------	|-----------------	|----------	|-------------	|--------------	|---------	|-------------------	|------------------------	|--------------	|------------	|-------------------	|--------	|
+| 1      	| 8     	| 16              	| [32, 48] 	| 2           	| 3            	| 0       	| 0                 	| ['None', 'relu']       	| True         	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 2      	| 16    	| 32              	| [32, 48] 	| 2           	| 3            	| 0       	| 0                 	| ['None', 'relu']       	| True         	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 3      	| 8     	| 64              	| [32, 48] 	| 2           	| 3            	| 0       	| 0                 	| ['None', 'relu']       	| True         	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 4      	| 16    	| 16              	| [32, 48] 	| 2           	| 3            	| 0       	| 0                 	| ['None', 'relu']       	| True         	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 5      	| 8     	| 32              	| [32, 48] 	| 2           	| 3            	| 0       	| 0                 	| ['None', 'relu']       	| True         	| Adam       	| [0.01, 0.001]     	|        	|
+| 6      	| 16    	| 64              	| [32, 48] 	| 2           	| 3            	| 0       	| 0                 	| ['None', 'relu']       	| True         	| Adam       	| [0.01, 0.001]     	|        	|
+
+```{r}
+src_file_cnn_gru_3 <- "../../../../results/results/0007-cnn-gru-grid-batch8_gru_unit64.log"
+src_file_cnn_gru_4 <- "../../../../results/results/0008-cnn-gru-grid-batch16_gru_unit16.log"
+src_file_cnn_gru_5 <- "../../../../results/results/0017-cnn-gru-grid-batch8_gru_unit32.log"
+src_file_cnn_gru_6 <- "../../../../results/results/0018-cnn-gru-grid-batch16_gru_unit64.log"
+
+src_params_list_cnn_gru <- c(
+  "reg_rate", "optimizers", "opt_go_backwards",
+  "opt_dropout_recurrent", "opt_dropout", "maxpool_size", "kernel_size",
+  "gru_hidden_units", "filter_conv", "epochs_raw", "batch_size", "activation_conv"
+)
+src_numeric_params_cnn_gru <- c(
+  "opt_dropout_recurrent", "opt_dropout", "maxpool_size", "kernel_size",
+  "gru_hidden_units", "filter_conv", "epochs_raw", "batch_size"
+)
+```
+
+
+#### Script 1 (Pending)
+
+This job is still pending to be run in GPU. 
+
+#### Script 2
+
+```{r}
+results_cnn_gru_script6_train_val <- data.table::fread("../../../../results/results/all_scan_results_0006-cnn-gru-grid-batch16_gru_unit32.csv")
+
+results_cnn_gru_script6_train_val %>% 
+  select(params, mean_train_score, mean_test_score) %>% 
+  knitr::kable()
+```
+
+```{r}
+results_cnn_gru_script6_test <- data.table::fread("../../../../results/results/df_pred_results_0006-cnn-gru-grid-batch16_gru_unit32.csv",  drop = 'V1')
+
+results_cnn_gru_script6_test %>% 
+  knitr::kable()
+```
+
+#### Script 3
+
+```{r}
+data_cnn_gru_3 <- src_file_cnn_gru_3 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_gru, src_numeric_params_cnn_gru) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_gru_3 <- data_cnn_gru_3 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_gru)
+```
+
+```{r}
+new_data_cnn_gru_3 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 4 
+
+```{r}
+data_cnn_gru_4 <- src_file_cnn_gru_4 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_gru, src_numeric_params_cnn_gru) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_gru_4 <- data_cnn_gru_4 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_gru)
+```
+
+```{r}
+new_data_cnn_gru_4 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 5
+
+```{r}
+data_cnn_gru_5 <- src_file_cnn_gru_5 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_gru, src_numeric_params_cnn_gru) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_gru_5 <- data_cnn_gru_5 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_gru)
+```
+
+```{r}
+new_data_cnn_gru_5 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 6 
+
+```{r}
+data_cnn_gru_6 <- src_file_cnn_gru_6 %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_gru, src_numeric_params_cnn_gru) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_gru_6 <- data_cnn_gru_6 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_gru)
+```
+
+```{r}
+new_data_cnn_gru_6 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+
+
+
+
+
+### LSTM 
+
+| Script 	| Batch 	| LSTM Units 	| Output Dim 	| Maxpool Size 	| Dropout   	| Dropout Recurrent 	| Activation Convolution 	| Go Backwards      	| Optimizers 	| Regularizer rates 	| Epochs 	|
+|--------	|-------	|------------	|------------	|--------------	|-----------	|-------------------	|------------------------	|-------------------	|------------	|-------------------	|--------	|
+| 1      	| 8     	| 16         	| 64         	| 3            	| [0, 0.25] 	| 0                 	| ['None', 'relu']       	| ['True', 'False'] 	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 2      	| 16    	| 32         	| 64         	| 3            	| [0, 0.25] 	| 0                 	| ['None', 'relu']       	| ['True', 'False'] 	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 3      	| 8     	| 16         	| 64         	| 3            	| [0, 0.25] 	| 0                 	| ['None', 'relu']       	| ['True', 'False'] 	| Adam       	| [0.01, 0.001]     	| 30     	|
+| 4      	| 16    	| 32         	| 64         	| 3            	| [0, 0.25] 	| 0                 	| ['None', 'relu']       	| ['True', 'False'] 	| Adam       	| [0.01, 0.001]     	| 30     	|
+
+```{r}
+src_file_lstm_1 <- "../../../../results/results/0013-lstm-embedding-grid-batch8_lstm_unit16.log"
+src_file_lstm_2 <- "../../../../results/results/0014-lstm-embedding-grid-batch16_lstm_unit16_old.log"
+src_file_lstm_3 <- "../../../../results/results/0015-lstm-embedding-grid-batch8_lstm_unit32.log"
+src_file_lstm_4 <- "../../../../results/results/0016-lstm-embedding-grid-batch16_lstm_unit32.log"
+
+src_params_list_lstm <- c(
+  "reg_rate",
+  "outputdim", "optimizers", 
+  "opt_go_backwards", "opt_dropout_recurrent", "opt_dropout",
+  "lstm_hidden_units", "epochs_raw", "batch_size"
+)
+src_numeric_params_lstm <- c(
+  "outputdim", "opt_dropout_recurrent", "opt_dropout",
+  "lstm_hidden_units", "epochs_raw", "batch_size"
+)
+```
+
+#### Script 1
+
+```{r}
+data_lstm_1 <- src_file_lstm_1 %>%
+  read_log_into_df_with_params_list(src_params_list_lstm, src_numeric_params_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_lstm_1 <- data_lstm_1 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_lstm)
+```
+
+```{r}
+new_data_lstm_1 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 2
+
+```{r}
+data_lstm_2 <- src_file_lstm_2 %>%
+  read_log_into_df_with_params_list(src_params_list_lstm, src_numeric_params_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_lstm_2 <- data_lstm_2 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_lstm)
+```
+
+```{r}
+new_data_lstm_2 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 3
+
+```{r}
+data_lstm_3 <- src_file_lstm_3 %>%
+  read_log_into_df_with_params_list(src_params_list_lstm, src_numeric_params_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_lstm_3 <- data_lstm_3 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_lstm)
+```
+
+```{r}
+new_data_lstm_3 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+#### Script 4
+
+```{r}
+data_lstm_4 <- src_file_lstm_4 %>%
+  read_log_into_df_with_params_list(src_params_list_lstm, src_numeric_params_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_lstm_4 <- data_lstm_4 %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_lstm)
+```
+
+```{r}
+new_data_lstm_4 %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+
+### GRU (RandomGridSearchCV)
+
+
+```{r}
+src_file_gru <- "../../../../results/results/0010_gru-embedding_scan.log"
+
+src_params_list_gru <- c(
+  "reg_rate", "outputdim", "optimizers", 
+  "opt_go_backwards", "opt_dropout_recurrent", "opt_dropout", "gru_hidden_units",
+  "epochs_raw", "batch_size"
+)
+src_numeric_params_gru <- c(
+  "outputdim", "opt_dropout_recurrent", "opt_dropout",
+  "gru_hidden_units", "epochs_raw", "batch_size"
+)
+```
+
+
+```{r}
+data_gru <- src_file_gru %>%
+  read_log_into_df_with_params_list(src_params_list_gru, src_numeric_params_gru) %>%
+  clean_log_df_with_params()
+
+new_data_gru <- data_gru %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_gru)
+```
+
+```{r}
+new_data_gru %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  knitr::kable()
+```
+
+
+
+
+
+
+

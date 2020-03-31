@@ -1,0 +1,37 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "14/10/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Report on RandomizedSearchCV() GRU-Embedding
+
+## Load library
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(reshape)
+```
+
+```{r}
+result_scan <- data.table::fread("../../../../results/results/gru-embedding/all_scan_results_0010-gru-embedding_scan.csv")
+
+result_scan %>% 
+  select("params", "mean_test_score") %>% 
+  arrange(desc(mean_test_score)) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+pred_result <- data.table::fread("../../../../results/results/gru-embedding/df_pred_results_0010-gru-embedding_scan.csv")
+
+pred_result %>% 
+  knitr::kable()
+```
+

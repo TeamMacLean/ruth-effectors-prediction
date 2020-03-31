@@ -1,0 +1,55 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "14/10/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Report on GridSearchCV the model LSTM-Embedding
+
+## Load library
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(reshape)
+```
+
+```{r}
+# Read the all of results 
+
+result1 <- data.table::fread("../../../../results/results/lstm-embedding/all_scan_results_0013-lstm-embedding-grid-batch8_lstm_unit16.csv")
+result2 <- data.table::fread("../../../../results/results/lstm-embedding/all_scan_results_0014-lstm-embedding-grid-batch16_lstm_unit16.csv")
+result3 <- data.table::fread("../../../../results/results/lstm-embedding/all_scan_results_0015-lstm-embedding-grid-batch8_lstm_unit32.csv")
+result4 <- data.table::fread("../../../../results/results/lstm-embedding/all_scan_results_0016-lstm-embedding-grid-batch16_lstm_unit32.csv")
+```
+
+```{r}
+result1 %>% 
+  rbind(., result2) %>% 
+  rbind(., result3) %>% 
+  rbind(., result4) %>% 
+  select("params", "mean_test_score") %>% 
+  arrange(desc(mean_test_score)) %>% 
+  knitr::kable() 
+```
+
+```{r}
+# Read the result of the prediction
+
+pred_1 <- data.table::fread("../../../../results/results/lstm-embedding/df_pred_results_0013-lstm-embedding-grid-batch8_lstm_unit16.csv")
+pred_2 <- data.table::fread("../../../../results/results/lstm-embedding/df_pred_results_0014-lstm-embedding-grid-batch16_lstm_unit16.csv")
+```
+
+
+```{r}
+pred_1 %>% 
+  rbind(., pred_2) %>% 
+  arrange(desc(Accuracy)) %>% 
+  knitr::kable() 
+```
+
+

@@ -1,0 +1,184 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "18/10/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+
+# Report on Manually training the model CNN-LSTM after adding regularization
+
+## Load library
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(reshape)
+```
+
+## Define function to get the plot of the accuracy 
+
+```{r}
+get_gg_acc <- function(acc_train_data, acc_val_data){
+  
+  # Melt data
+  acc_train_data_melt <- melt(acc_train_data, id=c("V1"))
+  acc_val_data_melt <- melt(acc_val_data, id=c("V1"))
+  
+  # Rename the data column
+  acc_train_data_melt <- acc_train_data_melt %>%
+  `colnames<-`(c("epochs", "CV", "acc_train"))
+
+  acc_val_data_melt <- acc_val_data_melt %>%
+  `colnames<-`(c("epochs", "CV", "acc_val"))
+  
+  # Left join into 1 dataframe
+  train_val_acc_data <- acc_train_data_melt %>% 
+  left_join(., acc_val_data_melt, by = c("epochs", "CV")) %>% 
+  mutate(epochs = epochs + 1)
+  
+  # Plot the accuracy data
+  gg_accuracy <- ggplot(train_val_acc_data) +
+      aes(x = epochs, group = CV, color = as.factor(CV)) + 
+      geom_line(aes(y = acc_train, linetype = "train")) +
+      geom_line(aes(y = acc_val, linetype = "val")) +
+      geom_point(aes(y = acc_train), size = 1.5) +
+      geom_point(aes(y = acc_val), size = 1.5) +
+      labs(x = "Epochs", y = "Accuracy", color = "CV") +
+      labs(title = "Accuracy for Training and Validation")
+  
+  return(gg_accuracy)
+}
+```  
+
+
+## CNN-LSTM
+
+### Before any regularization
+
+```{r}
+acc_train_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best1.csv")
+acc_val_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best1.csv")
+acc_test_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best1.csv")
+```
+
+```{r}
+acc_train_best1
+```
+
+
+
+```{r}
+get_gg_acc(acc_train_best1, acc_val_best1)
+```
+
+
+### After regularization
+
+```{r}
+acc_train_best1_with_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best1_with_reg.csv")
+acc_val_best1_with_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best1_with_reg.csv")
+acc_test_best1_with_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best1_with_reg.csv")
+
+acc_val_best1_with_reg %>% 
+  knitr::kable()
+```
+
+
+```{r}
+get_gg_acc(acc_train_best1_with_reg, acc_val_best1_with_reg)
+```
+
+```{r}
+acc_train_without_actv_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best1_without_actv_reg.csv")
+acc_val_without_actv_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_val_best1_without_actv_reg.csv")
+acc_test_without_actv_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_test_best1_without_actv_reg.csv")
+```
+
+```{r}
+acc_test_best1_with_reg
+```
+
+
+```{r}
+get_gg_acc(acc_train_without_actv_reg, acc_val_without_actv_reg)
+```
+
+```{r}
+acc_test_without_actv_reg %>% 
+  knitr::kable()
+```
+
+
+## CNN - GRU
+
+### Before Regularization
+
+```{r}
+acc_train_best1_gru <- data.table::fread("../../../../results/results/cnn-gru/df_results_train_best1.csv")
+acc_val_best1_gru <- data.table::fread("../../../../results/results/cnn-gru/df_results_val_best1.csv")
+acc_test_best1_gru <- data.table::fread("../../../../results/results/cnn-gru/df_results_test_best1.csv")
+```
+
+
+```{r}
+get_gg_acc(acc_train_best1_gru, acc_val_best1_gru)
+```
+
+```{r}
+acc_test_best1_gru
+```
+
+
+### After Regularization
+
+```{r}
+acc_train_best1_gru_with_reg <- data.table::fread("../../../../results/results/cnn-gru/df_results_train_best1_with_reg.csv")
+acc_val_best1_gru_with_reg <- data.table::fread("../../../../results/results/cnn-gru/df_results_val_best1_with_reg.csv")
+acc_test_best1_gru_with_reg <- data.table::fread("../../../../results/results/cnn-gru/df_results_test_best1_with_reg.csv")
+```
+
+
+```{r}
+get_gg_acc(acc_train_best1_gru_with_reg, acc_val_best1_gru_with_reg)
+```
+
+## LSTM Embedding
+
+```{r}
+acc_train_best1_lstm_embed <- data.table::fread("../../../../results/results/lstm-embedding/df_results_train_best1_with_reg.csv")
+acc_val_best1_lstm_embed <- data.table::fread("../../../../results/results/lstm-embedding/df_results_val_best1_with_reg.csv")
+acc_test_best1_lstm_embed <- data.table::fread("../../../../results/results/lstm-embedding/df_results_test_best1_with_reg.csv")
+```
+
+
+```{r}
+get_gg_acc(acc_train_best1_lstm_embed, acc_val_best1_lstm_embed)
+```
+
+
+```{r}
+acc_test_best1_lstm_embed
+```
+
+## GRU Embedding
+
+```{r}
+acc_train_best1_gru_embed <- data.table::fread("../../../../results/results/gru-embedding/df_results_train_best1_with_reg.csv")
+acc_val_best1_gru_embed <- data.table::fread("../../../../results/results/gru-embedding/df_results_val_best1_with_reg.csv")
+acc_test_best1_gru_embed <- data.table::fread("../../../../results/results/gru-embedding/df_results_test_best1_with_reg.csv")
+```
+
+
+```{r}
+get_gg_acc(acc_train_best1_gru_embed, acc_val_best1_gru_embed)
+```
+
+
+```{r}
+acc_test_best1_gru_embed
+```
+

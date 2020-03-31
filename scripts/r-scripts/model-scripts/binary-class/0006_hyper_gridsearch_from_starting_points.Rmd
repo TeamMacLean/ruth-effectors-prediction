@@ -1,0 +1,90 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "05/08/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+## Process data
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+```{r}
+data_path <- here::here("scripts/jupyter-note/jupyter-noteboook-data/")
+df1 <- data.table::fread(paste0(data_path, "df_result_prediction_model1_gridsearch.csv"), drop = "V1")
+df2 <- data.table::fread(paste0(data_path, "df_result_prediction_model2_gridsearch.csv"), drop = "V1")
+df3 <- data.table::fread(paste0(data_path, "df_result_prediction_model3_gridsearch.csv"), drop = "V1")
+df4 <- data.table::fread(paste0(data_path, "df_result_prediction_model4_gridsearch.csv"), drop = "V1")
+df5 <- data.table::fread(paste0(data_path, "df_result_prediction_model5_gridsearch.csv"), drop = "V1")
+df6 <- data.table::fread(paste0(data_path, "df_result_prediction_model6_gridsearch.csv"), drop = "V1")
+```
+
+```{r}
+results_gridsearch <- rbind(
+  cbind(df1, model = "model1"),
+  cbind(df2, model = "model2"),
+  cbind(df3, model = "model3"),
+  cbind(df4, model = "model4"),
+  cbind(df5, model = "model5"),
+  cbind(df6, model = "model6")
+)
+
+rm(df1, df2, df3, df4, df5, df6)
+results_gridsearch %>%
+  filter(model == "model6") %>%
+  knitr::kable()
+```
+
+```{r}
+results_gridsearch <- results_gridsearch %>%
+  dplyr::select(Parameters, Accuracy) %>%
+  mutate(
+    Parameters = stringr::str_remove_all(Parameters, "\\{"),
+    Parameters = stringr::str_remove_all(Parameters, "\\}")
+  ) %>%
+  tidyr::separate(
+    col = Parameters,
+    c(
+      "activation_function", "batch_norm", "batch_size",
+      "dropout_rates", "epochs", "input_dropout_rates",
+      "input_num_hidden_units", "l2_rate", "num_hidden_layers",
+      "optim_methods", "shuffle"
+    ),
+    sep = ", '"
+  ) %>%
+  dplyr::mutate(
+    shuffle = stringr::str_split(shuffle, ":", simplify = TRUE)[, 2],
+    optim_methods = stringr::str_split(optim_methods, ":", simplify = TRUE)[, 2],
+    num_hidden_layers = stringr::str_split(num_hidden_layers, ":", simplify = TRUE)[, 2],
+    l2_rate = stringr::str_split(l2_rate, ":", simplify = TRUE)[, 2],
+    input_num_hidden_units = stringr::str_split(input_num_hidden_units, ":", simplify = TRUE)[, 2],
+    input_dropout_rates = stringr::str_split(input_dropout_rates, ":", simplify = TRUE)[, 2],
+    epochs = stringr::str_split(epochs, ":", simplify = TRUE)[, 2],
+    dropout_rates = stringr::str_split(dropout_rates, ":", simplify = TRUE)[, 2],
+    batch_size = stringr::str_split(batch_size, ":", simplify = TRUE)[, 2],
+    batch_norm = stringr::str_split(batch_norm, ":", simplify = TRUE)[, 2],
+    activation_function = stringr::str_split(activation_function, ":", simplify = TRUE)[, 2]
+  ) %>%
+  dplyr::mutate(
+    num_hidden_layers = str_remove_all(num_hidden_layers, "\\["),
+    num_hidden_layers = str_remove_all(num_hidden_layers, "\\]")
+  ) %>%
+  separate(num_hidden_layers, c("Layer1", "Layer2", "Layer3"), sep = "([,])") %>%
+  mutate_all(function(x) ifelse(is.na(x), 0, x)) %>%
+  dplyr::mutate(
+    hidden_layers = (Layer1 != 0) + (Layer2 != 0) + (Layer3 != 0)
+  )
+```
+
+
+```{r}
+ggplot(results_gridsearch) +
+  aes(x = Accuracy) +
+  geom_density() +
+  scale_x_continuous(breaks = seq(0.6, 0.8, 0.01))
+```

@@ -1,0 +1,705 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "20/08/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Getting the architecture for effector and non-effector prediction
+
+## Aim 
+
+### Background
+
+Previously, hyperparamaters scan on the fully connected dense layer models has been done, the highest accuracy can be achieved was around 77.33 and it could not go higher than that. 
+
+### Question
+
+What is the deep learning model which can give better accuracy than the accuracy obtained from fully connected dense layer?
+
+### Purpose
+
+The purpose of this experiment is to get model architecture that will give better accuracy than the best accuracy that we obtained from fully connected dense layer. 
+
+## Method
+
+I will construct some different deep learning model architectures using random hyperparamaters choice and investigate how the accuracy of the model will behave. If the model can give accuracy better than 60%, then we can use the related model as the base models. 
+
+### Procedure
+
+#### GRU model
+
+```python
+def simple_lstm(inputdim = 23,
+	              outputdim = 32,
+                gru_hidden_units = 16,
+	            ):
+	  # Create the model
+    emb_vecor_length = 32
+    model = Sequential()
+    model.add(Embedding(input_dim = inputdim,
+    	                output_dim = outputdim,
+    	                input_length = 4034))
+    model.add(GRU(gru_hidden_units))
+    model.add(Bidirectional(GRU(gru_hidden_units * 2)))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+    return model
+```
+##### Results 
+
+```bash
+Parameters:
+	outputdim: 32
+	inputdim: 23
+	gru_hidden_units: 8
+	epochs: 30
+	batch_size: 16
+
+ 16/150 [==>...........................] - ETA: 24s
+ 32/150 [=====>........................] - ETA: 16s
+ 48/150 [========>.....................] - ETA: 12s
+ 64/150 [===========>..................] - ETA: 10s
+ 80/150 [===============>..............] - ETA: 7s 
+ 96/150 [==================>...........] - ETA: 5s
+112/150 [=====================>........] - ETA: 4s
+128/150 [========================>.....] - ETA: 2s
+144/150 [===========================>..] - ETA: 0s
+150/150 [==============================] - 17s 111ms/step
+acc y_pred: 0.68
+```
+
+#### LSTM model
+
+```python
+def simple_lstm(inputdim = 23,
+	            outputdim = 32,
+	            ):
+	# create the model
+    emb_vecor_length = 32
+    model = Sequential()
+    model.add(Embedding(input_dim = inputdim,
+    	                output_dim = outputdim,
+    	                input_length = 4034))
+    model.add(Bidirectional(LSTM(20)))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+
+    return model
+```
+
+##### Results  
+
+```bash
+Parameters:
+	outputdim: 32
+	inputdim: 23
+	epochs: 30
+	batch_size: 16
+
+ 16/150 [==>...........................] - ETA: 13s
+ 32/150 [=====>........................] - ETA: 9s 
+ 48/150 [========>.....................] - ETA: 7s
+ 64/150 [===========>..................] - ETA: 5s
+ 80/150 [===============>..............] - ETA: 4s
+ 96/150 [==================>...........] - ETA: 3s
+112/150 [=====================>........] - ETA: 2s
+128/150 [========================>.....] - ETA: 1s
+144/150 [===========================>..] - ETA: 0s
+150/150 [==============================] - 10s 65ms/step
+acc y_pred: 0.6933333333333334
+```
+
+
+#### GRU -- CNN model
+
+```python
+# Define the model architecture
+def simple_CNN_GRU(filter_conv = 32,
+			       kernel_size = 1,
+			       maxpool_size = 2,
+			       filter_gru = 32,
+			       dropout_gru = 0.1,
+			       dropout_reccurent = 0.5,
+			       optimizers = 'sgd'
+			        ):
+	model = Sequential()
+	model.add(Conv1D(filter_conv,
+		             kernel_size,
+	                 activation = "relu",
+	                 input_shape = (4034, 20)))
+	model.add(MaxPooling1D(maxpool_size))
+	model.add(Bidirectional(GRU(filter_gru,
+		                        dropout = dropout_gru,
+		                        recurrent_dropout = dropout_reccurent)))
+	model.add(Dense(1, activation = 'sigmoid'))
+
+	model.compile(loss = 'binary_crossentropy',
+                  optimizer = optimizers,
+                  metrics = ['accuracy'])
+
+	print(model.summary())
+
+	return model
+
+# Pass the model design to KerasClassifier() wrapper
+
+model = KerasClassifier(build_fn = simple_CNN_GRU, verbose = 1)
+
+# Define the parameters that will be tuned randomly
+keras_param_options = {'filter_conv' : [4],
+					   'kernel_size' : [1],
+					   'maxpool_size' : [2],
+					   'filter_gru' : [8],
+					   'dropout_gru' : [0.25],
+					   'dropout_reccurent' : [0.5],
+					   'optimizers' : ['sgd', 'Adam', 'Adadelta'],
+					   'batch_size' : [8, 16, 32],
+					   'epochs' : [30]}
+
+random_search = RandomizedSearchCV(model,
+                                   param_distributions = keras_param_options,
+                                   n_iter = 1,
+                                   cv = 5,
+                                   verbose = 10)
+```
+
+##### Results 
+
+```bash
+[{'optimizers': 'Adadelta', 'maxpool_size': 2, 'kernel_size': 1, 'filter_gru': 8, 'filter_conv': 4, 'epochs': 30, 'dropout_reccurent': 0.5, 'dropout_gru': 0.25, 'batch_size': 8}]
+
+  8/150 [>.............................] - ETA: 42s
+ 16/150 [==>...........................] - ETA: 25s
+ 24/150 [===>..........................] - ETA: 19s
+ 32/150 [=====>........................] - ETA: 16s
+ 40/150 [=======>......................] - ETA: 14s
+ 48/150 [========>.....................] - ETA: 12s
+ 56/150 [==========>...................] - ETA: 10s
+ 64/150 [===========>..................] - ETA: 9s 
+ 72/150 [=============>................] - ETA: 8s
+ 80/150 [===============>..............] - ETA: 7s
+ 88/150 [================>.............] - ETA: 6s
+ 96/150 [==================>...........] - ETA: 5s
+104/150 [===================>..........] - ETA: 4s
+112/150 [=====================>........] - ETA: 3s
+120/150 [=======================>......] - ETA: 3s
+128/150 [========================>.....] - ETA: 2s
+136/150 [==========================>...] - ETA: 1s
+144/150 [===========================>..] - ETA: 0s
+150/150 [==============================] - 15s 98ms/step
+acc y_pred: 0.6266666666666667
+
+```
+
+#### LSTM -- CNN model
+
+```python
+def conv1d_bn(x,
+              filters,
+              kernel_size,
+              padding = 'same',
+              strides = 1,
+              activation_convolution = 'relu'):
+    """Utility function to apply conv + BN.
+    # Arguments
+        x: input tensor.
+        filters: filters in `Conv1D`.
+        num_row: height of the convolution kernel.
+        num_col: width of the convolution kernel.
+        padding: padding mode in `Conv1D`.
+        strides: strides in `Conv1D`.
+
+    # Returns
+        Output tensor after applying `Conv2D` and `BatchNormalization`.
+    """
+
+    x = layers.Conv1D(filters,
+    	              kernel_size,
+                      strides = strides,
+                      padding = padding,
+                      use_bias = False)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation(activation_convolution)(x)
+    return x
+
+# Define the base model
+
+def build_model_conv1D_lstm(filters = 48,
+							filters_LSTM = 48,
+							strides = 1,
+							padding = "valid",
+							activation_convolution = 'None',
+							activation_LSTM = 'tanh',
+							optimizers = 'sgd',
+							bn = 'yes',
+							number_hidden_units = 64):
+
+	input = Input(shape = x_train.shape[1:])
+
+	if bn == 'yes':
+		convolution_1 = conv1d_bn(x = input,
+								  filters = filters,
+								  kernel_size = 1,
+			                      strides = strides,
+			                      padding = padding,
+			                      activation_convolution = activation_convolution)
+	else:
+		convolution_1 = Conv1D(filters,
+	                   kernel_size = 1,
+	                   strides = 1,
+	                   padding = padding,
+	                   activation = activation_convolution,
+	                   use_bias = True,
+	                   kernel_initializer = 'glorot_uniform',
+	                   bias_initializer = 'zeros')(input)
+	if bn == "yes":
+		convolution_2 = conv1d_bn(x = input,
+								  filters = filters,
+								  kernel_size = 3,
+			                      strides = strides,
+			                      padding = padding,
+			                      activation_convolution = activation_convolution)
+	else:
+		convolution_2 = Conv1D(filters,
+	                   kernel_size = 3,
+	                   strides = strides,
+	                   padding = padding,
+	                   activation = activation_convolution,
+	                   use_bias = True,
+	                   kernel_initializer = 'glorot_uniform',
+	                   bias_initializer = 'zeros')(input)
+
+	if bn == "yes":
+		convolution_3 = conv1d_bn(x = input,
+			                      filters = filters,
+								  kernel_size = 5,
+			                      strides = strides,
+			                      padding = padding,
+			                      activation_convolution = activation_convolution)
+	else:
+		convolution_3 = Conv1D(filters,
+	                   kernel_size = 5,
+	                   strides = strides,
+	                   padding = padding,
+	                   activation = activation_convolution,
+	                   use_bias = True,
+	                   kernel_initializer = 'glorot_uniform',
+	                   bias_initializer = 'zeros')(input)
+
+	model = keras.layers.concatenate([convolution_1,
+	                              	  convolution_2,
+	                                  convolution_3], axis=1)
+
+	model = Conv1D(filters * 2,
+	      		   kernel_size = 3,
+	      		   strides = 1,
+	      		   padding = padding,
+	      		   activation = activation_convolution,
+	      		   use_bias = True,
+	      		   kernel_initializer = 'glorot_uniform',
+	      		   bias_initializer = 'zeros')(model)
+
+	model_lstm_1 = LSTM(filters_LSTM,
+	           			activation = activation_LSTM,
+	           			recurrent_activation = 'hard_sigmoid',
+	           			use_bias = True,
+	           			kernel_initializer = 'glorot_uniform',
+	           			recurrent_initializer = 'orthogonal',
+	           			bias_initializer = 'zeros',
+	           			go_backwards = False)(model)
+
+
+	model_lstm_2 = LSTM(filters_LSTM,
+	                    activation = activation_LSTM,
+	                    recurrent_activation = 'hard_sigmoid',
+	                    use_bias = True,
+	                    kernel_initializer = 'glorot_uniform',
+	           			recurrent_initializer = 'orthogonal',
+	           			bias_initializer = 'zeros',
+	           			go_backwards = True)(model)
+
+	model_final = keras.layers.concatenate([model_lstm_1,
+	                                    	model_lstm_2])
+
+	output = Dense(number_hidden_units, activation = 'relu')(model_final)
+	output = Dense(1, activation = 'sigmoid')(model_final)
+
+	model = Model(inputs = input, outputs = output)
+
+	model.compile(loss = 'binary_crossentropy',
+                  optimizer = optimizers,
+                  metrics = ['accuracy'])
+
+	print(model.summary())
+	return model
+```
+
+##### Results
+
+```bash
+Parameters:
+	strides: 1
+	padding: valid
+	optimizers: Adam
+	number_hidden_units: 32
+	filters_LSTM: 16
+	filters: 16
+	epochs: 30
+	bn: yes
+	batch_size: 16
+	activation_convolution: None
+	activation_LSTM: tanh
+
+ 16/150 [==>...........................] - ETA: 32s
+ 32/150 [=====>........................] - ETA: 24s
+ 48/150 [========>.....................] - ETA: 19s
+ 64/150 [===========>..................] - ETA: 16s
+ 80/150 [===============>..............] - ETA: 12s
+ 96/150 [==================>...........] - ETA: 9s 
+112/150 [=====================>........] - ETA: 6s
+128/150 [========================>.....] - ETA: 3s
+144/150 [===========================>..] - ETA: 1s
+150/150 [==============================] - 28s 184ms/step
+acc: 0.6933333333333334
+```
+
+
+
+#### Results from Random Testing
+
+In summary, here is the table of the results
+
+| Model    	| Accuracy 	|
+|----------	|----------	|
+| GRU      	| 0.68     	|
+| LSTM     	| 0.693    	|
+| CNN-GRU  	| 0.626    	|
+| CNN-LSTM 	| 0.693    	|
+
+### Current Results from hyperparamater Scan
+
+```{r}
+# Load library
+
+library(tidyverse)
+```
+
+
+```{r}
+# Functions ------------------------------------------------
+
+read_log_into_df_with_params_list <- function(file, params_list, numeric_params) {
+  # Filter needed info from raw log, store in a vector of strings
+  # lines <- system(paste("grep -E 'loss:.*acc:|Epoch'", file), intern = TRUE)
+  # lines <- system(paste("grep -E 'loss:.*acc:|Epoch|\\[CV\\]'", file, "| grep -v 'total'"), intern = TRUE)
+  lines <- system(paste("cat ", file, " | tr -d '\\000' | grep -E 'loss:.*acc:|Epoch|\\[CV\\]' | grep -v 'total'"), intern = TRUE)
+
+  # Calculate size of vector
+  num_lines <- length(lines)
+  num_headers <- grep("Epoch", lines) %>% length()
+  num_clean_lines <- num_lines - num_headers
+
+  # We initialize the output vector of strings
+  clean_lines <- rep(NA, num_clean_lines)
+  count <- 1
+  run_count <- 0
+
+  # Loop for processing the lines
+  params_str <- NULL
+  for (i in 1:num_lines) {
+    line <- lines[[i]]
+    if (stringr::str_detect(line, "\\[CV\\]")) {
+      params_str <- line
+    } else if (stringr::str_detect(line, "Epoch")) {
+      # Store epoch "header"
+      epoch_str <- line
+      run_count <- run_count + 1
+    } else {
+      # Store data/log line
+      raw_str <- line
+
+      # Paste and save processed lines
+      clean_lines[[count]] <- paste(run_count, "-", params_str, "-", epoch_str, "-", raw_str)
+      count <- count + 1
+    }
+  }
+
+  # Transform vector of strings into data frame
+  df <- data.frame(as.list(clean_lines)) %>%
+    t() %>%
+    as_tibble() %>%
+    tibble::remove_rownames()
+
+  # Separate single column into desired columns
+  df <- df %>%
+    tidyr::separate(V1, c("run", "params", "epoch", "step", "eta", "loss", "accuracy"), sep = "-") %>%
+    tidyr::separate(params, params_list, sep = ", ") %>%
+    dplyr::mutate_at(vars(params_list), function(x) stringr::str_split(x, "=", simplify = TRUE)[, 2]) %>%
+    dplyr::mutate_at(
+      numeric_params,
+      as.numeric
+    )
+
+  return(df)
+}
+```
+
+```{r}
+clean_log_df_with_params <- function(data) {
+
+  # Use regex for getting the relevant content of each raw column
+  data <- data %>%
+    dplyr::mutate(
+      epoch = stringr::str_extract(epoch, "[0-9]*/[0-9]*"),
+      step = stringr::str_extract(step, "[0-9]*/[0-9]*"),
+      loss = stringr::str_extract(loss, "[0-9]*\\.[0-9]*"),
+      accuracy = stringr::str_extract(accuracy, "[0-9]*\\.[0-9]*")
+    )
+
+  # Change data types and remove useless column
+  data <- data %>%
+    mutate(
+      run = as.numeric(run),
+      loss = as.numeric(loss),
+      accuracy = as.numeric(accuracy)
+    ) %>%
+    select(-eta)
+
+  return(data)
+}
+
+
+summarise_log_data_with_params_list <- function(data, params_list) {
+  data <- data %>%
+    # Get last step of each single run
+    group_by_at(vars(c("run", "epoch", params_list))) %>%
+    slice(n()) %>%
+    # Divide epoch into current and max epoch
+    mutate(
+      curr_epoch = stringr::str_split(epoch, "/") %>% unlist %>% .[1] %>% as.numeric(),
+      max_epoch = stringr::str_split(epoch, "/") %>% unlist %>% .[2] %>% as.numeric(),
+    ) %>%
+    ungroup() %>%
+    # Get final loss/accuracy of each epoch
+    dplyr::filter(curr_epoch == max_epoch) %>%
+    select(-c(step, epoch, run, curr_epoch)) %>%
+    dplyr::rename(epochs = max_epoch) %>%
+    mutate(epochs = as.factor(epochs)) %>%
+    # Create model variable (5 runs)
+    tibble::rowid_to_column(var = "run") %>%
+    mutate(
+      model = cut(run, breaks = seq(0,1000,5), label = 1:200)
+    ) %>%
+    select(-run) %>%
+    # Summarise results
+    group_by_at(vars(c("model", "epochs", params_list))) %>%
+    summarise(
+      loss_mean = mean(loss),
+      loss_sd = sd(loss),
+      acc_mean = mean(accuracy),
+      acc_sd = sd(accuracy)
+    )
+
+  return(data)
+}
+```
+
+
+#### CNN_LSTM_getting_started
+
+```{r}
+src_file <- "../../../../results/logs/0004-getting-started-cnn-lstm.log"
+
+src_params_list <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", "epochs_raw", "bn",
+  "batch_size", "activation_convolution", "activation_LSTM"
+)
+src_numeric_params <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs_raw", "batch_size"
+)
+```
+
+```{r}
+data <- src_file %>%
+  read_log_into_df_with_params_list(src_params_list, src_numeric_params) %>%
+  clean_log_df_with_params()
+
+new_data <- data %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list)
+```
+
+```{r} 
+new_data %>% 
+  arrange(desc(acc_mean)) %>% 
+  knitr::kable()
+```
+
+```bash 
+Parameters:
+	strides: 1
+	padding: valid
+	optimizers: Adam
+	number_hidden_units: 64
+	filters_LSTM: 48
+	filters: 48
+	epochs: 30
+	bn: yes
+	batch_size: 16
+	activation_convolution: None
+	activation_LSTM: tanh
+
+ 16/150 [==>...........................] - ETA: 51s
+ 32/150 [=====>........................] - ETA: 40s
+ 48/150 [========>.....................] - ETA: 34s
+ 64/150 [===========>..................] - ETA: 28s
+ 80/150 [===============>..............] - ETA: 22s
+ 96/150 [==================>...........] - ETA: 17s
+112/150 [=====================>........] - ETA: 12s
+128/150 [========================>.....] - ETA: 7s 
+144/150 [===========================>..] - ETA: 1s
+150/150 [==============================] - 49s 326ms/step
+acc y_pred: 0.7
+```
+
+#### GRU 
+
+```{r}
+src_file_gru <- "../../../../results/logs/0007-gru-embedding_scan.log"
+src_params_list_gru <- c(
+  "outputdim", "optimizers", "opt_recurrent_regs", "opt_kernel_regs",
+  "opt_go_backwards", "opt_dropout_recurrent", "opt_dropout", "gru_hidden_units",
+  "epochs_raw", "batch_size"
+)
+src_numeric_params_gru <- c(
+  "outputdim", "opt_dropout_recurrent", "opt_dropout",
+  "gru_hidden_units", "epochs_raw", "batch_size"
+)
+```
+
+
+```{r}
+data_gru <- src_file_gru %>%
+  read_log_into_df_with_params_list(src_params_list_gru, src_numeric_params_gru) %>%
+  clean_log_df_with_params()
+
+new_data_gru <- data_gru %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_gru)
+```
+
+```{r}
+new_data_gru %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  knitr::kable()
+```
+
+#### LSTM
+
+```{r}
+src_file_lstm <- "../../../../results/logs/0008-lstm-embedding-scan.log"
+src_params_list_lstm <- c(
+  "outputdim", "optimizers", "opt_recurrent_regs", "opt_kernel_regs",
+  "opt_go_backwards", "opt_dropout_recurrent", "opt_dropout",
+  "lstm_hidden_units", "epochs_raw", "batch_size"
+)
+src_numeric_params_lstm <- c(
+  "outputdim", "opt_dropout_recurrent", "opt_dropout",
+  "lstm_hidden_units", "epochs_raw", "batch_size"
+)
+```
+
+
+```{r}
+data_lstm <- src_file_lstm %>%
+  read_log_into_df_with_params_list(src_params_list_lstm, src_numeric_params_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_lstm <- data_lstm %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_lstm)
+```
+
+```{r}
+new_data_lstm %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  knitr::kable()
+```
+
+#### CNN and GRU 
+
+```{r}
+src_file_cnn_gru <- "../../../../results/logs/0009-cnn-gru-scan.log"
+src_params_list_cnn_gru <- c(
+  "optimizers", "opt_recurrent_regs", "opt_kernel_regs", "opt_go_backwards",
+  "opt_dropout_recurrent", "opt_dropout", "maxpool_size", "kernel_size",
+  "gru_hidden_units", "filter_conv", "epochs_raw", "batch_size", "activation_conv"
+)
+src_numeric_params_cnn_gru <- c(
+  "opt_dropout_recurrent", "opt_dropout", "maxpool_size", "kernel_size",
+  "gru_hidden_units", "filter_conv", "epochs_raw", "batch_size"
+)
+```
+
+
+```{r}
+data_cnn_gru <- src_file_cnn_gru %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_gru, src_numeric_params_cnn_gru) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_gru <- data_cnn_gru %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_gru)
+```
+
+```{r}
+new_data_cnn_gru %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  knitr::kable()
+```
+
+#### CNN LSTM
+
+```{r}
+# File 5
+src_file_cnn_lstm <- "../../../../results/logs/0010-getting-started-cnn-lstm-scan.log"
+src_params_list_cnn_lstm <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", "epochs_raw", "bn",
+  "batch_size", "activation_convolution", "activation_LSTM"
+)
+src_numeric_params_cnn_lstm <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs_raw", "batch_size"
+)
+```
+
+
+```{r}
+data_cnn_lstm <- src_file_cnn_lstm %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm, src_numeric_params_cnn_lstm) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm <- data_cnn_lstm %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm)
+```
+
+```{r}
+new_data_cnn_lstm %>% 
+  select(-c(loss_sd, acc_sd)) %>% 
+  arrange(desc(acc_mean)) %>% 
+  knitr::kable()
+```
+

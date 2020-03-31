@@ -1,0 +1,90 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "25/10/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Results of hyperoar-scan
+
+## CNN - LSTM 
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+result1 <- data.table::fread("../../../../results/results/df_pred_results_0002-cnn-lstm-scan-batch16-unit32.csv")
+result2 <- data.table::fread("../../../../results/results/df_pred_results_0003-cnn-lstm-scan-batch32-unit16.csv")
+result3 <- data.table::fread("../../../../results/results/df_pred_results_0004-cnn-lstm-scan-batch32-unit32.csv")
+```
+
+```{r}
+result1 %>% 
+  rbind(., result2) %>% 
+  rbind(., result3) %>%
+  arrange(desc(Accuracy)) %>%   
+  knitr::kable()
+```
+
+
+## CNN-GRU
+
+```{r}
+res_cnn_gru_1 <- data.table::fread("../../../../results/results/df_pred_results_0005-cnn-gru-grid-batch8_gru_unit16.csv")
+res_cnn_gru_2 <- data.table::fread("../../../../results/results/df_pred_results_0006-cnn-gru-grid-batch16_gru_unit32.csv")
+res_cnn_gru_3 <- data.table::fread("../../../../results/results/df_pred_results_0007-cnn-gru-grid-batch8_gru_unit64.csv")
+res_cnn_gru_4 <- data.table::fread("../../../../results/results/df_pred_results_0008-cnn-gru-grid-batch16_gru_unit16.csv")
+res_cnn_gru_5 <- data.table::fread("../../../../results/results/df_pred_results_0017-cnn-gru-grid-batch8_gru_unit32.csv")
+res_cnn_gru_6 <- data.table::fread("../../../../results/results/df_pred_results_0018-cnn-gru-grid-batch16_gru_unit64.csv")
+```
+
+```{r}
+res_cnn_gru_1 %>% 
+  rbind(., res_cnn_gru_2) %>% 
+  rbind(., res_cnn_gru_3) %>% 
+  rbind(., res_cnn_gru_4) %>% 
+  rbind(., res_cnn_gru_5) %>% 
+  rbind(., res_cnn_gru_6) %>% 
+  arrange(desc(Accuracy)) %>%   
+  knitr::kable()
+```
+
+
+```{r}
+res_cnn_gru_2 %>% 
+  arrange(desc(Accuracy)) %>%   
+  knitr::kable()
+```
+
+## LSTM-Embedding
+
+```{r}
+res_lstm_emd_1 <- data.table::fread("../../../../results/results/lstm-embedding/df_pred_results_0013-lstm-embedding-grid-batch8_lstm_unit16.csv")
+res_lstm_emd_2 <- data.table::fread("../../../../results/results/lstm-embedding/df_pred_results_0014-lstm-embedding-grid-batch16_lstm_unit16.csv")
+```
+
+```{r}
+res_lstm_emd_1 %>% 
+  rbind(., res_lstm_emd_2) %>% 
+  arrange(desc(Accuracy)) %>%   
+  knitr::kable()
+```
+
+
+## GRU-Embedding
+
+```{r}
+gru_emb_res <- data.table::fread("../../../../results/results/gru-embedding/df_pred_results_0010-gru-embedding_scan.csv")
+```
+
+
+```{r}
+gru_emb_res %>% 
+  arrange(desc(Accuracy)) %>%   
+  knitr::kable()
+```
+
