@@ -202,7 +202,18 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - Think about what it means with why some convolutional layers are differently activated. 
 - For retrieving data or in general, keep it in mind that if what we are doing is not specific in this topic, then there must be something has been developed before (need to develop a sense like this) -- ensEmbl database by EMBL.
 
+##  `r "2019-12-18" -> curr_date; get_formatted_date(curr_date)`
 
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
+- apparently we can't use `biomaRt` package in R in ensEmbl genomes, we need to write query to retrieve the protein data
+- `biomaRt` can be only used for `ensemble.org`
+
+##  `r "2019-12-19" -> curr_date; "2019-12-20" -> to_date; get_formatted_date_range(curr_date, to_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
+
+- retrieve data using from ensEmbl using bioMart
+- the bioMart tool can be used only for retrieving the sequences one by one, thats why I need to do query in order to retrieve the data
 
 ***

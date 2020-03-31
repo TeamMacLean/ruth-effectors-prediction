@@ -1,0 +1,210 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+get_formatted_date <- function(curr_date, comment = NULL) {
+  date_text <- curr_date %>%
+    lubridate::ymd() %>%
+    base::format("%d %B %Y (%A)")
+
+  date_text <- paste(
+    date_text,
+    ifelse(
+      is.null(comment),
+      "",
+      paste("–", stringr::str_to_title(comment))
+    )
+  )
+
+  return(date_text)
+}
+
+get_formatted_date_range <- function(curr_date, to_date, comment = NULL) {
+  days_list <- seq(as.Date(curr_date), as.Date(to_date), 1)
+
+  days_text <- days_list %>%
+    lubridate::ymd() %>%
+    base::format("%d") %>%
+    stringr::str_c(collapse = ", ")
+
+  monthyear_text <- days_list %>%
+    lubridate::ymd() %>%
+    base::format("%B %Y") %>%
+    unique()
+
+  weekdays_text <- days_list %>%
+    lubridate::ymd() %>%
+    base::format("%a") %>%
+    stringr::str_c(collapse = ", ")
+
+  date_text <- paste0(
+    days_text, " ",
+    monthyear_text,
+    " (", weekdays_text, ") ",
+    ifelse(
+      is.null(comment),
+      "",
+      paste("–", stringr::str_to_title(comment))
+    )
+  )
+
+  return(date_text)
+}
+```
+
+# April 2019 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+##  `r "2019-04-10" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Met Dan for the research plan.
+- Tried to complete the script of hyperparameters scan.
+- Copied some protein IDs.
+
+
+##  `r "2019-04-11" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Copied manually the protein IDs until get the idea to find the `phi-base` GitHub repo.
+- Started to clean the data to get the protein IDs.
+- After got the protein IDs, then used it to get the sequence data.
+
+
+##  `r "2019-04-12" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Analysed and cleaned the sequence data from [uni-prot.org](uni-prot.org).
+
+
+***
+
+
+##  `r "2019-04-15" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Finished reading Dan's paper.
+- Tried to complete hyperparameter scan Model 1.
+
+#### Minutes of weekly catch up meeting
+
+- Finish the hyperparameter scan! (time management and prioritizing task skill should be improved!).
+- Next task: get the data of non-effector from NCBI.
+
+
+##  `r "2019-04-16" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Finished hyper scan Model 1 and 2 scripts (run in GPU).
+
+
+##  `r "2019-04-17" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Tried to finish the Model 3 scripts.
+- Getting the non-effector data from NCBI and phi-base.
+
+
+##  `r "2019-04-18" -> curr_date; get_formatted_date(curr_date, comment = "Half Day")`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Continue with getting the non-effector data.
+
+#### Notes
+
+- The first plan is to get the non-effector from [phi-base.org](phi-base.org), but some of the organism does not have sample non-effector data in [phi-base.org](phi-base.org). Solution: getting the sample from NCBI (using the query).
+
+- Some of the organism names in `uniprot` have different name with some in [phi-base.org](phi-base.org), then I did mapping to get the original organism name. For example the protein ID `G2XWG3` in `phi-base`: *Botrytis cinerea*, whereas in  `uniprot`: *Botryotinia fuckeliana*. And when we search the non-effector in `phi-base` using *Botryotinia fuckeliana*, we will not find it, because it is not there. Then we need to map it back to get the original name. (The `phi-base` data is the main data for finding the non-effector data).
+
+
+***
+
+
+##  `r "2019-04-23" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Obtained the intersect pathogen name of effector data from phi-base and uni-prot, identified the non-intersect one, and replace with the pathogen name from the phi-base.
+- Added the running time in SBATCH scripts in tsl-gpu (one job got canceled bc of the time limit).
+
+
+##  `r "2019-04-24" -> curr_date; "2019-04-26" -> to_date; get_formatted_date_range(curr_date, to_date)
+`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)` -->
+
+#### Worked on
+
+- Making reports.
+- Check and match the incosistency data between phi-base and uniprot.
+- Get data from NCBI (not complete yet).
+- Focus on getting the non-effector data from phi-base big data.
+
+
+***
+
+
+##  `r "2019-04-29" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Completed the report for weekly meeting catch-up.
+
+#### Minutes of weekly catch-up
+
+- Ask Dan if get stucks with something (biologist consideration is important, when dealing with data)
+- Any progress should be reported, not always wait for it to be completed.
+- **The gathering data process:**
+
+  1. For the non effector, to get the propotional data, no need to be in species / organism level, can be in Order level >> get the classfication of each organism in NCBI whether it is Bacteria / Fungi / Oomycetes.
+  2. Then just find the sequence samples based on the number of Order.
+
+
+##  `r "2019-04-30" -> curr_date; get_formatted_date(curr_date)`
+
+<!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
+
+#### Worked on
+
+- Completed the report for hyperparameter scan of the subcellular localisation project.
+- Classified the effector data organism into three families: Bacteria, Fungus, or Oomycetes.
+- Try to get the sequence data in NCBI with simple queries using.

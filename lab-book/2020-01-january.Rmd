@@ -156,6 +156,32 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 - trying to do ensembling and see how it will help to improve the perfomance 
 
+##  `r "2020-01-29" -> curr_date; "2020-01-31" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on 
+
+- Created the function to get the sample randomly (including checking manually with blast inside function and also with R)
+- use the function to get for the bacteria and identify how imbalance between the effector and non-effector (there is enough samples, so problem solved)
+- finished the scripts of binary classification for subcellular classification 
+
+
+##  `r "2020-02-03" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+
+#### Weekly catch up-meeting
+
+##### Effector prediction 
+
+- continue with other models (LSTM-Embd and GRU-Embd) for each dataset
+- continue with the new way for making the ensembl (consensues)
+
+#### Subcellular Localisation
+
+- continue with training the multiclass with GRU embedding, and see how it will work
 
 
 

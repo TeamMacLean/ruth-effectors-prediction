@@ -174,4 +174,20 @@ Commits: 1
     something has been developed before (need to develop a sense like
     this) – ensEmbl database by EMBL.
 
+## 18 December 2019 (Wednesday)
+
+Commits: 1
+
+  - apparently we can’t use `biomaRt` package in R in ensEmbl genomes,
+    we need to write query to retrieve the protein data
+  - `biomaRt` can be only used for `ensemble.org`
+
+## 19, 20 December 2019 (Thu, Fri)
+
+Commits: 0
+
+  - retrieve data using from ensEmbl using bioMart
+  - the bioMart tool can be used only for retrieving the sequences one
+    by one, thats why I need to do query in order to retrieve the data
+
 -----
