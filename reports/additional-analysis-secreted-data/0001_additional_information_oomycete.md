@@ -1,0 +1,206 @@
+Additional Analysis on Oomycete data
+====================================
+
+Introduction
+------------
+
+In this report, the process to get further analysis of oomycete data
+will be explained.
+
+``` r
+# Load libraries
+library(tidyverse)
+```
+
+    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+
+    ## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.3
+    ## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
+
+    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
+library(Peptides)
+library(stringr)
+```
+
+``` r
+# Making a test of the aadescriptors
+data <- aaDescriptors(seq = "KLKLLLLLKLK") %>% as_tibble() %>% 
+  tidyr::pivot_longer(cols = everything()) %>% 
+  dplyr::mutate(
+    seq_position = stringr::str_remove_all(name, ".*(?=\\.[^.]*$)") %>% 
+      stringr::str_remove_all("\\.") %>% 
+      as.integer(),
+    name = stringr::str_remove_all(name, "\\.[0-9]*")
+  ) %>% 
+  tidyr::pivot_wider(id_cols = seq_position)
+```
+
+``` r
+get_description <- function(sequence) {
+  df <- Peptides::aaDescriptors(seq = sequence) %>%
+    as_tibble() %>%
+    tidyr::pivot_longer(cols = everything()) %>%
+    dplyr::mutate(
+      seq = sequence,
+      seq_position = stringr::str_remove_all(name, ".*(?=\\.[^.]*$)") %>%
+        stringr::str_remove_all("\\.") %>%
+        as.integer(),
+      aa_letter = stringr::str_sub(seq, seq_position, seq_position),
+      name = stringr::str_remove_all(name, "\\.[0-9]*")
+    ) %>%
+    tidyr::pivot_wider(id_cols = c(seq, seq_position, aa_letter))
+
+  return(df)
+}
+```
+
+``` r
+get_plot_based_properties <- function(data_frame, properties){
+  
+  # Select relevant columns only
+  data <- data_frame %>% 
+    dplyr::select(c(seq, seq_position, properties))
+  
+  # Melt the data
+  data_melt <- data %>% 
+  tidyr::pivot_longer(
+      cols = -c(seq, seq_position),
+      names_to = "type",
+      values_to = "value"
+    )
+  
+  plot_gg <- ggplot(data_melt) +
+  aes(
+    x = seq_position, 
+    y = value, 
+    color = seq, 
+    group = seq
+  ) +
+  geom_point(size = 1) +
+  # scale_color_viridis_d() +
+  scale_x_continuous(breaks = seq(0, 50, 5), minor_breaks = seq(0,50, 1)) +
+  facet_wrap(~type) +
+  theme_bw() +
+  theme(legend.position = "none")
+  
+  return(plot_gg)
+}
+```
+
+``` r
+# Read the AAdata from the package
+# the AAdata are downloaded from the github repository of the package Peptides
+load(file = "../../../../AAdata.RData")
+
+# Define the group of the descriptor
+cruciani_properties <- AAdata$crucianiProperties %>% names()
+kidera_factor <- AAdata$kideraFactors %>%  names()
+z_scales <- AAdata$zScales %>% names()
+fasgai <- AAdata$FASGAI %>% names()
+t_scales <- AAdata$tScales %>% names()
+vhse  <- AAdata$VHSE %>% names()
+prot_fp <- AAdata$ProtFP %>% names()
+st_scales <- AAdata$stScales %>% names()
+blosum <- AAdata$BLOSUM %>% names()
+wswhim <- AAdata$MSWHIM %>% names()
+```
+
+``` r
+get_seq_list <- function(data_frame, start_pos, end_pos){
+  
+  seq_list <- data_frame %>% 
+    dplyr::filter(label == 1) %>% 
+    dplyr::select(Sequence) %>% 
+    dplyr::mutate(Sequence = stringr::str_sub(Sequence, start_pos, end_pos)) %>%
+    pull()
+  
+  return(seq_list)
+}
+```
+
+### Load data
+
+``` r
+# Load data
+oomycete_train <- data.table::fread("../../../data/secreted_data/ready_to_process/csv_files/secreted_oomycete_training.csv")
+oomycete_validation <- data.table::fread("../../../data/secreted_data/ready_to_process/csv_files/secreted_oomycete_validation.csv")
+oomycete_test <- data.table::fread("../../../data/secreted_data/ready_to_process/csv_files/secreted_oomycete_testing.csv")
+```
+
+``` r
+oomycete_val_seq_list <- get_seq_list(oomycete_validation, 15, 40)
+```
+
+``` r
+oomycete_train_seq_list <- get_seq_list(oomycete_train, 15, 40)
+```
+
+``` r
+oomycete_test_seq_list <- get_seq_list(oomycete_test, 15, 40)
+```
+
+### Get the all aa descriptors
+
+``` r
+aadesc_oomycete_val <- oomycete_val_seq_list %>% 
+  purrr::map(get_description) %>% 
+  purrr::reduce(rbind)
+```
+
+``` r
+aadesc_oomycete_train <- oomycete_train_seq_list %>% 
+  purrr::map(get_description) %>% 
+  purrr::reduce(rbind)
+```
+
+``` r
+aadesc_oomycete_test <- oomycete_test_seq_list %>% 
+  purrr::map(get_description) %>% 
+  purrr::reduce(rbind)
+```
+
+### Plot the data for `properties = cruciani_properties`
+
+``` r
+get_plot_based_properties(aadesc_oomycete_val, properties = cruciani_properties)
+```
+
+![](0001_additional_information_oomycete_files/figure-markdown_github/unnamed-chunk-13-1.png)
+
+``` r
+get_plot_based_properties(aadesc_oomycete_train, properties = cruciani_properties)
+```
+
+![](0001_additional_information_oomycete_files/figure-markdown_github/unnamed-chunk-14-1.png)
+
+``` r
+get_plot_based_properties(aadesc_oomycete_test, properties = cruciani_properties)
+```
+
+![](0001_additional_information_oomycete_files/figure-markdown_github/unnamed-chunk-15-1.png)
+
+### Plot the data for `properties = blosum`
+
+``` r
+get_plot_based_properties(aadesc_oomycete_test, properties = blosum)
+```
+
+![](0001_additional_information_oomycete_files/figure-markdown_github/unnamed-chunk-16-1.png)
+
+``` r
+get_plot_based_properties(aadesc_oomycete_val, properties = blosum)
+```
+
+![](0001_additional_information_oomycete_files/figure-markdown_github/unnamed-chunk-17-1.png)
+
+``` r
+get_plot_based_properties(aadesc_oomycete_train, properties = blosum)
+```
+
+![](0001_additional_information_oomycete_files/figure-markdown_github/unnamed-chunk-18-1.png)
