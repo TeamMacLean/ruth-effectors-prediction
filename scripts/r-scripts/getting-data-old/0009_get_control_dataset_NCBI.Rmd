@@ -1,0 +1,152 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "11/06/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Getting data for Control sets from NCBI
+
+In order to understand the data sets that we will train, we can do several investigations including getting the control set data and do the bootstrap resample for the data using the model we developed. 
+
+## Getting the effector data information 
+
+```{r}
+library(tidyverse)
+
+phi_base <- data.table::fread("../../../data/getting-data-old/phi-base-main.csv", header = TRUE)
+
+
+# filter all of the data with 'plant avirulence determinant' information
+phi_plant_effector <- phi_base %>%
+  dplyr::filter_all(any_vars(str_detect(., 'plant avirulence determinant'))) %>% 
+  dplyr::select(`Protein ID`,
+                `Pathogen species`, 
+                `Pathogen strain`)
+
+phi_plant_effector_to_print <- phi_base %>%
+  dplyr::filter_all(any_vars(str_detect(., 'plant avirulence determinant')))
+
+phi_plant_effector_to_print <- phi_plant_effector_to_print %>% 
+  head(30)
+
+write.csv(phi_plant_effector_to_print, "phi_plant_effector_to_print.csv")
+```
+
+In this `phi_plant_effector` data, we have several cases that we need to consider:
+
+### Many duplicate protein IDS 
+
+
+```{r}
+phi_protein_with_duplicated_pathogen_species <- phi_plant_effector %>% 
+  group_by(`Protein ID`) %>% 
+  arrange(`Protein ID`) %>% 
+  dplyr::filter(n() > 1) 
+
+phi_protein_with_duplicated_pathogen_species %>% 
+  head(50) %>% 
+  knitr::kable()
+```
+
+### Pathogen species that have same protein IDs
+
+```{r}
+phi_effector_same_ID_diff_pathogen <- phi_plant_effector %>%
+  dplyr::filter_all(all_vars(!str_detect(., 'no data found'))) %>% 
+  group_by(`Protein ID`) %>%
+  dplyr::filter(n_distinct(`Pathogen species`) > 1) %>% 
+  dplyr::group_by(`Protein ID`, `Pathogen species`, `Pathogen strain`)  %>%
+  slice(1)
+
+phi_effector_same_ID_diff_pathogen %>% 
+  knitr::kable()
+```
+
+# Previous sloopy step
+
+![Flow Chart of Getting the Data](../data/images/getting-data-flowchart.png)
+
+This is how I get the unique protein ID (to retrieve sequence from and take the first pathogen species and neglect others. 
+
+```{r}
+# since there are many duplicate pathogen species on 
+phi_plant_effector_proteinID_unique <- phi_plant_effector %>%
+  group_by(`Protein ID`) %>% 
+  summarise(`Pathogen species` = first(`Pathogen species`)) %>% 
+  dplyr::filter_all(all_vars(!str_detect(., 'no data found')))
+```
+
+
+However, for the control set, I tried to get all of the list of pathogen name and strain to get the whole genome sequence IDs. Now, we need to take the pathogen name and strain for each pathogen species and strain, so that we can get all of the samples of the protein from NCBI. 
+
+```{r}
+# select only the protein ID data
+phi_proteinID <- phi_plant_effector %>%
+  dplyr::select(`Protein ID`) %>% 
+  unique() %>% 
+  dplyr::filter_all(any_vars(!str_detect(., 'no data found')))
+```
+
+```{r}
+# Take any pathogen species without strain
+phi_pathogen_strain_no_data_found <- phi_plant_effector %>% 
+  dplyr::filter(`Pathogen strain` == 'no data found') %>% 
+  group_by(`Pathogen species`) %>% 
+  slice(1)
+
+# Take only unique strains
+phi_pathogen_strain_unique <- phi_plant_effector%>% 
+  group_by(`Pathogen strain`) %>% 
+  slice(1) %>% 
+  bind_rows(phi_pathogen_strain_no_data_found)
+```
+
+```{r}
+effector_data <- data.table::fread("../../../data/getting-data-old/effector_with_IDs_organism.csv") %>% 
+  rename(`Protein ID` = protein_id, `Pathogen species` = pathogen_short)
+
+effector_data %>% 
+  mutate(sequence = substr(sequence, 1, 30)) %>% 
+  head(20) %>% 
+  knitr::kable()
+```
+
+Now, we can map the effector data with all of the strains via protein IDs
+
+```{r}
+effector_sequence_with_metadata <- effector_data %>% 
+  left_join(., phi_plant_effector, by = 'Protein ID') %>% 
+  select(-c('name_src', 'Pathogen species.x')) %>% 
+  rename(`Pathogen species` = `Pathogen species.y`)
+
+effector_sequence_with_metadata <- effector_sequence_with_metadata %>% 
+  group_by(`Pathogen strain`, `Pathogen species`)
+
+# write.csv(effector_sequence_with_metadata , "../../../data/getting-data-old/effector_sequence_with_metadata.csv", row.names = FALSE)
+effector_sequence_with_metadata %>% 
+  mutate(sequence = substr(sequence, 1, 30)) %>% 
+  head(30) %>% 
+  knitr::kable()
+```
+
+Get the unique pathogen species and pathogen strains:
+
+```{r}
+effector_sequence_with_metadata_uniq <- effector_sequence_with_metadata %>% 
+  dplyr::group_by(`Protein ID`, sequence, `Pathogen species`, `Pathogen strain`) %>% 
+  slice(1) %>% 
+  ungroup()
+
+
+effector_sequence_with_metadata_uniq <- effector_sequence_with_metadata_uniq %>% 
+  dplyr::select(`Pathogen species`, `Pathogen strain`) %>%
+  dplyr::group_by(`Pathogen species`, `Pathogen strain`) %>% 
+  slice(1)
+
+effector_sequence_with_metadata_uniq %>% 
+  knitr::kable()
+```

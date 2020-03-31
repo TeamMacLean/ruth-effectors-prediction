@@ -1,0 +1,178 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "29/05/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Encoding the amino acids protein 
+
+In this report, both ways to encode amino acids protein for the effector and non-effector data will be done. 
+The first encoding method will be one hot encoding, the second method will be the method where we assign natural numbers to each amino acids. 
+
+```{r}
+library(keras)
+```
+
+Import the library that we need to reprocess the data. 
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+```{python}
+import os
+cwd = os.getcwd()
+print(cwd)
+```
+
+## Load the data 
+
+```{python}
+input_train = pd.read_csv('../../../data/getting-data-old/BLAST-data/0003-new-data-sets/training-sequence.csv', header = None, index_col = False, names = ["sequence"])
+input_val = pd.read_csv('../../../data/getting-data-old/BLAST-data/0003-new-data-sets/validation-sequence.csv', header = None, index_col = False, names = ["sequence"])
+input_test = pd.read_csv('../../../data/getting-data-old/BLAST-data/0003-new-data-sets/testing-sequence.csv', header = None, index_col = False, names = ["sequence"])
+label_train = pd.read_csv('../../../data/getting-data-old/BLAST-data/0003-new-data-sets/training-label.csv', header = None, index_col = False, names = ["label"])
+label_val = pd.read_csv('../../../data/getting-data-old/BLAST-data/0003-new-data-sets/validation-label.csv', header = None, index_col = False, names = ["label"])
+label_test = pd.read_csv('../../../data/getting-data-old/BLAST-data/0003-new-data-sets/testing-label.csv', header = None, index_col = False, names = ["label"])
+```
+
+```{python}
+print(label_train.info())
+```
+
+
+```{python}
+from collections import Counter
+field_length_train = input_train.sequence.astype(str).map(len) 
+field_length_val = input_val.sequence.astype(str).map(len)
+field_length_test = input_test.sequence.astype(str).map(len) 
+```
+
+```{python}
+print(field_length_train)
+# from collections import Counter
+# print(Counter([field_length_train > 2500]))
+```
+
+```{python}
+import matplotlib.pyplot as plt
+plt.clf()
+plt.hist(field_length_train, bins=100)
+plt.ylabel('Count')
+plt.xlabel('Length')
+plt.title('Histogram of Length of Sequences')
+plt.show()
+```
+
+
+## First encoding method - one hot encoding
+
+```{python}
+def get_key(mydict, element):
+    key = list(mydict.keys())[list(mydict.values()).index(element)]
+    return(key)
+
+amino = ['R', 'K', 'D', 'E', 'Q', 'N', 'H', 'S', 'T', 'Y', 'C', 'W', 'A', 'I', 'L', 'M', 'F', 'V', 'P', 'G']
+token_index = dict(zip(range(1, (len(amino)+1)), amino))
+
+max_length = 2500
+def get_encoding(mydata, max_length):
+    results = np.zeros((len(mydata), max_length, max(token_index.keys())))
+    for i, sample in enumerate(mydata):
+        for j, character in enumerate(sample):
+            if character in token_index.values():
+                index = get_key(token_index, character) - 1
+                results[i, j, index] = 1. 
+            else:
+                results[i, j, :] = results[i, j, :]
+    return results
+```
+
+
+```{python}
+x_train = input_train[input_train['sequence'].map(len) < 2500].sequence.tolist()
+x_val = input_val.sequence.tolist()
+x_test = input_test.sequence.tolist()
+one_hot_train = get_encoding(x_train, max_length)
+one_hot_val = get_encoding(x_val, max_length)
+one_hot_test = get_encoding(x_test, max_length)
+```
+
+```{python}
+print(input_train.loc[input_train.sequence.astype(str).map(len) > 2500])
+```
+
+Since we only select the training data sequence with length less or equal to 2500, then we also need to drop the data on that index from the the label training. 
+
+```{python}
+drop_idx = [105, 305]
+label_train = label_train.loc[~label_train.index.isin(drop_idx)]
+print(label_train)
+```
+
+## Second encoding method - assign natural numbers to each amino acids
+
+```{python}
+def get_value(mydict, element):
+    key = mydict.get(element)
+    return(key)
+    
+dic = {'A':1, 'B':22, 'U':23,'J':24,'Z':25,'O':26,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'K':9,'L':10,'M':11,'N':12,'P':13,'Q':14,'R':15,'S':16,'T':17,'V':18,'W':19,'Y':20,'X':21}
+max_len = 2500
+
+def encoding_each_sequence(input):
+    results = np.zeros((len(input), max_len))
+    for i, sample in enumerate(input):
+        for j, character in enumerate(sample):
+            results[i, j] = get_value(dic, character)
+    return results
+```
+
+```{python}
+natural_number_assign_train = encoding_each_sequence(x_train)
+natural_number_assign_val = encoding_each_sequence(x_val)
+natural_number_assign_test = encoding_each_sequence(x_test)
+```
+
+```{python}
+print(natural_number_assign_val)
+```
+
+## Saving all of the results in the data folder
+
+### One hot encoding 
+
+```{python}
+# np.save('../../../data/getting-data-old/0001-encoded-data/one-hot/x_train.npy', one_hot_train)
+# np.save('../../../data/getting-data-old/0001-encoded-data/one-hot/x_val.npy', one_hot_val)
+# np.save('../../../data/getting-data-old/0001-encoded-data/one-hot/x_test.npy', one_hot_test)
+```
+
+### Encoding using Natural number
+
+```{python}
+# np.save('../../../data/getting-data-old/0001-encoded-data/assign-natural-number/x_train.npy', natural_number_assign_train)
+# np.save('../../../data/getting-data-old/0001-encoded-data/assign-natural-number/x_val.npy', natural_number_assign_val)
+# np.save('../../../data/getting-data-old/0001-encoded-data/assign-natural-number/x_test.npy', natural_number_assign_test)
+```
+
+### Saving the data label
+
+```{python}
+y_train = label_train.label.tolist()
+y_val = label_val.label.tolist()
+y_test = label_test.label.tolist()
+# np.save('../../../data/getting-data-old/0001-encoded-data/y_train.npy', y_train)
+# np.save('../../../data/getting-data-old/0001-encoded-data/y_val.npy', y_val)
+# np.save('../../../data/getting-data-old/0001-encoded-data/y_test.npy', y_test)
+```
+
+
+
+
+
