@@ -54,9 +54,9 @@ links_XK24251
 ```
 
     ## elink result with information from 8 databases:
-    ## [1] protein_nuccore                 protein_protein_cdart_summary  
-    ## [3] protein_bioproject              protein_nuccore_wgs            
-    ## [5] protein_nucleotide              protein_protein_cdart          
+    ## [1] protein_nuccore                 protein_protein_cdart_summary
+    ## [3] protein_bioproject              protein_nuccore_wgs
+    ## [5] protein_nucleotide              protein_protein_cdart
     ## [7] protein_protein_cdart_summary_2 protein_taxonomy
 
 ``` r
@@ -89,7 +89,7 @@ entrez_link(dbfrom = "nuccore", id = "385759978", db = "all")$links$nuccore_prot
 Here is how it looks when we enter the ID in NCBI website:
 
 ![Protein results in NCBI website for id =
-“385759978”.](figs_0002/nucletide_385759978.png)
+“385759978”.](0002_finding_effective_way_using_rentrez_files/figure-markdown_github/nucletide_385759978.png)
 
 Then we will get two protein IDs(here is the look from the NCBI
 website):
@@ -122,9 +122,9 @@ links_AHY02126
 ```
 
     ## elink result with information from 7 databases:
-    ## [1] protein_nuccore                 protein_protein_cdart_summary  
-    ## [3] protein_nucleotide              protein_protein_cdart          
-    ## [5] protein_protein_cdart_summary_2 protein_pubmed                 
+    ## [1] protein_nuccore                 protein_protein_cdart_summary
+    ## [3] protein_nucleotide              protein_protein_cdart
+    ## [5] protein_protein_cdart_summary_2 protein_pubmed
     ## [7] protein_taxonomy
 
 ``` r
@@ -149,7 +149,7 @@ entrez_link(dbfrom = "nuccore", id = "619330618", db = "all")$links$nuccore_prot
 
 Here is the reults when we input the ID in NCBI website
 
-![Proteins given id = “619330618”.](figs_0002/nucleotide_619330618.png)
+![Proteins given id = “619330618”.](0002_finding_effective_way_using_rentrez_files/figure-markdown_github/nucleotide_619330618.png)
 
 If the result is only one proteinID, then it is actually protein that we
 already have, then we can retrieve the protein from the known protein ID
@@ -167,7 +167,7 @@ entrez_search(db = "gene", term = "LysM1")$ids
 
     ## [1] "12311316" "7501221"
 
-![Results of gene given term = “LysM1”.](figs_0002/gene_Lysm1.png)
+![Results of gene given term = “LysM1”.](0002_finding_effective_way_using_rentrez_files/figure-markdown_github/gene_Lysm1.png)
 
 ``` r
 # Using Gene ID
@@ -176,7 +176,8 @@ entrez_search(db = "gene", term = "KGO57615")$ids
 
     ## [1] "27674751"
 
-![Results of gene given term = “KGO57615”.](figs_0002/gene_KGO57615.png)
+![Results of gene given term = “KGO57615”.](0002_finding_effective_way_using_rentrez_files/figure-markdown_github/gene_KGO57615.png)
+
 
 Since using the GeneID is more unique and refer to the exact gene for
 the protein we need, we will use the GeneID in this case:
@@ -187,14 +188,14 @@ links_KGO57615
 ```
 
     ## elink result with information from 17 databases:
-    ##  [1] protein_cdd_concise_2           protein_cdd_superfamily_2      
-    ##  [3] protein_nuccore                 protein_protein_cdart_summary  
-    ##  [5] protein_sparcle                 protein_bioproject             
-    ##  [7] protein_cdd                     protein_cdd_specific_2         
-    ##  [9] protein_cdd_summary             protein_cdd_summary_nonpublic  
-    ## [11] protein_gene                    protein_nuccore_wgs            
-    ## [13] protein_nucleotide              protein_protein_cdart          
-    ## [15] protein_protein_cdart_summary_2 protein_pubmed_weighted        
+    ##  [1] protein_cdd_concise_2           protein_cdd_superfamily_2
+    ##  [3] protein_nuccore                 protein_protein_cdart_summary
+    ##  [5] protein_sparcle                 protein_bioproject
+    ##  [7] protein_cdd                     protein_cdd_specific_2
+    ##  [9] protein_cdd_summary             protein_cdd_summary_nonpublic
+    ## [11] protein_gene                    protein_nuccore_wgs
+    ## [13] protein_nucleotide              protein_protein_cdart
+    ## [15] protein_protein_cdart_summary_2 protein_pubmed_weighted
     ## [17] protein_taxonomy
 
 ``` r
@@ -225,4 +226,4 @@ In this case we have many protein, these proteins will later on will be
 analysed using the SignalP.
 
 ![Results of proteins given id =
-“700469160”.](figs_0002/nucleotide_700469160.png)
+“700469160”.](0002_finding_effective_way_using_rentrez_files/figure-markdown_github/nucleotide_700469160.png)
