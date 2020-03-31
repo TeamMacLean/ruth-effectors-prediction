@@ -184,7 +184,7 @@ Commits: 2
 
 ## 28 January 2020 (Tuesday)
 
-Commits: 3
+Commits: 4
 
 #### Weekly catch up-meeting
 
@@ -204,3 +204,33 @@ Commits: 3
 
   - trying to do ensembling and see how it will help to improve the
     perfomance
+
+## 29–31 January 2020
+
+Commits: 0
+
+#### Worked on
+
+  - Created the function to get the sample randomly (including checking
+    manually with blast inside function and also with R)
+  - use the function to get for the bacteria and identify how imbalance
+    between the effector and non-effector (there is enough samples, so
+    problem solved)
+  - finished the scripts of binary classification for subcellular
+    classification
+
+## 03 February 2020 (Monday)
+
+Commits: 4
+
+#### Weekly catch up-meeting
+
+##### Effector prediction
+
+  - continue with other models (LSTM-Embd and GRU-Embd) for each dataset
+  - continue with the new way for making the ensembl (consensues)
+
+#### Subcellular Localisation
+
+  - continue with training the multiclass with GRU embedding, and see
+    how it will work

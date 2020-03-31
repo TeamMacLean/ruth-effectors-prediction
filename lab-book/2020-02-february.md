@@ -5,10 +5,7 @@
 
 ## 03 February 2020 (Monday)
 
-Commits:
-4
-
-<!-- Total time: `#r get_total_worktime(curr_date, time_in = "9:00", time_out = "NA", time_lunch = "1:00")` -->
+Commits: 4
 
 #### Weekly meeting minutes:
 
@@ -41,9 +38,9 @@ Commits: 0
 
 ## 10 February 2020 (Monday)
 
-Commits: 0
+#### Activities:
 
-Going for a german visa application in London.
+  - Going for a German visa application in London.
 
 ## 11 February 2020 (Tuesday)
 
@@ -151,5 +148,7 @@ Commits: 0
     bacteria
 
 ## 24–28 February 2020
+
+#### Activities:
 
   - went to Germany for an interview

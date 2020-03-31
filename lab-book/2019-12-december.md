@@ -60,7 +60,7 @@ Commits: 0
         0010\_getting\_info\_data\_each\_class.Rmd), so its definitely
         the problem with code or method.
 
-## 05, 06 December 2019 (Thu, Fri)
+## 05, 06 December 2019 (Thursday, Friday)
 
 Commits: 0
 
@@ -94,7 +94,7 @@ Commits: 0
       - Use SignalP 2 not signalP 5.
       - Try to get secreted data forthe organism.
 
-## 10, 11, 12 December 2019 (Tue, Wed, Thu)
+## 10, 11, 12 December 2019 (Tuesday, Wednesday, Thursday)
 
 Commits: 0
 
@@ -182,7 +182,7 @@ Commits: 1
     we need to write query to retrieve the protein data
   - `biomaRt` can be only used for `ensemble.org`
 
-## 19, 20 December 2019 (Thu, Fri)
+## 19, 20 December 2019 (Thursday, Friday)
 
 Commits: 0
 
