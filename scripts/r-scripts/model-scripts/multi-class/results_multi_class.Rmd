@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "17/01/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../../reports/model_scripts/multi_class") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -18,44 +17,44 @@ library(tidyverse)
 ## Bacteria
 
 ```{r}
-bacteria_cnn_lstm <- data.table::fread("../../../../data/scan-multiclass/bacteria/df_pred_results_0001-cnn-lstm-scan-bacteria.csv")  %>% 
+bacteria_cnn_lstm <- data.table::fread("../../../../data/scan-multiclass/bacteria/df_pred_results_0001-cnn-lstm-scan-bacteria.csv") %>%
   arrange(desc(Accuracy))
 ```
 
 ```{r}
-bacteria_cnn_lstm %>% 
+bacteria_cnn_lstm %>%
   knitr::kable()
 ```
 
 ```{r}
-bacteria_cnn_gru <- data.table::fread("../../../../data/scan-multiclass/bacteria/df_pred_results_0002-cnn-gru-grid-bacteria.csv") %>% 
+bacteria_cnn_gru <- data.table::fread("../../../../data/scan-multiclass/bacteria/df_pred_results_0002-cnn-gru-grid-bacteria.csv") %>%
   arrange(desc(Accuracy))
 ```
 
 ```{r}
-bacteria_cnn_gru %>% 
+bacteria_cnn_gru %>%
   knitr::kable()
 ```
 
 ## Fungi
 
 ```{r}
-fungi_cnn_lstm <- data.table::fread("../../../../data/scan-multiclass/fungi/df_pred_results_0001-cnn-lstm-scan-fungi.csv") %>% 
+fungi_cnn_lstm <- data.table::fread("../../../../data/scan-multiclass/fungi/df_pred_results_0001-cnn-lstm-scan-fungi.csv") %>%
   arrange(desc(Accuracy))
 ```
 
 ```{r}
-fungi_cnn_lstm  %>% 
+fungi_cnn_lstm %>%
   knitr::kable()
 ```
 
 ```{r}
-fungi_cnn_gru <- data.table::fread("../../../../data/scan-multiclass/fungi/df_pred_results_0002-cnn-gru-grid-fungi.csv") %>% 
+fungi_cnn_gru <- data.table::fread("../../../../data/scan-multiclass/fungi/df_pred_results_0002-cnn-gru-grid-fungi.csv") %>%
   arrange(desc(Accuracy))
 ```
 
 ```{r}
-fungi_cnn_gru  %>% 
+fungi_cnn_gru %>%
   knitr::kable()
 ```
 
@@ -64,43 +63,45 @@ fungi_cnn_gru  %>%
 
 
 ```{r}
-oomycete_cnn_lstm <- data.table::fread("../../../../data/scan-multiclass/oomycete/df_pred_results_0001-cnn-lstm-scan-oomycete.csv") %>% 
+oomycete_cnn_lstm <- data.table::fread("../../../../data/scan-multiclass/oomycete/df_pred_results_0001-cnn-lstm-scan-oomycete.csv") %>%
   arrange(desc(Accuracy))
 ```
 
 ```{r}
-oomycete_cnn_lstm  %>% 
+oomycete_cnn_lstm %>%
   knitr::kable()
 ```
 
 
 ```{r}
-oomycete_cnn_gru <- data.table::fread("../../../../data/scan-multiclass/oomycete/df_pred_results_0002-cnn-gru-grid-oomycete.csv")  %>% 
+oomycete_cnn_gru <- data.table::fread("../../../../data/scan-multiclass/oomycete/df_pred_results_0002-cnn-gru-grid-oomycete.csv") %>%
   arrange(desc(Accuracy))
 ```
 
 ```{r}
-oomycete_cnn_gru %>% 
+oomycete_cnn_gru %>%
   knitr::kable()
 ```
 
 ## Summary
 
 ```{r}
-data.frame(model = c("cnn_lstm_bacteria", 
-                         "cnn_gru_bacteria", 
-                         "cnn_lstm_fungi", 
-                         "cnn_gru_fungi", 
-                         "cnn_lstm_oomycete", 
-                         "cnn_gru_oomycete"), 
-           accuracy = c(bacteria_cnn_lstm %>% dplyr::select(Accuracy) %>% max(), 
-                        bacteria_cnn_gru %>% dplyr::select(Accuracy) %>% max(),
-                        fungi_cnn_lstm %>% dplyr::select(Accuracy) %>% max(),
-                        fungi_cnn_gru %>% dplyr::select(Accuracy) %>% max(),
-                        oomycete_cnn_lstm %>% dplyr::select(Accuracy) %>% max(),
-                        oomycete_cnn_gru %>% dplyr::select(Accuracy) %>% max())
+data.frame(
+  model = c(
+    "cnn_lstm_bacteria",
+    "cnn_gru_bacteria",
+    "cnn_lstm_fungi",
+    "cnn_gru_fungi",
+    "cnn_lstm_oomycete",
+    "cnn_gru_oomycete"
+  ),
+  accuracy = c(
+    bacteria_cnn_lstm %>% dplyr::select(Accuracy) %>% max(),
+    bacteria_cnn_gru %>% dplyr::select(Accuracy) %>% max(),
+    fungi_cnn_lstm %>% dplyr::select(Accuracy) %>% max(),
+    fungi_cnn_gru %>% dplyr::select(Accuracy) %>% max(),
+    oomycete_cnn_lstm %>% dplyr::select(Accuracy) %>% max(),
+    oomycete_cnn_gru %>% dplyr::select(Accuracy) %>% max()
+  )
 )
 ```
-
-
-
