@@ -1,0 +1,690 @@
+---
+title: ''
+author: "Ruth Kristianingsih"
+date: "17/02/2020"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Manually tuning model for Fungi 
+
+## Background
+
+In this report, manually tuning models for pathogen fungi will be done. 
+
+```{r setup}
+library(tidyverse)
+library(patchwork)
+library(parscanlogreader)
+source("../../../r-functions/plot_training_vs_validation.R")
+
+#import the package
+library(randomForest)
+```
+
+
+## Results from hypeparameter scan
+
+```{r}
+fungi_cnn_gru_secreted <- data.table::fread("../../../../../data/secreted_data/training-results/fungi/df_pred_results_cnn_gru_fungi_secreted.csv")
+
+fungi_cnn_gru_secreted %>% 
+  arrange(desc(Accuracy)) %>% 
+  knitr::kable()
+```
+
+```{r}
+fungi_cnn_gru_secreted  <- fungi_cnn_gru_secreted %>%  
+  separate(Parameters, c("reg_rate", "optimizers", "opt_go_backwards", "opt_dropout_recurrent", "opt_dropout", "maxpool_size", "kernel_size", "gru_hidden_units", "filter_conv", "epochs", "batch_size", "activation_conv"), sep = ", ")
+```
+
+```{r}
+fungi_cnn_gru_secreted <- fungi_cnn_gru_secreted %>% 
+  # dplyr::select(-c(V1, Accuracy)) %>%
+  mutate_at(
+    .vars = dplyr::vars(reg_rate, optimizers, opt_go_backwards, opt_dropout_recurrent, opt_dropout, maxpool_size, kernel_size, gru_hidden_units, filter_conv, epochs, batch_size, activation_conv),
+    .funs = function(x) {
+      stringr::str_replace_all(
+        string = x,
+        pattern = "(.+?:)",
+        replacement = ""
+      )  %>% 
+  stringr::str_remove_all("\\'|\\}")
+    }
+  )
+```
+
+
+```{r}
+fungi_cnn_gru_secreted %>% 
+  dplyr::select(-c(V1, Accuracy)) 
+```
+
+
+## Short analysis using Randomforest
+
+```{r}
+data <- fungi_cnn_gru_secreted %>% 
+  dplyr::select(-c("Sensitivity", "Specifity"))
+
+cols <- c("reg_rate", "optimizers", "opt_go_backwards", "opt_dropout_recurrent", "opt_dropout", "maxpool_size", "kernel_size", "gru_hidden_units", "filter_conv", "epochs", "batch_size", "activation_conv")
+
+data[cols] <- lapply(data[cols], factor)
+
+data %>% 
+  colnames()
+
+# Perform training:
+test <- randomForest(Accuracy ~ .,
+                            data = data, 
+                            ntree = 100, 
+                            mtry = 2, 
+                            importance=TRUE)
+```
+
+```{r}
+mtry_list <- c(2:10)
+
+num_iter <- length(mtry_list)
+var_explained <- numeric(length = num_iter)
+
+for (i in 1:num_iter) {
+  rf_classifier <- randomForest(
+    Accuracy ~ .,
+    data = data,
+    ntree = 1000,
+    mtry = mtry_list[i],
+    importance = TRUE
+  )
+  var_explained[i] <- rf_classifier$rsq[1000] * 100
+}
+
+
+df <- data.frame(mtry_list, var_explained)
+
+df %>% 
+  knitr::kable()
+```
+
+```{r}
+gg <- ggplot(df) +
+  aes(x = mtry_list, y = var_explained) +
+  geom_point()
+
+
+gg
+```
+
+
+## Model
+
+```bash
+# Define the base model architecture
+def simple_CNN_GRU(filter_conv,
+			             kernel_size,
+			             maxpool_size,
+			             activation_conv,
+			             gru_hidden_units,
+                   opt_dropout,
+                   opt_dropout_recurrent,
+                   opt_go_backwards,
+                   reg_rate,
+			             optimizers):
+  model = Sequential()
+  model.add(Conv1D(filters = filter_conv,
+		               kernel_size = kernel_size,
+		               strides = 1,
+	                 activation = activation_conv,
+	                 input_shape =  (4034, 20)))
+  model.add(MaxPooling1D(maxpool_size))
+  model.add(Bidirectional(GRU(units = gru_hidden_units,
+                                activation = 'tanh',
+                                recurrent_activation = 'hard_sigmoid',
+                                kernel_regularizer = regularizers.l2(reg_rate),
+                                recurrent_regularizer = regularizers.l2(reg_rate),
+                                dropout = opt_dropout,
+                                recurrent_dropout = opt_dropout_recurrent,
+                                go_backwards = opt_go_backwards)))
+  model.add(Dense(1, activation = 'sigmoid'))
+  model.compile(loss = 'binary_crossentropy',
+                optimizer = optimizers,
+                metrics = ['accuracy'])
+  print(model.summary())
+  return model
+  
+  
+ model = simple_CNN_GRU(filter_conv = 8,
+			                     kernel_size = 1,
+			                     maxpool_size = 2,
+			                     activation_conv = None,
+			                     gru_hidden_units = 8,
+                           opt_dropout = 0,
+                           opt_dropout_recurrent = 0,
+                           opt_go_backwards = 'TRUE',
+                           reg_rate = 0.001,
+			                     optimizers = 'Adam')
+
+	# Fit the model
+    history_fit = model.fit(x_train[train], y_train[train], epochs = 60, batch_size = 8, verbose = 1, shuffle = 1, validation_data = (x_train[test], y_train[test]))
+```
+
+## Load library
+
+```{r, include = FALSE}
+library(tidyverse)
+library(patchwork)
+source("../../../r-functions/plot_training_vs_validation.R")
+```
+
+### CNN-GRU results
+
+```{r}
+# Load data for 30 epochs
+fungi_cnn_gru_train_30epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_gru_best_fungi.csv")
+fungi_cnn_gru_val_30epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_gru_best_fungi.csv")
+fungi_cnn_gru_test_30epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_gru_best_fungi.csv")
+
+
+# Adding the average on the table 
+
+fungi_cnn_gru_train_30epochs <- fungi_cnn_gru_train_30epochs %>% 
+  dplyr::mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_gru_val_30epochs <- fungi_cnn_gru_val_30epochs %>% 
+  dplyr::mutate(AVG_CV =rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(fungi_cnn_gru_train_30epochs, fungi_cnn_gru_val_30epochs,  plot_title = "") +
+  facet_wrap(~CV, nrow = 2 )
+```
+
+#### Change the epochs -- train the model longer
+
+From the figure above, it seems that the accuracy can increase futher, therefore increasing the number epochs will give us better idea:
+
+```{r}
+# Load data results for 60 epochs
+fungi_cnn_gru_train_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_gru_best_fungi_60epochs.csv")
+fungi_cnn_gru_val_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_gru_best_fungi_60epochs.csv")
+fungi_cnn_gru_test_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_gru_best_fungi_60epochs.csv")
+
+# Load data results for 100 epochs
+fungi_cnn_gru_train_100epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_gru_best_fungi_100epochs.csv")
+fungi_cnn_gru_val_100epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_gru_best_fungi_100epochs.csv")
+fungi_cnn_gru_test_100epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_gru_best_fungi_100epochs.csv")
+```
+
+```{r}
+# Adding the average for the training models with 60 epochs
+fungi_cnn_gru_train_60epochs <- fungi_cnn_gru_train_60epochs %>% 
+  dplyr::mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_gru_val_60epochs <- fungi_cnn_gru_val_60epochs %>% 
+  dplyr::mutate(AVG_CV =rowMeans(.[,2:6]))
+
+# Adding the average for the training models with 100 epochs
+fungi_cnn_gru_train_100epochs <- fungi_cnn_gru_train_100epochs %>% 
+  dplyr::mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_gru_val_100epochs <- fungi_cnn_gru_val_100epochs %>% 
+  dplyr::mutate(AVG_CV =rowMeans(.[,2:6]))
+```
+
+```{r}
+# Results with 60 epochs
+get_gg_acc(fungi_cnn_gru_train_60epochs, fungi_cnn_gru_val_60epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+# Results with 60 epochs
+get_gg_acc(fungi_cnn_gru_train_100epochs, fungi_cnn_gru_val_100epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+
+#### Comparing three prediction results on the test data with different epochs
+
+```{r}
+diff_epochs <- rbind(fungi_cnn_gru_test_30epochs  %>% 
+  dplyr::select(V1, acc) %>% 
+    dplyr::mutate(epochs = 30),
+  fungi_cnn_gru_test_60epochs  %>% 
+  dplyr::select(V1, acc)  %>% 
+    dplyr::mutate(epochs = 60), 
+  fungi_cnn_gru_test_100epochs  %>% 
+  dplyr::select(V1, acc)  %>% 
+    dplyr::mutate(epochs = 100))
+
+plot_comparison(diff_epochs , V1, acc, epochs, show_label = TRUE, label_digits = 3) 
+```
+
+
+From the results above, as we can see, the longer we train the data, the hinger the gap between training accuracy and validation accuracy, meaning the model is overfitting here. 
+
+#### Change the value of regularion rate from `0.001 to 0.01`
+
+```{r}
+# Load data for 30 epochs
+cnn_gru_train_60epochs_regrate001 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_gru_best_fungi_60epochs_regrate001.csv")
+cnn_gru_val_60epochs_regrate001 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_gru_best_fungi_60epochs_regrate001.csv")
+cnn_gru_test_60epochs_regrate001 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_gru_best_fungi_60epochs_regrate001.csv")
+
+
+# Adding the average on the table 
+
+cnn_gru_train_60epochs_regrate001 <- cnn_gru_train_60epochs_regrate001 %>% 
+  dplyr::mutate(AVG_CV = rowMeans(.[,2:6]))
+
+cnn_gru_val_60epochs_regrate001 <- cnn_gru_val_60epochs_regrate001 %>% 
+  dplyr::mutate(AVG_CV =rowMeans(.[,2:6]))
+
+get_gg_acc(cnn_gru_train_60epochs_regrate001, cnn_gru_val_60epochs_regrate001) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+
+```{r}
+# Results with 60 epochs
+get_gg_acc(fungi_cnn_gru_train_60epochs, fungi_cnn_gru_val_60epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+
+#### Comparing the prediction results with different regularization rate
+
+```{r}
+compare_test_pred <- fungi_cnn_gru_test_60epochs %>% 
+  dplyr::select(V1, acc) %>% 
+  mutate(Regrate = "0.001") %>% 
+  rbind(cnn_gru_test_60epochs_regrate001 %>% 
+          dplyr::select(V1, acc) %>% 
+          mutate(Regrate = "0.01")) %>% 
+  `colnames<-` (c("CV", "acc", "regrate"))
+```
+
+
+```{r}
+plot_comparison(
+  data = compare_test_pred ,
+  x_var = CV,
+  y_var = acc,
+  group_var = regrate
+)
+```
+
+Chnaging the filter to have higher filter 
+
+simple_CNN_GRU(filter_conv = 16,
+			                     kernel_size = 1,
+			                     maxpool_size = 2,
+			                     activation_conv = None,
+			                     gru_hidden_units = 8,
+                           opt_dropout = 0,
+                           opt_dropout_recurrent = 0,
+                           opt_go_backwards = 'TRUE',
+                           reg_rate = 0.01,
+			                     optimizers = 'Adam')
+			                     
+epochs = 16
+
+```{r}
+fungi_cnn_gru_train_filterconv16 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_gru_best_fungi_60epochs_filterconv16.csv")
+fungi_cnn_gru_val_filterconv16 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_gru_best_fungi_60epochs_filterconv16.csv")
+fungi_cnn_gru_test_filterconv16 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_gru_best_fungi_60epochs_filterconv16.csv")
+
+
+fungi_cnn_gru_train_filterconv16 <- fungi_cnn_gru_train_filterconv16 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_gru_val_filterconv16 <- fungi_cnn_gru_val_filterconv16 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+
+```{r}
+get_gg_acc(fungi_cnn_gru_train_filterconv16, fungi_cnn_gru_val_filterconv16) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+
+
+It seems if we are using filter convolution = 16, it is more overfitting than using only 8. Therefore, we will stick with filter conv = 8. And now I am going to introduce dropout to the system, using the 
+
+```{r}
+fungi_cnn_gru_train_filterconv8_drop025 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_gru_best_fungi_60epochs_filterconv8_drop025.csv")
+
+fungi_cnn_gru_val_filterconv8_drop025 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_gru_best_fungi_60epochs_filterconv8_drop025.csv")
+
+fungi_cnn_gru_test_filterconv8_drop025 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_gru_best_fungi_60epochs_filterconv8_drop025.csv")
+
+
+fungi_cnn_gru_train_filterconv8_drop025 <- fungi_cnn_gru_train_filterconv8_drop025 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_gru_val_filterconv8_drop025 <- fungi_cnn_gru_val_filterconv8_drop025 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(fungi_cnn_gru_train_filterconv8_drop025, fungi_cnn_gru_val_filterconv8_drop025) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+fungi_cnn_gru_test_filterconv8_drop025
+```
+
+```{r}
+fungi_cnn_gru_test_60epochs
+```
+
+```{r}
+compare_test_pred_with_diff_dropout <- fungi_cnn_gru_test_60epochs %>% 
+  dplyr::select(V1, acc) %>% 
+  mutate(Dropout = 0) %>% 
+  rbind(fungi_cnn_gru_test_filterconv8_drop025 %>% 
+          dplyr::select(V1, acc) %>% 
+          mutate(Dropout = 0.25)) %>% 
+  `colnames<-` (c("CV", "Acc", "Dropout"))
+```
+
+
+```{r}
+plot_comparison(
+  data = compare_test_pred_with_diff_dropout,
+  x_var = CV,
+  y_var = Acc,
+  group_var = Dropout
+)
+```
+
+## GRU - Embedding
+
+```{r}
+fungi_gru_embeding_all <- data.table::fread("../../../../../data/secreted_data/training-results/fungi/fungi_scan_results_gru_embedding_scan_fungi.csv") %>% 
+  select(params, mean_test_score)
+
+fungi_gru_embeding_all %>% 
+  # dplyr::filter(params == "{‘reg_rate’: 0.001, ‘outputdim’: 16, ‘optimizers’: ‘Adam’, ‘opt_go_backwards’: ‘FALSE’, ‘opt_dropout_recurrent’: 0, ‘opt_dropout’: 0, ‘gru_hidden_units’: 32, ‘epochs’: 30, ‘batch_size’: 8}") %>% 
+  dplyr::arrange(desc(mean_test_score)) %>%
+  head(20) %>% 
+  knitr::kable()
+```
+
+```{r}
+fungi_gru_embeding_all_pred <- data.table::fread("../../../../../data/secreted_data/training-results/fungi/df_pred_results_gru_embedding_scan_fungi.csv") 
+
+fungi_gru_embeding_all_pred %>% 
+  dplyr::arrange(desc(Accuracy)) %>% 
+  knitr::kable()
+```
+
+### Manually running 
+
+```{r}
+fungi_gru_emb_train <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_gru_emb_best_fungi.csv")
+fungi_gru_emb_val <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_gru_emb_best_fungi.csv")
+
+
+# Get the avergae of the acc for each cross validation
+fungi_gru_emb_train <- fungi_gru_emb_train %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_gru_emb_val <- fungi_gru_emb_val %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+
+```{r}
+get_gg_acc(fungi_gru_emb_train, fungi_gru_emb_val) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+As we can see, it seems that the training need more epochs
+
+```{r}
+fungi_gru_emb_test <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_gru_emb_best_fungi.csv")
+
+fungi_gru_emb_test %>% 
+  knitr::kable()
+```
+
+
+More epochs:
+
+```{r}
+fungi_gru_emb_train_60epochs <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_gru_emb_best_fungi_60epochs.csv")
+fungi_gru_emb_val_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_gru_emb_best_fungi_60epochs.csv")
+fungi_gru_emb_test_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_gru_emb_best_fungi_60epochs.csv")
+
+
+
+# Get the avergae of the acc for each cross validation
+fungi_gru_emb_train_60epochs <- fungi_gru_emb_train_60epochs %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_gru_emb_val_60epochs <- fungi_gru_emb_val_60epochs %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+
+```{r}
+get_gg_acc(fungi_gru_emb_train_60epochs, fungi_gru_emb_val_60epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+fungi_gru_emb_compare <- rbind(fungi_gru_emb_test %>% 
+  dplyr::select(V1, acc) %>% 
+    dplyr::mutate(epochs = 30), 
+fungi_gru_emb_test_60epochs %>% 
+    dplyr::select(V1, acc) %>% 
+    dplyr::mutate(epochs = 60))
+
+plot_comparison(fungi_gru_emb_compare, V1, acc, epochs, show_label = TRUE, label_digits = 3) 
+```
+
+
+## LSTM-Embedding
+
+```{r}
+fungi_lstm_emb <- data.table::fread("../../../../../data/secreted_data/training-results/fungi/all_scan_results_lstm_emb_scan_fungi.csv") %>% 
+  dplyr::select(params, mean_test_score)
+
+fungi_lstm_emb %>% 
+  dplyr::arrange(desc(mean_test_score)) %>% 
+  knitr::kable()
+```
+
+### Manually running 
+
+```{r}
+fungi_lstm_emb_train <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_lstm_emb_fungi.csv")
+fungi_lstm_emb_val <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_lstm_emb_fungi.csv")
+fungi_lstm_emb_test <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_lstm_emb_fungi.csv")
+
+
+# Get the avergae of the acc for each cross validation
+fungi_lstm_emb_train <- fungi_lstm_emb_train %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_lstm_emb_val <- fungi_lstm_emb_val %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_lstm_emb_test %>% 
+  knitr::kable()
+```
+
+```{r}
+get_gg_acc(fungi_lstm_emb_train, fungi_lstm_emb_val) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+fungi_lstm_emb_train_60epochs <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_lstm_emb_fungi_60epochs.csv")
+fungi_lstm_emb_val_60epochs <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_lstm_emb_fungi_60epochs.csv")
+fungi_lstm_emb_test_60epochs <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_lstm_emb_fungi_60epochs.csv")
+
+# Get the avergae of the acc for each cross validation
+fungi_lstm_emb_train_60epochs <- fungi_lstm_emb_train_60epochs %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_lstm_emb_val_60epochs <- fungi_lstm_emb_val_60epochs %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(fungi_lstm_emb_train_60epochs, fungi_lstm_emb_val_60epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+fungi_lstm_emb_test_60epochs %>% 
+  knitr::kable()
+```
+
+Making comparison on the test data 
+
+```{r}
+fungi_lstm_emb_compare <- rbind(fungi_lstm_emb_test %>% 
+  dplyr::select(V1, acc) %>% 
+    dplyr::mutate(epochs = 30), 
+ fungi_lstm_emb_test_60epochs %>% 
+    dplyr::select(V1, acc) %>% 
+    dplyr::mutate(epochs = 60))
+```
+
+```{r}
+plot_comparison(fungi_lstm_emb_compare, V1, acc, epochs, show_label = TRUE, label_digits = 3) 
+```
+
+
+## CNN-LSTM 
+
+```{r}
+cnn_lstm_file <- "../../../../../data/secreted_data/training-results/fungi/0003-cnn-lstm-scan-fungi-secreted.log"
+cnn_lstm_params_list <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", 
+  "batch_size", "activation_convolution", "activation_LSTM", "epochs"
+)
+cnn_lstm_numeric_params <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs", "batch_size"
+)
+```
+
+
+```{r}
+cnn_lstm_log_data_raw <- cnn_lstm_file %>%
+  parscanlogreader::read_raw_log() %>%
+  parscanlogreader::clean_log_data()
+
+cnn_lstm_log_data <- cnn_lstm_log_data_raw %>%
+  parscanlogreader::summarise_log_data() %>% 
+  dplyr::arrange(desc(acc_mean)) %>% 
+  tidyr::drop_na()
+```
+
+
+```{r}
+cnn_lstm_log_data %>%
+  head(10) %>% 
+  knitr::kable()
+```
+
+By getting the best value, we can then use the best combination of hyperparameter setting above to train manually. 
+
+```{r}
+fungi_cnn_lstm_train <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_lstm_best_fungi.csv")
+fungi_cnn_lstm_val <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_lstm_best_fungi.csv")
+fungi_cnn_lstm_test <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_lstm_best_fungi.csv")
+
+fungi_cnn_lstm_train <- fungi_cnn_lstm_train %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_lstm_val <- fungi_cnn_lstm_val %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+get_gg_acc(fungi_cnn_lstm_train, fungi_cnn_lstm_val) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+fungi_cnn_lstm_train_filter8_filterlstm8 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_lstm_best_fungi_filter8_filterlstm8.csv")
+fungi_cnn_lstm_val_filter8_filterlstm8 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_lstm_best_fungi_filter8_filterlstm8.csv")
+fungi_cnn_lstm_test_filter8_filterlstm8 <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_lstm_best_fungi_filter8_filterlstm8.csv")
+
+fungi_cnn_lstm_train_filter8_filterlstm8 <- fungi_cnn_lstm_train_filter8_filterlstm8 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_lstm_val_filter8_filterlstm8 <- fungi_cnn_lstm_val_filter8_filterlstm8 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+get_gg_acc(fungi_cnn_lstm_train_filter8_filterlstm8, fungi_cnn_lstm_val_filter8_filterlstm8 ) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+
+#### Comparing the prediction results with different regularization rate
+
+```{r}
+compare_test_cnn_lstm <- fungi_cnn_lstm_test %>% 
+  dplyr::select(V1, acc) %>% 
+  mutate(filter = "16") %>% 
+  rbind(fungi_cnn_lstm_test_filter8_filterlstm8%>% 
+          dplyr::select(V1, acc) %>% 
+          mutate(filter = "8")) %>% 
+  `colnames<-` (c("CV", "acc", "filter"))
+```
+
+
+```{r}
+plot_comparison(
+  data = compare_test_cnn_lstm,
+  x_var = CV,
+  y_var = acc,
+  group_var = filter
+)
+```
+
+Another experiment: trying to run both case longer like 60 epochs, and see how the reults will be, either it will be super overfitting for both or not. 
+
+```{r}
+fungi_cnn_lstm_train_filter8_filterlstm8_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_lstm_best_fungi_filter8_filterlstm8_epochs60.csv")
+fungi_cnn_lstm_val_filter8_filterlstm8_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_lstm_best_fungi_filter8_filterlstm8_epochs60.csv")
+fungi_cnn_lstm_test_filter8_filterlstm8_60epochs <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_lstm_best_fungi_filter8_filterlstm8_epochs60.csv")
+
+fungi_cnn_lstm_train_filter8_filterlstm8_60epochs <- fungi_cnn_lstm_train_filter8_filterlstm8_60epochs %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_lstm_val_filter8_filterlstm8_60epochs <- fungi_cnn_lstm_val_filter8_filterlstm8_60epochs  %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+get_gg_acc(fungi_cnn_lstm_train_filter8_filterlstm8_60epochs, fungi_cnn_lstm_val_filter8_filterlstm8_60epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+We can change the number of bacth to 16
+
+
+```{r}
+fungi_cnn_lstm_train_filter8_filterlstm8_batch16 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_train_cnn_lstm_best_fungi_filter8_filterlstm8_batch16.csv")
+fungi_cnn_lstm_val_filter8_filterlstm8_batch16 <- data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_val_cnn_lstm_best_fungi_filter8_filterlstm8_batch16.csv")
+fungi_cnn_lstm_test_filter8_filterlstm8_batch16 <-  data.table::fread("../../../../../results/secreted_data_run_manually/fungi/df_results_test_cnn_lstm_best_fungi_filter8_filterlstm8_batch16.csv")
+
+
+fungi_cnn_lstm_train_filter8_filterlstm8_batch16 <- fungi_cnn_lstm_train_filter8_filterlstm8_batch16 %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+fungi_cnn_lstm_val_filter8_filterlstm8_batch16 <- fungi_cnn_lstm_val_filter8_filterlstm8_batch16  %>% 
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+
+get_gg_acc(fungi_cnn_lstm_train_filter8_filterlstm8_batch16, fungi_cnn_lstm_val_filter8_filterlstm8_batch16) +
+   facet_wrap(~CV, nrow = 2)
+```
+

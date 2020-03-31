@@ -1,0 +1,184 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "13/02/2020"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Manual tuning of deep learning models on bacteria dataset
+
+## Load library
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(patchwork)
+source("../../../r-functions/plot_training_vs_validation.R")
+```
+
+## CNN-GRU
+
+### Hyperparameter Scan
+
+
+```{r}
+bacteria_cnn_gru_secreted <- data.table::fread("../../../../../data/secreted_data/training-results/bacteria/df_pred_results_cnn_gru_bacteria_secreted.csv") 
+
+bacteria_cnn_gru_secreted %>% 
+  dplyr::arrange(desc(Accuracy)) %>% 
+  head(5) %>% 
+  knitr::kable()
+```
+
+```{r}
+bacteria_cnn_gru_train <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_train_cnn_gru_best_bacteria.csv")
+bacteria_cnn_gru_val <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_val_cnn_gru_best_bacteria.csv")
+
+bacteria_cnn_gru_test <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_test_cnn_gru_best_bacteria.csv")
+
+# Mutate to get average for training and validation
+bacteria_cnn_gru_train <- bacteria_cnn_gru_train %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+bacteria_cnn_gru_val <- bacteria_cnn_gru_val %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(bacteria_cnn_gru_train, bacteria_cnn_gru_val)
+```
+
+
+
+
+```{r}
+get_gg_acc(bacteria_cnn_gru_train, bacteria_cnn_gru_val) +
+  facet_grid(CV ~ dataset)
+```
+
+```{r}
+get_gg_acc(bacteria_cnn_gru_train, bacteria_cnn_gru_val) +
+  facet_wrap(~CV, nrow = 3)
+```
+
+
+```{r}
+bacteria_cnn_gru_test %>% 
+  knitr::kable()
+```
+
+
+## CNN-LSTM
+
+### Hyperparameter Scan
+
+```{r}
+bacteria_cnn_lstm_secreted <- data.table::fread("../../../../../data/secreted_data/training-results/bacteria/df_pred_results_cnn_lstm_scan_bacteria_secreted.csv")
+bacteria_cnn_lstm_secreted_all <- data.table::fread("../../../../../data/secreted_data/training-results/bacteria/all_scan_results_cnn_lstm_scan_bacteria_secreted.csv")
+
+
+bacteria_cnn_lstm_secreted %>% 
+  dplyr::arrange(desc(Accuracy)) %>% 
+  head(5) %>% 
+  knitr::kable()
+```
+
+```{r}
+# Load manually train CNN-LSTM
+bacteria_cnn_lstm_train <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_train_cnn_lstm_best_bacteria.csv")
+bacteria_cnn_lstm_val <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_val_cnn_lstm_best_bacteria.csv")
+
+bacteria_cnn_lstm_test <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_test_cnn_lstm_best_bacteria.csv")
+
+# Mutate to get average for training and validation
+bacteria_cnn_lstm_train <- bacteria_cnn_lstm_train %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+bacteria_cnn_lstm_val <- bacteria_cnn_lstm_val %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(bacteria_cnn_lstm_train, bacteria_cnn_lstm_val) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+More epochs 
+```{r}
+# Load manually train CNN-LSTM
+bacteria_cnn_lstm_train_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_train_cnn_lstm_best_bacteria_60epochs.csv")
+bacteria_cnn_lstm_val_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_val_cnn_lstm_best_bacteria_60epochs.csv")
+
+bacteria_cnn_lstm_test_60epochs <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_test_cnn_lstm_best_bacteria_60epochs.csv")
+
+# Mutate to get average for training and validation
+bacteria_cnn_lstm_train_60epochs <- bacteria_cnn_lstm_train_60epochs %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+bacteria_cnn_lstm_val_60epochs <- bacteria_cnn_lstm_val_60epochs %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(bacteria_cnn_lstm_train_60epochs, bacteria_cnn_lstm_val_60epochs) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+```{r}
+bacteria_cnn_lstm_test_60epochs %>% 
+  knitr::kable()
+```
+
+```{r}
+# Load manually train CNN-LSTM
+bacteria_lstm_emb_train <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_train_cnn_lstm_best_bacteria.csv")
+bacteria_lstm_emb_val <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_val_cnn_lstm_best_bacteria.csv")
+
+bacteria_lstm_emb_test <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_test_cnn_lstm_best_bacteria.csv")
+
+# Mutate to get average for training and validation
+bacteria_cnn_lstm_train <- bacteria_cnn_lstm_train %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+bacteria_cnn_lstm_val <- bacteria_cnn_lstm_val %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+
+## GRU-Embedding 
+
+```{r}
+# Load manually train CNN-LSTM
+bacteria_gru_emb_train <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_train_gru_emb_bacteria.csv")
+bacteria_gru_emb_val <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_val_gru_emb_bacteria.csv")
+bacteria_gru_emb_test <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_test_gru_emb_bacteria.csv")
+
+# Mutate to get average for training and validation
+bacteria_gru_emb_train <- bacteria_gru_emb_train %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+bacteria_gru_emb_val <- bacteria_gru_emb_val %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(bacteria_gru_emb_train, bacteria_gru_emb_val) +
+   facet_wrap(~CV, nrow = 2)
+```
+
+## LSTM-Embedding 
+
+```{r}
+# Load manually train CNN-LSTM
+bacteria_lstm_emb_train <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_train_lstm_emb_bacteria.csv")
+bacteria_lstm_emb_val <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_val_lstm_emb_bacteria.csv")
+bacteria_lstm_emb_test <- data.table::fread("../../../../../results/secreted_data_run_manually/bacteria/df_results_test_lstm_emb_bacteria.csv")
+
+# Mutate to get average for training and validation
+bacteria_lstm_emb_train <- bacteria_lstm_emb_train %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+bacteria_lstm_emb_val <- bacteria_lstm_emb_val %>%
+  mutate(AVG_CV = rowMeans(.[,2:6]))
+```
+
+```{r}
+get_gg_acc(bacteria_lstm_emb_train, bacteria_lstm_emb_val) +
+   facet_wrap(~CV, nrow = 2)
+```
