@@ -63,7 +63,7 @@ blast_results <- function(result_path){
     select(-unique_id_comb, -unique_id_comb_unsorted) %>%
     rowwise() %>%
     mutate(
-      percent_indentical = (nident/max(qlen, slen))*100 # The percentage of identical sequence over the longer sequence
+      percent_identical = (nident/max(qlen, slen))*100 # The percentage of identical sequence over the longer sequence
     ) %>%
     ungroup() %>%
     dplyr::filter(nident < 90)
