@@ -1,0 +1,148 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "06/12/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Predicting the presence of signal peptide in fatsa data using SignalP
+
+## Aim:
+
+In order to have information whether a protein is secreted or not, we can check the presence of signal peptide in the N-terminal sequence. 
+Using SignalP, we can do so. 
+
+## Execution
+
+```{r setup, include=FALSE}
+# Load library ro run the signalP
+library(tidyverse)
+library(tibble)
+```
+
+
+```{r}
+get_signalp_pred <- function(fasta_filename, verbose = FALSE) {
+  signalp_path <- "/Users/kristian/Documents/Workspace/Software/signalp/bin"
+  verbose_string <- tolower(deparse(substitute(verbose)))
+  fasta_path <- here::here("scripts/r-scripts/getting-data-new/multi-class", fasta_filename)
+
+  command_string <- paste0(
+    "export PATH=", signalp_path, ":$PATH ;",
+    " signalp -fasta ", fasta_path, " -org euk -format short ",
+    "-verbose=", verbose_string, " -stdout"
+  )
+
+  data_lines <- command_string %>%
+    system(intern = TRUE)
+
+  data <- data_lines %>%
+    .[-c(1, 2)] %>%
+    as.list() %>%
+    data.frame() %>%
+    t() %>%
+    as_tibble() %>%
+    tidyr::separate(col = V1, into = c("ID", "Prediction", "SP(Sec/SPI)", "OTHER", "CS Position"), sep = "\t")
+
+  return(data)
+}
+```
+
+```{r}
+bacteria_test_pred <- get_signalp_pred("bacteria_test_non_eff.fasta")
+bacteria_train_pred <- get_signalp_pred("bacteria_train_non_eff.fasta")
+bacteria_val_pred <- get_signalp_pred("bacteria_val_non_eff.fasta")
+
+fungi_test_pred <- get_signalp_pred("fungi_test_non_eff.fasta")
+fungi_train_pred <- get_signalp_pred("fungi_train_non_eff.fasta")
+fungi_val_pred <- get_signalp_pred("fungi_val_non_eff.fasta")
+
+oomycete_test_pred <- get_signalp_pred("oomycete_test_non_eff.fasta")
+oomycete_train_pred <- get_signalp_pred("oomycete_train_non_eff.fasta")
+oomycete_val_pred <- get_signalp_pred("oomycete_val_non_eff.fasta")
+```
+
+```{r}
+# Bacteria 
+
+summarise_count_sp <- function(data){
+  sum_data <- data %>% 
+  group_by(Prediction) %>% 
+  summarise(count = n())
+  # %>% 
+  # tibble::rownames_to_column() %>%
+  # .[,-1] %>% 
+  # pivot_wider(names_from = "Prediction", values_from = "count")
+ 
+  
+  return(sum_data)
+}
+```
+
+```{r}
+# Get the bacteria summary
+bacteria_test_summary <- summarise_count_sp(bacteria_test_pred)
+bacteria_train_summary <- summarise_count_sp(bacteria_train_pred)
+bacteria_val_summary <- summarise_count_sp(bacteria_val_pred)
+
+# Get the fungi summary
+fungi_test_summary <- summarise_count_sp(fungi_test_pred)
+fungi_val_summary <- summarise_count_sp(fungi_val_pred)
+fungi_train_summary <- summarise_count_sp(fungi_train_pred)
+
+# Get the oomycete summary
+oomycete_test_summary <- summarise_count_sp(oomycete_test_pred)
+oomycete_val_summary <- summarise_count_sp(oomycete_val_pred)
+oomycete_train_summary <- summarise_count_sp(oomycete_train_pred)
+```
+
+```{r}
+# Combine all of the data based on the pathogen 
+bacteria_all <- rbind(
+  cbind(bacteria_train_summary, dataset = "train", pathogen = "bacteria"), 
+  cbind(bacteria_val_summary, dataset = "val", pathogen = "bacteria"),  
+  cbind(bacteria_test_summary, dataset = "test", pathogen = "bacteria")
+)
+
+fungi_all <- rbind(
+  cbind(fungi_train_summary, dataset = "train", pathogen = "fungi"), 
+  cbind(fungi_val_summary, dataset = "val", pathogen = "fungi"),  
+  cbind(fungi_test_summary, dataset = "test", pathogen = "fungi")
+)
+
+oomycete_all <- rbind(
+  cbind(oomycete_train_summary, dataset = "train", pathogen = "oomycete"), 
+  cbind(oomycete_val_summary, dataset = "val", pathogen = "oomycete"),  
+  cbind(oomycete_test_summary, dataset = "test", pathogen = "oomycete")
+)
+
+non_eff_all <- bacteria_all %>% rbind(., fungi_all, oomycete_all)
+
+non_eff_all %>% 
+  pivot_wider(id_cols = c("pathogen", "dataset"), names_from = "Prediction", values_from = "count")
+```
+
+
+```{r}
+# All bacteria protein that have Signal peptide
+rbind(bacteria_test_pred, bacteria_train_pred, bacteria_val_pred) %>% 
+  dplyr::filter(Prediction == "SP(Sec/SPI)") %>% 
+  knitr::kable()
+```
+
+```{r}
+# All protein that have Signal peptide
+rbind(fungi_test_pred, fungi_train_pred, fungi_val_pred) %>% 
+  dplyr::filter(Prediction == "SP(Sec/SPI)") %>% 
+  knitr::kable()
+```
+
+```{r}
+# All protein that have Signal peptide
+rbind(oomycete_test_pred, oomycete_train_pred, oomycete_val_pred) %>% 
+  dplyr::filter(Prediction == "SP(Sec/SPI)") %>% 
+  knitr::kable()
+  ```

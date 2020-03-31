@@ -1,0 +1,237 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "01/12/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup}
+library(tidyverse)
+library(taxize)
+library(caret)
+reticulate::use_condaenv(condaenv = "tensorflow2", conda = "/anaconda3/bin/conda")
+```
+
+```{python}
+sys.executable
+```
+
+### Load the effector and non-effector data
+
+```{r}
+effector_data <- data.table::fread("../../../../data/getting-data-new/binary-class-data/effector_data.csv")
+non_effector_data <- data.table::fread("../../../../data/getting-data-new/binary-class-data/non_effector_data.csv")
+```
+
+
+```{r}
+effector_data_multiclass <- readRDS("../../../../data/getting-data-new/multi-class-data/class_df_effectors.rds")
+non_effector_data_multiclass <- readRDS("../../../../data/getting-data-new/multi-class-data/class_df_noneffectors.rds")
+``` 
+
+
+## Getting the class of each datasets 
+
+
+```{r}
+eff_all_with_class <- effector_data %>% 
+  left_join(effector_data_multiclass %>% 
+              ungroup() %>% 
+              mutate("PathogenID" = as.integer(PathogenID)), by = "PathogenID")
+```
+
+
+```{r}
+non_eff_all_with_class <- non_effector_data %>% 
+  left_join(non_effector_data_multiclass %>% 
+              ungroup %>% 
+              mutate("PathogenID" = as.integer(PathogenID)), by = c("txid" = "PathogenID"))
+```
+
+```{r}
+#  Function to get the data 
+
+get_data_each_class <- function(class_name){
+  
+  # Getting the effector and non-effector data based on class
+  eff_based_class <- eff_all_with_class %>% 
+    dplyr::filter(class == class_name)
+  
+  non_eff_based_class <- non_eff_all_with_class %>% 
+    dplyr::filter(class == class_name)
+  
+  # Labelling the data, eff = 1 and non_eff = 0
+  eff_based_class <- eff_based_class %>% 
+    dplyr::mutate(label = 1) %>% 
+    dplyr::select(c("Sequence", "label")) %>% 
+    `colnames<-`(c("sequence", "label"))
+
+  non_eff_based_class <- non_eff_based_class %>% 
+    dplyr::mutate(label = 0) %>% 
+    dplyr::select(c("sequence", "label"))
+  
+  # Combine both effector and non-effector
+  data_to_split <- eff_based_class %>% 
+    rbind(non_eff_based_class)
+  
+  # Splitting the data
+  # Create index for testing and training data
+  training_id <- createDataPartition(y = data_to_split$label, p = 0.6, list = FALSE)
+  # subset power_plant data to training
+  training <- data_to_split[training_id,]
+  # subset the rest to test
+  rest <- data_to_split[-training_id,]
+  # Splitting the rest into two different class of datasets
+  val_id <- createDataPartition(y = rest$label, 
+                               p = 0.5, list = FALSE)
+  validation <- rest[val_id,]
+  testing <- rest[-val_id,]
+  
+  datasets_based_class <- list(training, validation, testing)
+    
+  return(datasets_based_class)
+}
+```
+
+```{r}
+bacteria <- get_data_each_class("bacteria")
+
+train_bacteria <- bacteria[[1]]
+val_bacteria <- bacteria[[2]]
+test_bacteria <- bacteria[[3]]
+```
+
+```{r}
+fungi <- get_data_each_class("fungi")
+
+train_fungi <- fungi[[1]]
+val_fungi <- fungi[[2]]
+test_fungi <- fungi[[3]]
+```
+
+```{r}
+oomycete <- get_data_each_class("oomycete")
+
+train_oomycete <- oomycete[[1]]
+val_oomycete <- oomycete[[2]]
+test_oomycete <- oomycete[[3]]
+```
+
+```{r}
+# Check the proportion for each data
+bacteria_all <- train_bacteria %>% 
+  rbind(val_bacteria) %>% 
+  rbind(test_bacteria)
+
+rbind("Training set" = nrow(train_bacteria)/nrow(bacteria_all),
+      "Validation set" = nrow(val_bacteria)/nrow(bacteria_all), 
+      "Testing set" = nrow(test_bacteria)/nrow(bacteria_all)) %>% 
+       round(2)*100
+```
+
+```r
+# Save the dataframe to CSV
+write_csv(train_bacteria, "multi-class-data/data-sets/bacteria/train.csv")
+write_csv(val_bacteria, "multi-class-data/data-sets/bacteria/val.csv")
+write_csv(test_bacteria, "multi-class-data/data-sets/bacteria/test.csv")
+```
+
+```r
+# Save the dataframe to CSV
+write_csv(train_fungi, "multi-class-data/data-sets/fungi/train.csv")
+write_csv(val_fungi, "multi-class-data/data-sets/fungi/val.csv")
+write_csv(test_fungi, "multi-class-data/data-sets/fungi/test.csv")
+```
+
+```r
+# Save the dataframe to CSV
+write_csv(train_oomycete, "multi-class-data/data-sets/oomycete/train.csv")
+write_csv(val_oomycete, "multi-class-data/data-sets/oomycete/val.csv")
+write_csv(test_oomycete, "multi-class-data/data-sets/oomycete/test.csv")
+```
+
+### Encoding the data for each class
+
+```{python}
+import glob
+import pandas as pd
+import numpy as np
+```
+
+```{python}
+def get_key(mydict, element):
+    key = list(mydict.keys())[list(mydict.values()).index(element)]
+    return(key)
+
+amino = ['R', 'K', 'D', 'E', 'Q', 'N', 'H', 'S', 'T', 'Y', 'C', 'W', 'A', 'I', 'L', 'M', 'F', 'V', 'P', 'G']
+token_index = dict(zip(range(1, (len(amino)+1)), amino))
+
+max_length = 4034
+def get_encoding(mydata, max_length):
+    results = np.zeros((len(mydata), max_length, max(token_index.keys())))
+    for i, sample in enumerate(mydata):
+        for j, character in enumerate(sample):
+            if character in token_index.values():
+                index = get_key(token_index, character) - 1
+                results[i, j, index] = 1. 
+            else:
+                results[i, j, :] = results[i, j, :]
+    return results
+```
+
+
+```{python}
+def get_all_encoded(class_name):
+  # Get the pattern of the data
+  pattern_train = "../../../../data/getting-data-new/multi-class-data/data-sets/" + class_name + "/train" + ".csv"
+  pattern_val = "../../../../data/getting-data-new/multi-class-data/data-sets/" + class_name + "/val" + ".csv"
+  pattern_test = "../../../../data/getting-data-new/multi-class-data/data-sets/" + class_name + "/test" + ".csv"
+  # train_path = glob.glob(pattern_train)
+  # val_path = glob.glob(pattern_val)
+  # test_path = glob.glob(pattern_test)
+  
+  # Load data
+  train = pd.read_csv(pattern_train, index_col = False)
+  val = pd.read_csv(pattern_val, index_col = False)
+  test = pd.read_csv(pattern_test, index_col = False)
+  
+  # Change the data to list
+  x_train = train.sequence.tolist()
+  x_val = val.sequence.tolist()
+  x_test = test.sequence.tolist()
+  
+  # Encoding by calling the function get_encoding()
+  one_hot_train = get_encoding(x_train, max_length)
+  one_hot_val = get_encoding(x_val, max_length)
+  one_hot_test = get_encoding(x_test, max_length)
+  
+  # Change the label data into list 
+  y_train = train.label.tolist()
+  y_val = val.label.tolist()
+  y_test = test.label.tolist()
+  
+  return one_hot_train, one_hot_val, one_hot_test, y_train, y_val, y_test
+```
+
+
+#### Save all of the data
+
+
+```python
+# Get all of the encoded data for bacteria
+
+one_hot_train, one_hot_val, one_hot_test, y_train, y_val, y_test = get_all_encoded("fungi")
+
+# Save the input data
+np.save('multi-class-data/data-sets/fungi/x_train.npy', one_hot_train)
+np.save('multi-class-data/data-sets/fungi/x_val.npy', one_hot_val)
+np.save('multi-class-data/data-sets/fungi/x_test.npy', one_hot_test)
+
+# Save the label data 
+np.save('multi-class-data/data-sets/fungi/y_train.npy', y_train)
+np.save('multi-class-data/data-sets/fungi/y_val.npy', y_val)
+np.save('multi-class-data/data-sets/fungi/y_test.npy', y_test)
+```

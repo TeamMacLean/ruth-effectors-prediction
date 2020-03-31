@@ -1,0 +1,292 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "01/08/2019"
+output: none
+---
+
+### Effector data
+
+```{r}
+# Separate the sequence string
+effector_sep_seq <- effector_seq %>% 
+  tidyr::separate(sequence, into = as.character(1:max_len_seq), sep = 1:max_len_seq, remove = FALSE) 
+```
+
+```{r}
+# Check the unique values of all the columns in effector_sep_seq dataframe
+test <- effector_sep_seq %>% 
+  select(-c(Sequence, length))
+
+as.character(unique(unlist(test)))
+```
+
+```{r}
+# Transpose the dataframe, so that we can combine all of the amino acids in every position
+effector_sep_seq_transpose <- effector_sep_seq %>% 
+  dplyr::select(paste0(1:max_len_seq)) %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  tidyr::unite(new_seq, as.character(paste0("V", 1:402)), sep = "", remove = FALSE) %>% 
+  select(new_seq) 
+```
+
+```{r}
+effector_sep_seq_transpose$seq <- effector_sep_seq_transpose$new_seq
+
+effector_sep_seq_transpose_counts <- effector_sep_seq_transpose %>% 
+  rowwise() %>% 
+  mutate(
+  G_count = stringr::str_count(new_seq, "G"),
+  A_count = stringr::str_count(new_seq, "A"),
+  L_count = stringr::str_count(new_seq, "L"),
+  M_count = stringr::str_count(new_seq, "M"),
+  F_count = stringr::str_count(new_seq, "F"),
+  W_count = stringr::str_count(new_seq, "W"),
+  K_count = stringr::str_count(new_seq, "K"),
+  Q_count = stringr::str_count(new_seq, "Q"),
+  E_count = stringr::str_count(new_seq, "E"),
+  S_count = stringr::str_count(new_seq, "S"),
+  P_count = stringr::str_count(new_seq, "P"),
+  V_count = stringr::str_count(new_seq, "V"),
+  I_count = stringr::str_count(new_seq, "I"),
+  C_count = stringr::str_count(new_seq, "C"),
+  Y_count = stringr::str_count(new_seq, "Y"),
+  H_count = stringr::str_count(new_seq, "H"),
+  R_count = stringr::str_count(new_seq, "R"),
+  N_count = stringr::str_count(new_seq, "N"),
+  D_count = stringr::str_count(new_seq, "D"),
+  T_count = stringr::str_count(new_seq, "T")
+)
+
+effector_sep_seq_transpose_proportion_over_length_each_row <- effector_sep_seq_transpose_counts %>% 
+  rowwise() %>% 
+  mutate(
+  G_percent = G_count / stringr::str_length(new_seq) * 100,
+  A_percent = A_count / stringr::str_length(new_seq) * 100,
+  L_percent = L_count / stringr::str_length(new_seq) * 100,
+  M_percent = M_count / stringr::str_length(new_seq) * 100,
+  F_percent = F_count / stringr::str_length(new_seq) * 100,
+  W_percent = W_count / stringr::str_length(new_seq) * 100,
+  K_percent = K_count / stringr::str_length(new_seq) * 100,
+  Q_percent = Q_count / stringr::str_length(new_seq) * 100,
+  E_percent = E_count / stringr::str_length(new_seq) * 100,
+  S_percent = S_count / stringr::str_length(new_seq) * 100,
+  P_percent = P_count / stringr::str_length(new_seq) * 100,
+  V_percent = V_count / stringr::str_length(new_seq) * 100,
+  I_percent = I_count / stringr::str_length(new_seq) * 100,
+  C_percent = C_count / stringr::str_length(new_seq) * 100,
+  Y_percent = Y_count / stringr::str_length(new_seq) * 100,
+  H_percent = H_count / stringr::str_length(new_seq) * 100,
+  R_percent = R_count / stringr::str_length(new_seq) * 100,
+  N_percent = N_count / stringr::str_length(new_seq) * 100,
+  D_percent = D_count / stringr::str_length(new_seq) * 100,
+  T_percent = T_count / stringr::str_length(new_seq) * 100
+) %>% 
+  select(ends_with("_percent"))
+
+max_seq <- max(str_length(effector_sep_seq_transpose_counts$new_seq))
+
+effector_sep_seq_transpose_proportion_over_max_length <- effector_sep_seq_transpose_counts %>% 
+  rowwise() %>% 
+  mutate(
+  G_percent = G_count / max_seq * 100,
+  A_percent = A_count / max_seq * 100,
+  L_percent = L_count / max_seq * 100,
+  M_percent = M_count / max_seq * 100,
+  F_percent = F_count / max_seq * 100,
+  W_percent = W_count / max_seq * 100,
+  K_percent = K_count / max_seq * 100,
+  Q_percent = Q_count / max_seq * 100,
+  E_percent = E_count / max_seq * 100,
+  S_percent = S_count / max_seq * 100,
+  P_percent = P_count / max_seq * 100,
+  V_percent = V_count / max_seq * 100,
+  I_percent = I_count / max_seq * 100,
+  C_percent = C_count / max_seq * 100,
+  Y_percent = Y_count / max_seq * 100,
+  H_percent = H_count / max_seq * 100,
+  R_percent = R_count / max_seq * 100,
+  N_percent = N_count / max_seq * 100,
+  D_percent = D_count / max_seq * 100,
+  T_percent = T_count / max_seq * 100
+) %>% 
+  select(ends_with("_percent"))
+
+effector_sep_seq_transpose_proportion_over_max_length_melt <- effector_sep_seq_transpose_proportion_over_max_length  %>% 
+  # Transform rowids into a column
+  tibble::rowid_to_column(var = "sequence_num") %>% 
+  # Melt the data to make is sparse instead of a matrix
+  reshape2::melt(id.var = "sequence_num", value.name = "percent") %>% 
+  # Rename aminoacids
+  mutate(variable = stringr::str_remove_all(variable, "_percent")) %>% 
+  rename(aminoacid = variable)
+
+
+# effector_sep_seq_transpose_proportion_over_max_length_melt <- effector_sep_seq_transpose_proportion_over_max_length_melt %>% 
+#   mutate(percent_log = log2 (percent))
+# 
+# effector_sep_seq_transpose_proportion_over_max_length_melt <- effector_sep_seq_transpose_proportion_over_max_length_melt %>% 
+#   mutate_all(function(x) ifelse(is.nan(x), 0, x)) %>% 
+#   mutate_all(function(x) ifelse(is.infinite(x), 0, x))
+```
+
+
+### Non-effector data
+
+```{r}
+# Separate the sequence string
+non_effector_sep_seq <- non_effector_seq %>% 
+  tidyr::separate(sequence, into = as.character(1:max_len_seq), sep = 1:max_len_seq, remove = FALSE) 
+```
+
+```{r}
+# Transpose the dataframe, so that we can combine all of the amino acids in every position
+non_effector_sep_seq_transpose <- non_effector_sep_seq %>% 
+  dplyr::select(paste0(1:max_len_seq)) %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  tidyr::unite(new_seq, as.character(paste0("V", 1:398)), sep = "", remove = FALSE) %>% 
+  select(new_seq) 
+```
+
+```{r}
+non_effector_sep_seq_transpose$seq <- non_effector_sep_seq_transpose$new_seq
+
+non_effector_sep_seq_transpose_counts <- non_effector_sep_seq_transpose %>% 
+  rowwise() %>% 
+  mutate(
+  G_count = stringr::str_count(new_seq, "G"),
+  A_count = stringr::str_count(new_seq, "A"),
+  L_count = stringr::str_count(new_seq, "L"),
+  M_count = stringr::str_count(new_seq, "M"),
+  F_count = stringr::str_count(new_seq, "F"),
+  W_count = stringr::str_count(new_seq, "W"),
+  K_count = stringr::str_count(new_seq, "K"),
+  Q_count = stringr::str_count(new_seq, "Q"),
+  E_count = stringr::str_count(new_seq, "E"),
+  S_count = stringr::str_count(new_seq, "S"),
+  P_count = stringr::str_count(new_seq, "P"),
+  V_count = stringr::str_count(new_seq, "V"),
+  I_count = stringr::str_count(new_seq, "I"),
+  C_count = stringr::str_count(new_seq, "C"),
+  Y_count = stringr::str_count(new_seq, "Y"),
+  H_count = stringr::str_count(new_seq, "H"),
+  R_count = stringr::str_count(new_seq, "R"),
+  N_count = stringr::str_count(new_seq, "N"),
+  D_count = stringr::str_count(new_seq, "D"),
+  T_count = stringr::str_count(new_seq, "T")
+)
+
+non_effector_sep_seq_transpose_proportion_over_length_each_row <- non_effector_sep_seq_transpose_counts %>% 
+  rowwise() %>% 
+  mutate(
+  G_percent = G_count / stringr::str_length(new_seq) * 100,
+  A_percent = A_count / stringr::str_length(new_seq) * 100,
+  L_percent = L_count / stringr::str_length(new_seq) * 100,
+  M_percent = M_count / stringr::str_length(new_seq) * 100,
+  F_percent = F_count / stringr::str_length(new_seq) * 100,
+  W_percent = W_count / stringr::str_length(new_seq) * 100,
+  K_percent = K_count / stringr::str_length(new_seq) * 100,
+  Q_percent = Q_count / stringr::str_length(new_seq) * 100,
+  E_percent = E_count / stringr::str_length(new_seq) * 100,
+  S_percent = S_count / stringr::str_length(new_seq) * 100,
+  P_percent = P_count / stringr::str_length(new_seq) * 100,
+  V_percent = V_count / stringr::str_length(new_seq) * 100,
+  I_percent = I_count / stringr::str_length(new_seq) * 100,
+  C_percent = C_count / stringr::str_length(new_seq) * 100,
+  Y_percent = Y_count / stringr::str_length(new_seq) * 100,
+  H_percent = H_count / stringr::str_length(new_seq) * 100,
+  R_percent = R_count / stringr::str_length(new_seq) * 100,
+  N_percent = N_count / stringr::str_length(new_seq) * 100,
+  D_percent = D_count / stringr::str_length(new_seq) * 100,
+  T_percent = T_count / stringr::str_length(new_seq) * 100
+) %>% 
+  select(ends_with("_percent"))
+
+max_seq_noneffector <- max(str_length(non_effector_sep_seq_transpose_counts$new_seq))
+
+non_effector_sep_seq_transpose_proportion_over_max_length <- non_effector_sep_seq_transpose_counts %>% 
+  rowwise() %>% 
+  mutate(
+  G_percent = G_count / max_seq_noneffector * 100,
+  A_percent = A_count / max_seq_noneffector * 100,
+  L_percent = L_count / max_seq_noneffector * 100,
+  M_percent = M_count / max_seq_noneffector * 100,
+  F_percent = F_count / max_seq_noneffector * 100,
+  W_percent = W_count / max_seq_noneffector * 100,
+  K_percent = K_count / max_seq_noneffector * 100,
+  Q_percent = Q_count / max_seq_noneffector * 100,
+  E_percent = E_count / max_seq_noneffector * 100,
+  S_percent = S_count / max_seq_noneffector * 100,
+  P_percent = P_count / max_seq_noneffector * 100,
+  V_percent = V_count / max_seq_noneffector * 100,
+  I_percent = I_count / max_seq_noneffector * 100,
+  C_percent = C_count / max_seq_noneffector * 100,
+  Y_percent = Y_count / max_seq_noneffector * 100,
+  H_percent = H_count / max_seq_noneffector * 100,
+  R_percent = R_count / max_seq_noneffector * 100,
+  N_percent = N_count / max_seq_noneffector * 100,
+  D_percent = D_count / max_seq_noneffector * 100,
+  T_percent = T_count / max_seq_noneffector * 100
+) %>% 
+  select(ends_with("_percent"))
+
+non_effector_sep_seq_transpose_proportion_over_max_length_melt <- non_effector_sep_seq_transpose_proportion_over_max_length  %>% 
+  # Transform rowids into a column
+  tibble::rowid_to_column(var = "sequence_num") %>% 
+  # Melt the data to make is sparse instead of a matrix
+  reshape2::melt(id.var = "sequence_num", value.name = "percent") %>% 
+  # Rename aminoacids
+  mutate(variable = stringr::str_remove_all(variable, "_percent")) %>% 
+  rename(aminoacid = variable) 
+
+# non_effector_sep_seq_transpose_proportion_over_max_length_melt <- non_effector_sep_seq_transpose_proportion_over_max_length_melt %>% 
+#   mutate(percent_log = log2 (percent))
+# 
+# non_effector_sep_seq_transpose_proportion_over_max_length_melt <- non_effector_sep_seq_transpose_proportion_over_max_length_melt %>% 
+#   mutate_all(function(x) ifelse(is.nan(x), 0, x)) %>% 
+#   mutate_all(function(x) ifelse(is.infinite(x), 0, x))
+```
+
+
+```{r}
+effector_non_effector_diff <- (abs(effector_sep_seq_transpose_proportion_over_length_each_row - non_effector_sep_seq_transpose_proportion_over_length_each_row))
+```
+
+```{r}
+log_diff <- log2(effector_non_effector_diff)
+
+# log_diff <- effector_non_effector_diff
+
+heatmap_data <- log_diff %>% 
+  mutate_all(function(x) ifelse(is.nan(x), 0, x)) %>% 
+  mutate_all(function(x) ifelse(is.infinite(x), 0, x))
+
+saveRDS(heatmap_data, "heatmap_data.rds")
+```
+
+
+```{r}
+heatmap_data_melt <- heatmap_data  %>% 
+  # Transform rowids into a column
+  tibble::rowid_to_column(var = "sequence_num") %>% 
+  # Melt the data to make is sparse instead of a matrix
+  reshape2::melt(id.var = "sequence_num", value.name = "percent") %>% 
+  # Rename aminoacids
+  mutate(variable = stringr::str_remove_all(variable, "_percent")) %>% 
+  rename(aminoacid = variable) 
+```
+
+```{r}
+ggplot(data = heatmap_data_melt, aes(x=sequence_num, y=aminoacid, fill=percent)) +
+  geom_tile() + 
+  # scale_fill_viridis_c() +
+  scale_fill_gradient2(midpoint = mean(heatmap_data_melt$percent), mid="white",
+                       low=rgb(204/255,102/255,119/255),
+                       high=rgb(17/255,119/255,51/255),
+                       limits = c(min(heatmap_data_melt$percent),
+                                  max(heatmap_data_melt$percent)), 
+                                  name="percent")
+```
+

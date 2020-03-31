@@ -1,0 +1,721 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "20/06/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Getting and learning the data
+
+## Introduction
+
+In this report, it shows the process on getting effector and non effector from the beginning (since the previous effector and noneffector data were incorrectly retrieved). 
+
+## Getting the Phi-base IDs from the Phi-base data
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+```{r}
+# Read the last version of Phi-base data (CSV format)
+phi_base <- data.table::fread("../../../../data/phi-base-current-data/phi-base_without_column_desc.csv", header = TRUE)
+```
+
+In order to get the effector data, we need to filter all of the data with `GeneFuction == "effector"`
+
+```{r}
+# Filter al of the effector Gene Function
+# Use `ignore_case = TRUE` in order to ignore whether they are lower or uppercase
+phi_effector <- phi_base %>%
+  dplyr::filter(str_detect(GeneFunction, regex("effector", ignore_case = TRUE)))
+```
+
+We need to make sure whether all of the gene function filtered is effector, by find the unique function:
+
+```{r}
+# Make sure there is no `NA` column so that we do not miss something
+phi_effector  %>% 
+  select(GeneFunction) %>% 
+  is.na() %>% 
+  which()
+```
+
+```{r}
+# Check the unique GeneFunction
+phi_effector %>% 
+  select(GeneFunction) %>% 
+  unique() %>% 
+  knitr::kable()
+```
+
+Note that, although the gene function above contains the word "effector", but not all are actually effector. Then now we can make a list of the description above, which is not effector but it contains string `effector`. 
+
+```{r}
+# Create a list of GeneFunction that are not effectors
+excluded_GeneFunction <- c("encode secreted effectors", 
+                           "Translocation of T6SS effector proteins essential for virulence",
+                           "Tool for translocating pathogen effectors to monocot cells", 
+                           "encodes an a-1,3-mannosyltransferase for protein N-glycosylation of effectors", 
+                           "modulates type III effector secretion", 
+                           "encodes type III effector", 
+                           "iT3SS: translocating effectors in the host cells")
+```
+Next step is to excluded any data with the gene function as in the list above:
+
+```{r}
+phi_effector <- phi_effector %>% 
+  dplyr::filter(., !GeneFunction %in% excluded_GeneFunction)
+
+phi_effector %>%  
+  nrow()
+```
+
+Now, since we will focus more on plant effector, we need also to exclude all of the effector data with non-plant host. 
+Now we can see what are the host list in our data, which apparently, not only plants:
+
+```{r}
+# Make sure there is no `NA` column so that we do not miss something
+phi_effector  %>% 
+  select(Hostdescription) %>% 
+  is.na() %>% 
+  which()
+```
+
+Since there is no missing data, then now we can proceed to the next step. 
+
+```{r}
+phi_effector %>% 
+  select(Hostdescription) %>% 
+  unique() %>% 
+  knitr::kable()
+```
+
+Short definition of host description:
+
+1. *Eudicots*: or Eudicotidae or eudicotyledons are a clade of flowering plants (Wikipedia)
+2. *Monocots*: commonly referred to as monocots, are flowering plants the seeds of which typically contain only one embryonic leaf, or cotyledon. 
+
+For the data that only have hosts as Eudicots or Monocots
+
+```{r}
+# Restrict the host only for plants host
+host <- c("Eudicots", "Monocots")
+
+# Get the effector data only for the host "Eudicots" and "Monocots"
+phi_effector_plant <- phi_effector %>% 
+  dplyr::filter(., Hostdescription %in% host)
+
+# Get all of effector data with host which are not "Eudicots" and "Monocots"
+phi_effector_not_plant <- phi_effector %>% 
+  dplyr::filter(., !(Hostdescription %in% host))
+
+# Get HostID for non plant effector
+phi_HostID_non_plant <- phi_effector_not_plant[["HostID"]] %>% unique()
+
+# Get HostID for plant effector
+phi_HostID_plant <- phi_effector_plant[["HostID"]] %>% unique()
+
+print(phi_HostID_non_plant)
+print(phi_HostID_plant)
+```
+
+### Making sure that the effector data are plant effectors
+
+In order to make sure that our out plant effector data have plant as the host ("Viridiplantae"), then we can use the `lib(taxize)` which is a library in R to check the taxonomy details from NCBI given taxonomy IDs.  
+
+```{r}
+# Check for the list ID of plant effector
+ncbi_list_plant <- taxize::classification(phi_HostID_plant, db = "ncbi")
+
+df_phi_HostID_plant <- data.frame(HostID = phi_HostID_plant)
+
+df_phi_HostID_plant_check <- df_phi_HostID_plant %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    `Is Plant` = "Viridiplantae" %in% ncbi_list_plant[[HostID]]$name
+  )
+
+df_phi_HostID_plant_check %>% 
+  knitr::kable()
+```
+
+The results above shows that all of the data that are already categorized based the host "Eudicots" and "Monocots" are effectors on plants. 
+
+```{r}
+# Check for the list ID of non plant effector
+ncbi_list_non_plant <- taxize::classification(phi_HostID_non_plant, db = "ncbi")
+
+df_phi_HostID_non_plant <- data.frame(HostID = phi_HostID_non_plant)
+
+df_phi_HostID_non_plant_check <- df_phi_HostID_non_plant %>% 
+  dplyr::rowwise() %>% 
+  dplyr::mutate(
+    `Is Plant` = "Viridiplantae" %in% ncbi_list_non_plant[[HostID]]$name
+  )
+
+df_phi_HostID_non_plant_check %>% 
+  knitr::kable()
+```
+
+The checking process above, using the package `taxize` is very useful to make sure that all the data we picked have plant as host. 
+
+### Selecting the relevant columns of the data
+
+```{r}
+# Make list of all of the column that are needed
+select_columns <- c("PHIMolConnID",
+"ProteinIDsource",
+"ProteinID",
+"PathogenID",	
+"Pathogenspecies",	
+"PathogenstrainID",
+"Pathogenstrain",	
+"Hostdescription",
+"HostID",
+"Hostspecies",
+"Hoststrain",
+"GeneFunction",
+"MutantPhenotype") 
+
+# Select from the data phi_effector_plant
+phi_effector_plant <- phi_effector_plant %>% 
+  dplyr::select(select_columns)
+```
+
+
+## Getting know the data 
+
+After getting all of the data, we need to understand the data itself. Since the Phi-base CSV data does not contain any sequence, then after getting all of the IDs of effector data, we need to retrieve the sequences from other resources. Now we have to take a look where are the protein sequence sources. 
+
+### Protein source data
+
+```{r}
+# Check the list of Protein sequence sources
+phi_effector_plant %>% 
+  group_by(ProteinIDsource) %>% 
+  summarise(count = n()) %>% 
+  knitr::kable()
+```
+
+The proteinID sources are mainly from Uniprot, where around 16% of the rest the data are unknown. 
+
+```{r}
+phi_effector_plant %>% 
+  filter(ProteinIDsource == "")
+```
+
+```
+According to the email sent by Martin Urban, the data without any ProteinIDsource is due to the older PHI-base records, therefore there is no link to any database. It means that we can not get any effector data from those data without any ProteinID and ProteinIDSource. 
+```
+
+### Check the duplicate Phi base ID
+
+Since we have the Phi-base fasta data, then we can get the sequences from Phi-base fasta format data with Phi-base ID. (However, not all of the sequences are provided)
+
+```{r}
+# Check the number of unique Phi-base IDs
+phibase_id_uniq <- phi_effector_plant %>% 
+  dplyr::select(PHIMolConnID) %>% 
+  unique() %>% 
+  unlist()
+
+# Check the number of unique Phi-base IDs
+phibase_id_uniq %>% 
+  length()
+```
+
+
+## Getting the sequence from Phi-base Fasta
+
+Now, by using the unique those Phi-base unique IDs, we can retrieve the sequences from Phi-base fasta data. The fasta data have been transformed to dataframe using the function in `0001-getting-fastaPhiBase-to-df.Rmd`. Now we can just load them. 
+
+```{r}
+# Load the Phi-base fasta data from RDS objects
+phi_base_fasta <- readRDS("../../../../data/getting-data-new/binary-class-data/phi_base_fasta.RDS") 
+
+# There are 7 columns or variables in Phi base fasta:
+# ProteinID
+# PHIMolConnID: Phi-base accession for each database entry to aid curation
+# Gene: Gene name
+# PathogenID: Pathogen NCBI species Taxonomy ID 
+# Pathogenspecies:	Pathogen species
+# MutantPhenotype: Phenotype of mutant 
+# Sequence: Amino acid sequence
+
+# Print the first ten of the data to give the idea how the data looks like
+phi_base_fasta %>% 
+  head(10) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+# Map the unique Phi-base IDs of effector data to the Phi-base fatsa data
+# `phibase_id_uniq`: list of all unique Phi-base IDs of plant effector data
+effector_exists_from_phibase_fasta <- phi_base_fasta %>% 
+  rowwise() %>% 
+  dplyr::filter(
+    dplyr::intersect(
+      stringr::str_split(PHIMolConnID, "__") %>% unlist(), 
+      phibase_id_uniq
+    ) %>% 
+      length() != 0
+  )
+
+# Get all of the unique ProteinIDs in the data
+effector_proteinIDs_available_in_phibase_fasta <- effector_exists_from_phibase_fasta %>% 
+  select(ProteinID) %>% 
+  unique()
+
+effector_proteinIDs_available_in_phibase_fasta %>% 
+  nrow()
+
+# write_csv(effector_proteinIDs_available_in_phibase_fatsa, "effector_proteinIDs_available_in_phibase_fatsa.csv", col_names = FALSE)
+```
+
+
+In order to make sure that the mapping is correct, then we can make a dataframe containing of the list of mapped Phi-base IDs in every row of list Phi-base IDs in fasta data:
+
+```{r}
+# Non-filtered version ----
+phi_base_fasta_with_effector_IDs_mapping <- phi_base_fasta %>%
+  rowwise() %>%
+  dplyr::mutate(
+    # Internediary variable with vector of intersection
+    intersectIDs = dplyr::intersect(
+      stringr::str_split(PHIMolConnID, "__") %>% unlist(),
+      phibase_id_uniq
+    ) %>% list(),
+    # Amount of elements in intersection
+    intersectCount = intersectIDs %>% unlist() %>% length()
+  ) %>%
+  # Replicate original format for more than one ID
+  dplyr::mutate(
+    PHIMolConnIDIntersect = ifelse(intersectCount > 0,
+                          intersectIDs %>% str_c(collapse = ","),
+                          NA)
+  ) %>%
+  # Reorder variables
+  dplyr::select(ProteinID, PHIMolConnID, intersectIDs, PHIMolConnIDIntersect, intersectCount) #%>%
+  # Get rid of intermediary variable
+  # dplyr::select(-intersectIDs)
+
+phi_base_fasta_with_effector_IDs_mapping %>% 
+  head(10) %>% 
+  knitr::kable()
+```
+
+
+### Analysis the sequence data which are available in Phibase FASTA
+
+However, some of the sequences data that are available in Phibase FASTA have multiple different Pathogen IDs where we need only one unique Pathogen ID to retrieve the non-effector data from NCBI. 
+
+```{r}
+# Check the data that has more than one PathogenID
+effector_exists_from_phibase_fasta_multi_PathoID <- effector_exists_from_phibase_fasta %>% 
+  filter(str_detect(PathogenID, "_")) # since different Pathogen IDs are separated by '_'
+
+# Select the ProteinIDs
+IDs_effector_exists_from_phibase_fasta_multi_PathoID <- effector_exists_from_phibase_fasta_multi_PathoID %>% 
+  select(ProteinID)
+
+# Write the data into CSV data
+# write_csv(IDs_effector_exists_from_phibase_fasta_multi_PathoID, "IDs_effector_exists_from_phibase_fasta_multi_PathoID.csv", col_names = FALSE)
+  
+# Showing the data in a table
+effector_exists_from_phibase_fasta_multi_PathoID %>% 
+  knitr::kable()
+
+# Save into RDS object
+# saveRDS(effector_exists_from_phibase_fasta_multi_PathoID, "effector_exists_from_phibase_fasta_multi_PathoID.RDS")
+```
+
+
+Multiple PathogenIDs in one unique ProteinID can be likely to be incosistency in Phi-base data (based on Martin Urban email), therefore it is better to check in Uniprot data. Therefore we can get all of the information of ProteinIDs (with multiple PathogenIDs) above from Uniprot, so that we can get the correct PathogenID for all of the ProteinIDs. 
+
+```{r}
+# Store the ProteinIDs above 
+IDs_effector_exists_from_phibase_fasta_multi_PathoID_Uniprot_details <- data.table::fread("../../../../data/getting-data-new/binary-class-data/IDs_effector_exists_from_phibase_fasta_multi_PathoID_Uniprot_details.csv")
+
+IDs_effector_exists_from_phibase_fasta_multi_PathoID_Uniprot_details %>% 
+  knitr::kable()
+```
+
+
+```{r}
+effector_exists_from_phibase_fasta_multi_PathoID_new <- IDs_effector_exists_from_phibase_fasta_multi_PathoID_Uniprot_details %>%
+  dplyr::rowwise() %>%
+  # Parse Organism name into structure used by PHI base
+  dplyr::mutate(
+    uniprotOrganism = stringr::str_split(Organism, " ") %>%
+      unlist() %>%
+      .[c(1, 2)] %>%
+      stringr::str_c(collapse = "_")
+  ) %>%
+  # Select important variables
+  dplyr::select(Entry, uniprotOrganism) %>%
+  dplyr::rename(ProteinID = Entry) %>%
+  # Join with IDs_effector_organisms
+  dplyr::right_join(effector_exists_from_phibase_fasta_multi_PathoID, by = "ProteinID") %>%
+  # Select proper PathogenID
+  dplyr::mutate(
+    # Index of the element we need to elect
+    indexPathogenID = stringr::str_detect(
+      Pathogenspecies %>%
+        stringr::str_split("__") %>%
+        unlist(),
+      uniprotOrganism
+    ) %>%
+      which(TRUE),
+    # Match index of the PathogenID
+    newPathogenID = PathogenID %>%
+      stringr::str_split("__") %>%
+      unlist() %>%
+      .[indexPathogenID]
+  ) %>%
+  # For display purposes
+  select(ProteinID, newPathogenID, uniprotOrganism, Sequence)
+  
+effector_exists_from_phibase_fasta_multi_PathoID_new <- effector_exists_from_phibase_fasta_multi_PathoID_new %>% 
+  `colnames<-`(c("ProteinID",
+                 "PathogenID", 
+                 "Pathogenspecies", 
+                 "Sequence"))
+```
+
+```{r}
+# Get the column names of the dataframe
+effector_exists_from_phibase_fasta %>% 
+  colnames()
+```
+
+#### Combine all of the data that exists in Phi-base fasta with unique PathogenID and with multiple Pathogen ID
+
+```{r}
+# Select the relevant columns of the data exists in Phi-base 
+effector_phibase_fasta_with_uniq_pathogenIDs <- effector_exists_from_phibase_fasta %>% 
+  filter(!str_detect(PathogenID, "_")) %>% 
+  select(ProteinID, PathogenID, Pathogenspecies, Sequence)
+
+effector_phibase_fasta_all <- effector_phibase_fasta_with_uniq_pathogenIDs %>% 
+  rbind(effector_exists_from_phibase_fasta_multi_PathoID_new)
+  
+effector_phibase_fasta_all %>% 
+  nrow()
+```
+
+
+
+```{r}
+# Check how many Phi-base IDs mapped to phi-base fasta
+phi_IDs_exist <- phi_base_fasta_with_effector_IDs_mapping %>%
+  dplyr::select(PHIMolConnIDIntersect) %>%
+  unlist() %>%
+  stringr::str_split(",") %>%
+  unlist() %>%
+  dplyr::intersect(phibase_id_uniq, .)
+
+# Print the length
+phi_IDs_exist %>% 
+  length()
+```
+
+
+```{r}
+# Set diff ----
+# List of Phi-base IDs whose the sequences are not available in Phi-base fasta data
+phi_IDs_not_exist <- phi_base_fasta_with_effector_IDs_mapping %>%
+  dplyr::select(PHIMolConnIDIntersect) %>%
+  unlist() %>%
+  stringr::str_split(",") %>%
+  unlist() %>%
+  dplyr::setdiff(phibase_id_uniq, .)
+
+phi_IDs_not_exist %>% 
+  length()
+```
+
+```
+There are 493 Phi-base IDs that are sucessfully mapped to Phi-base fasta, and results in 379 sequences (since some of the sequences have same Phi-base IDs). There are 145 (shown above) Phi-base IDs whose the sequences are not provided in Phi-base fasta. Therefore, it raises a question: Where can we get the sequences of those 145 Phi-base IDs?
+```
+We need to get the Phi-base IDs which are not in the Phi base data
+
+```{r}
+# Unique Phibase IDs that are not provided in Phibase fasta (or as shown before)
+phibase_IDs_for_non_existed_fasta  <- effector_exists_from_phibase_fasta %>% 
+  dplyr::select(PHIMolConnID) %>% 
+  unlist() %>% 
+  stringr::str_split("__") %>% 
+  unlist() %>% 
+  dplyr::setdiff(phibase_id_uniq, .)
+
+phibase_IDs_for_non_existed_fasta
+```
+
+Then now, we need to get the information about the Phi-base IDs that do not exist in Phibase fasta:
+
+```{r}
+# Map all of the Phibase IDs (that do not match to Phibase fasta) to the effector data  
+effector_list_not_in_phibase_fasta <- phi_effector_plant %>% 
+  dplyr::filter(PHIMolConnID %in% phibase_IDs_for_non_existed_fasta)
+
+# Get the count of the ProteinsourceID for the sequence that are not in Phibase fasta
+effector_list_not_in_phibase_fasta %>% 
+  group_by(ProteinIDsource) %>% 
+  summarise(count = n())
+```
+
+According to the list above, we can get around a half of the data from `Uniprot`, but unfortunately, we cannot proceed to retrieve the data if there is no information of ProteinID and ProteinIDsource. 
+
+```{r}
+# Get the info of the effector data that can be retrieved from Uniprot
+IDs_from_Uniprot <- effector_list_not_in_phibase_fasta %>% 
+  dplyr::filter(ProteinIDsource == "Uniprot") %>%
+  dplyr::select(PHIMolConnID, ProteinIDsource, ProteinID, PathogenID)
+  
+# Get the IDs of effector Unipot
+effector_IDs_retrieve_from_uniprot <- IDs_from_Uniprot %>%
+  select(PHIMolConnID) %>% 
+  unique() 
+
+# Number of ProteinIDs that can be used to retrieve data 
+effector_IDs_retrieve_from_uniprot %>% 
+  nrow()
+
+# Save the IDs into CSV data
+# write_csv(effector_IDs_retrieve_from_uniprot, "effector_IDs_retrieve_from_uniprot.csv",col_names = FALSE)
+```
+
+```{r}
+# Get the info of the effector data that can not be retrieved from Uniprot
+IDs_from_somewhere_else <- effector_list_not_in_phibase_fasta %>% 
+  dplyr::filter(ProteinIDsource == "") %>%
+  dplyr::select(PHIMolConnID, ProteinIDsource, ProteinID,  PathogenID)
+
+IDs_from_somewhere_else %>%  
+  select(PHIMolConnID) %>% 
+  unique() %>% 
+  nrow() %>% 
+  knitr::kable()
+
+```
+
+## Getting the sequence from Uniprot
+
+Using the ProteinIDs above to get the seqeunce from Uniprot. 
+
+```{r}
+# Read the file obtained after mapping the IDs to Uniprot
+details_from_uniprot <- data.table::fread("../../../../data/getting-data-new/binary-class-data/retrieving_from_uniprot_details.csv")
+```
+
+Unfortunately, from 38 ProteinIDs mapped, only 37 were successfully mapped and some of them are deleted, as shown below. 
+
+```{r}
+# Show which proteinIDs are deleted from Uniprot
+
+details_from_uniprot %>% 
+  filter(`Protein names` == "Deleted.") %>% 
+  knitr::kable()
+```
+
+### Parsed the fasta data from Uniprot
+
+Based on the previous data details, for the data which are not deleted, we can still get the fasta data from Uniprot, that we can transform to dataframe using the function below:
+
+```{r}
+parse_fasta_data_uniprot <- function(file_path) {
+  # Read FASTA file
+  fasta_data <- seqinr::read.fasta(file_path)
+  # Number of entries
+  num_data <- fasta_data %>% length()
+
+
+  # Create empty data frame
+  parsed_data <- data.frame(
+    protein_id = rep(NA, num_data),
+    pathogen = rep(NA, num_data),
+    sequence = rep(NA, num_data)
+  )
+
+  for (i in 1:num_data) {
+    # Read 'Annot' attribute and parse the string between 'OS=' and 'OX='
+    pathogen <- fasta_data[[i]] %>%
+      attr("Annot") %>%
+      sub(".*OS= *(.*?) *OX=.*", "\\1", .)
+
+    protein_id <- fasta_data[[i]] %>%
+      attr("name") %>%
+      strsplit("\\|") %>%
+      unlist() %>%
+      .[[2]]
+
+    # Concatenate the vector of the sequence into a single string
+    sequence <- fasta_data[[i]] %>%
+      as.character() %>%
+      toupper() %>%
+      paste(collapse = "")
+
+    # Input values into data frame
+    parsed_data[i,] <- cbind(protein_id, pathogen, sequence)
+  }
+
+  return(parsed_data)
+}
+```
+
+```{r}
+# Specify the path of the fasta data
+uniprot_path <- "../../../../data/getting-data-new/binary-class-data/uniprot.fasta"
+
+# Parsed data
+uniprot_parsed <- parse_fasta_data_uniprot(uniprot_path) 
+
+# Raname the dataframe
+uniprot_parsed  <- uniprot_parsed %>% 
+  # Rename the variables to be consistent to the sequence data from Phi-base fasta
+  rename(ProteinID = "protein_id",
+           Pathogenspecies = "pathogen",
+           Sequence = "sequence") 
+
+uniprot_parsed  %>% 
+  knitr::kable()
+```
+
+In order to get the non-effector data later on, we need `Pathogen ID`, then now we need to get the *PathogenID* for each PorteinIDs above (mapping to phi-base data).
+
+### Mapping the Uniprot-parsed data to Phi_base CSV
+
+Goal: to get column PathogenIDs
+
+```{r}
+uniprot_parsed_with_pathogen_id <- uniprot_parsed %>% 
+  left_join(., phi_base, by = "ProteinID") 
+
+uniprot_parsed_with_pathogen_id <- uniprot_parsed_with_pathogen_id %>% 
+  select(ProteinID, 
+         PathogenID,
+         Pathogenspecies.x, 
+         Sequence) %>% 
+  group_by(ProteinID, PathogenID) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(Pathogenspecies = "Pathogenspecies.x") 
+```
+
+We need unique PathogenID for every ProteinID, therefore we need to make sure as follows
+
+```{r}
+# Print the ProteinID with more than different PathogenID
+uniprot_parsed_with_pathogen_id %>% 
+  select(ProteinID, PathogenID, Pathogenspecies) %>% 
+  group_by(ProteinID, PathogenID) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  group_by(ProteinID) %>% 
+  filter(n() > 1)
+```
+
+"ProteinID == G7TBV9" has different two different PathogenID, its likely to be incosistency of Phibase database, now we can just check using `lib(taxize)`. 
+
+```{r}
+taxize::get_uid(sciname = "Xanthomonas oryzae") %>% 
+  knitr::kable()
+```
+
+According to the checking above, then the correct IDs are 347. Then now, we remove the data with incorrect PathogenID. 
+
+```{r}
+uniprot_parsed_with_pathogen_id %>% 
+  nrow()
+```
+
+
+```{r}
+# Remove the ProteinID with wrong PathogenID
+uniprot_parsed_with_pathogen_id <- uniprot_parsed_with_pathogen_id %>% 
+  filter(ProteinID != "G7TBV9" | PathogenID != "317") 
+```
+
+
+
+
+
+
+
+
+## Combine all of the effector data collected from Uniprot dan Phi-base
+
+
+We can then combine both data frame using rbind()
+
+```{r}
+effector_phibase_fasta_all %>% 
+  class()
+```
+
+```{r}
+uniprot_parsed_with_pathogen_id %>% 
+  class()
+```
+
+```{r}
+effector_phibase_fasta_all %>% 
+  nrow()
+
+uniprot_parsed_with_pathogen_id %>% 
+  nrow()
+
+effector_data <- effector_phibase_fasta_all %>% 
+  rbind(., uniprot_parsed_with_pathogen_id) 
+
+effector_data %>% 
+  head(10) %>% 
+  knitr::kable()
+
+effector_data %>% 
+  nrow()
+```
+
+
+```{r}
+protein_IDs_unique <- effector_data %>% 
+  dplyr::select(ProteinID) %>% 
+  unique()
+  
+protein_IDs_unique %>% 
+  nrow()
+```
+
+There are 402 ProteinID, however if we pay attention of the number of unique ProteinIDs from separate data, the total is 407 ProteinID, therefore there must a duplicate from both data. 
+
+
+```{r}
+effector_data %>% 
+  group_by(ProteinID) %>% 
+  arrange(ProteinID) %>% 
+  filter(n() > 1)
+```
+
+Now if there is duplicate of ProteinID, we just need to select one of them:
+
+```{r}
+effector_data <- effector_data %>% 
+  group_by(ProteinID) %>% 
+  slice(1)
+
+# Check the number of unique ProteinIDs
+effector_data %>% 
+  group_by(ProteinID) %>% 
+  unique() %>% 
+  nrow()
+```
+
+
+
+
+

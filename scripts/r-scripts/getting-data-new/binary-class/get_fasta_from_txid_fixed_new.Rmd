@@ -1,0 +1,269 @@
+---
+title: "Downloading sequence from taxonomyID from NCBI"
+author: "Ruth Kristianingsih"
+# output: html_notebook
+output: none
+---
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+# Functions
+
+```{r eval=FALSE, include=FALSE}
+get_txid_data <- function(txid) {
+  # Construct query
+  txid_query <- paste0("txid", txid, "[Organism]")
+  txid_base_query <- "NOT virulence[All Fields] NOT effector[All Fields] NOT elicitor[All Fields] NOT partial[All Fields] NOT multispecies[All Fields] NOT \"Unknown\"[Organism] NOT hypothetical[All Fields] NOT uncharacterized[All Fields] NOT unnamed[All Fields] NOT putative[All Fields]"
+  txid_full_query <- paste(txid_query, txid_base_query)
+
+  # Perform query
+  search <- rentrez::entrez_search(db = "protein", term = txid_full_query, use_history = TRUE)
+  records <- rentrez::entrez_fetch(db = "protein", web_history = search$web_history, retmax = search$count, rettype = "fasta")
+
+  # Split and clean individual records
+  records_clean <- records %>%
+    stringr::str_split("\n>") %>%
+    unlist() %>%
+    stringr::str_replace(">", "") %>%
+    unlist()
+
+  # Get ID and sequence
+  # To working within the list structure, and keep each record separated from one another,
+  # we use lapply(x, fun) (apply function fun to each element of list)
+  clean_txid_data <- data.frame(
+    txid = txid,
+    # Get ID
+    id = records_clean %>%
+      # Get first element of FASTA
+      stringr::str_split(" ") %>%
+      lapply(`[`, 1) %>%
+      # Remove possible NAs
+      lapply(function(x) {
+        stringr::str_replace_na(x, "")
+      }) %>%
+      unlist(),
+    # Get sequence
+    sequence = records_clean %>%
+      # Get sequence from FASTA
+      stringr::str_split("\n") %>%
+      lapply(`[`, 2:length(.)) %>%
+      # Remove possible NAs
+      lapply(function(x) {
+        stringr::str_replace_na(x, "")
+      }) %>%
+      # Collapse sequence into a single string
+      lapply(function(x) {
+        stringr::str_c(x, collapse = "")
+      }) %>%
+      unlist()
+  ) %>%
+    # Clean ID
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      # Force id to be a character
+      id = as.character(id),
+      # Clean strange something|REALID|something ids
+      id = ifelse(
+        stringr::str_detect(id, "\\|"),
+        stringr::str_split(id, "\\|") %>% unlist() %>% .[2],
+        id
+      ),
+    ) %>%
+    # Get rid of unusable data
+    dplyr::filter(
+      id != "",
+      !is.na(id)
+    ) %>%
+    ungroup()
+
+  return(clean_txid_data)
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+get_txid_data_from_txid_list <- function(txid_list) {
+  # Empty data frame
+  tx_full <- data.frame(
+    rowid = numeric(),
+    txid = character(),
+    id = character(),
+    sequence = character()
+  )
+
+  # Add new data from txid_list
+  for (rowid in 1:length(txid_list)) {
+    tx_full <- tx_full %>%
+      rbind(
+        cbind(
+          rowid = rowid,
+          get_txid_data(txid_list[rowid])
+        )
+      )
+  }
+
+  return(tx_full)
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+get_unique_tx_sample <- function(tx_data) {
+  repeated <- TRUE
+  count <- 1
+  # Perform different random samples
+  while (repeated) {
+    cat(paste("Repeated:", repeated, count, "\n"))
+    tx_small <- tx_data %>%
+      group_by(rowid, txid) %>%
+      dplyr::slice(base::sample(1:n(), 1))
+    count <- count + 1
+    # Stop when no duplicate ids are found
+    if (tx_small %>% ungroup() %>% select(id) %>% duplicated() %>% sum() == 0) {
+      repeated <- FALSE
+    }
+  }
+  
+  return(tx_small)
+}
+```
+
+# Run search
+
+```{r eval=FALSE, include=FALSE}
+txid_list <- c(5499, 5499, 8173, 5792, 8173)
+
+tx_full <- get_txid_data_from_txid_list(txid_list)
+```
+
+## Select unique samples with real data
+```{r eval=FALSE, include=FALSE}
+get_unique_tx_sample(tx_full)
+```
+
+## Example with dummy data with duplicated data
+```{r eval=FALSE, include=FALSE}
+tx_dummy <- data.frame(
+  rowid = c(rep(1, 3), rep(2, 3), rep(3,2)),
+  txid = c(rep("A", 3), rep("A", 3), rep("C", 2)),
+  id = c("Q1", "A2", "B3", "Q1", "A2", "B3", "Q2", "A4"),
+  sequence = rep("MWHATEVER", 8)
+)
+```
+
+Compare
+```{r eval=FALSE, include=FALSE}
+set.seed(4)
+tx_dummy %>%
+  group_by(rowid, txid) %>%
+  dplyr::slice(base::sample(1:n(), 1))
+```
+
+with
+```{r eval=FALSE, include=FALSE}
+get_unique_tx_sample(tx_dummy)
+```
+
+## Real data
+
+```{r}
+tx_all <- readRDS("tx_all.RDS")
+
+# Clean data
+tx_all <- tx_all %>%
+  dplyr::mutate(sequence = as.character(sequence)) %>%
+  dplyr::mutate(
+    # Replace id by NA
+    id = ifelse(
+      stringr::str_detect(id, "xml"),
+      NA,
+      id
+    ),
+    # Generate unique random sequence instead of NA
+    sequence = ifelse(
+      is.na(id),
+      rowid * txid,
+      sequence
+    )
+  )
+```
+
+## New function
+
+```{r}
+get_unique_tx_heuristic <- function(tx_data) {
+
+  # Count repeated txids
+  txid_df <- tx_data %>%
+    dplyr::group_by(rowid) %>%
+    dplyr::slice(1) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(txid) %>%
+    dplyr::summarise(count = n())
+
+  # "Source" data for unique sequences
+  txid_seqs <- tx_data %>%
+    dplyr::select(-rowid) %>%
+    dplyr::distinct()
+
+  # Perform slices
+  tx_small_uniq <- txid_seqs %>%
+    dplyr::left_join(txid_df, by = "txid") %>%
+    dplyr::group_by(txid) %>%
+    dplyr::slice(1:count)
+
+  # Get list of rowids
+  rowid_df <- tx_data %>%
+    dplyr::group_by(rowid) %>%
+    dplyr::slice(1) %>%
+    dplyr::arrange(txid) %>%
+    dplyr::select(rowid) %>%
+    dplyr::ungroup()
+
+  # Recover rowid
+  tx_small_uniq <- tx_small_uniq %>%
+    dplyr::arrange(txid) %>%
+    dplyr::ungroup() %>%
+    # Add rowid and rearrange df
+    cbind(rowid_df) %>%
+    dplyr::arrange(rowid) %>%
+    ungroup() %>%
+    dplyr::select(rowid, dplyr::everything(), -count)
+
+  # Remove dummy generated sequences
+  tx_small_uniq <- tx_small_uniq %>%
+    dplyr::mutate(
+      sequence = ifelse(
+        is.na(id),
+        NA,
+        sequence
+      )
+    )
+
+  return(tx_small_uniq)
+}
+```
+
+```{r}
+non_effector_data <- get_unique_tx_heuristic(tx_all)
+```
+
+```{r}
+#  Check the sequence data which are not available
+non_effector_data %>% 
+  dplyr::filter(is.na(id)) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+non_effector_data <- non_effector_data %>% 
+  dplyr::filter(!is.na(id))
+
+write.csv(non_effector_data, "non_effector_data.csv", row.names = FALSE)
+```
+
+```{r}
+```
+
+

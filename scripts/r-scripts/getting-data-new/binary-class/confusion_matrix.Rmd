@@ -1,0 +1,54 @@
+---
+title: "R Notebook"
+output: none
+---
+
+```{r message=FALSE}
+library(tidyverse)
+```
+
+```{r}
+# Load data
+ens_result_all_epochs_without_putting_1_0 <- data.table::fread("data/conf_matrix_df_results_test_earlystopping_without_putting_1_0.csv", drop = "V1")
+test_label <- data.table::fread("data/conf_matrix_testing_label.csv")
+```
+
+```{r}
+plot_confusion_matrices <- function(data, true_label, model_list) {
+  conf_matrix_df <- data %>%
+    select(-sequence) %>%
+    # Add true labels
+    dplyr::mutate(Reference = true_label$V1) %>%
+    # Transform into factors
+    dplyr::mutate_all(function(x) factor(x, levels = c(1, 0))) %>%
+    # Select chosen model only
+    pivot_longer(-Reference, names_to = "model", values_to = "Prediction") %>%
+    # Filter models
+    filter(model %in% model_list) %>% 
+    # Calculate frequencies
+    table() %>%
+    as.data.frame()
+
+  # Make plot
+  gg_matrix <- conf_matrix_df %>%
+    ggplot() +
+    aes(x = Reference, y = Prediction) +
+    geom_tile(aes(fill = Freq), colour = "white") +
+    geom_text(aes(label = Freq), vjust = 0.5) +
+    scale_fill_gradient(low = "lightpink", high = "mediumpurple1") +
+    labs(x = "True value", y = "Prediction", title = "Confusion matrices") +
+    coord_fixed() +
+    facet_wrap(~model) +
+    theme_bw() +
+    theme(legend.position = "none")
+
+  return(gg_matrix)
+}
+
+plot_confusion_matrices(
+  data = ens_result_all_epochs_without_putting_1_0,
+  true_label = test_label,
+  model_list = c("cnn_lstm", "cnn_gru", "gru_emb", "lstm_emb")
+)
+```
+

@@ -1,0 +1,142 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "04/12/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Short analysis of the sequences based on the class
+
+## Introduction
+
+In this report, I am trying to get the information of the sequence of each dataset based on the class, since the heatmap results behave strangely (especially for fungi)
+
+## Execution
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(ggplot2)
+```
+
+```{r}
+fungi_train <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/fungi/train.csv")
+fungi_val <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/fungi/val.csv")
+fungi_test <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/fungi/test.csv")
+
+all_fungi <- fungi_train %>% 
+  rbind(., fungi_val, fungi_test)
+```
+
+
+```{r}
+# Count the length of the string
+fungi_seq_info <- all_fungi %>% 
+  rowwise() %>% 
+  dplyr::mutate(len = stringr::str_length(sequence))
+```
+
+```{r}
+fungi_seq_info %>% 
+  summary(len)
+```
+
+```{r}
+ggplot(fungi_seq_info) +
+  aes(len) +
+  geom_histogram()
+```
+
+
+## Getting fasta data
+
+Since we know that all of effectors data are secreted, then we do not need to use SignalP to identify wether it is secreted or not. Now we just need to deal with the non-effector data.
+
+### Change the dataframe in R to the fasta data
+
+```{r}
+# Load all of the fungi data
+fungi_train <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/fungi/train.csv")
+fungi_val <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/fungi/val.csv")
+fungi_test <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/fungi/test.csv")
+
+# Load all of the bacteria data
+bacteria_train <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/bacteria/train.csv")
+bacteria_val <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/bacteria/val.csv")
+bacteria_test <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/bacteria/test.csv")
+
+# Load all of the oomycete data
+oomycete_train <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/oomycete/train.csv")
+oomycete_val <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/oomycete/val.csv")
+oomycete_test <- data.table::fread("../../../../data/getting-data-new/multi-class-data/data-sets/oomycete/test.csv")
+```
+
+```{r}
+get_non_eff <- function(data){
+  non_eff <- data %>% 
+    dplyr::filter(label == 0) %>% 
+    dplyr::select(sequence) %>% 
+    tibble::rowid_to_column() %>% 
+    `colnames<-` (c("seq_name", "sequence"))
+  
+  return(non_eff)
+}
+```
+
+```{r}
+fungi_train_non_eff <- get_non_eff(fungi_train)
+fungi_val_non_eff <- get_non_eff(fungi_val)
+fungi_test_non_eff <- get_non_eff(fungi_test)
+
+bacteria_train_non_eff <- get_non_eff(bacteria_train)
+bacteria_val_non_eff <- get_non_eff(bacteria_val)
+bacteria_test_non_eff <- get_non_eff(bacteria_test)
+
+oomycete_train_non_eff <- get_non_eff(oomycete_train)
+oomycete_val_non_eff <- get_non_eff(oomycete_val)
+oomycete_test_non_eff <- get_non_eff(oomycete_test)
+```
+
+### Change the dataframe to fasta
+
+```{r}
+library("seqRFLP")
+```
+
+```{r}
+# Define a function to get teh fasta from the df using package "seqRFLP"
+get_fasta <- function(data){
+  dat = dataframe2fas(get(data), file = paste0(data, ".fasta"))
+}
+```
+
+
+```{r}
+get_fasta("fungi_val_non_eff")
+```
+
+```{r}
+list_data_name <- c("fungi_train_non_eff", 
+                    "fungi_val_non_eff", 
+                    "fungi_test_non_eff", 
+                    "bacteria_train_non_eff", 
+                    "bacteria_val_non_eff", 
+                    "bacteria_test_non_eff", 
+                    "oomycete_train_non_eff", 
+                    "oomycete_val_non_eff", 
+                    "oomycete_test_non_eff")
+```
+
+```{r}
+# Using for loop to make it easier to automatically run the function at once
+for (data in list_data_name){
+  get_fasta(data)
+}
+```
+
+
+
+

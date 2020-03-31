@@ -1,0 +1,85 @@
+---
+title: "Downloading sequence from taxonomyID from NCBI"
+author: "Ruth Kristianingsih"
+date: "28/06/2019"
+output: none
+---
+
+# Getting the negative sets of data (Non-effector data)
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+get_fasta_from_txid <- function(txid) {
+  # Construct taxonomy query
+  txid_query <- paste0("txid", txid, "[Organism]")
+  txid_base_query <- "NOT virulence[All Fields] NOT effector[All Fields] NOT elicitor[All Fields] NOT partial[All Fields] NOT multispecies[All Fields] NOT \"Unknown\"[Organism] NOT hypothetical[All Fields] NOT uncharacterized[All Fields] NOT unnamed[All Fields] NOT putative[All Fields]"
+
+  txid_full_query <- paste(txid_query, txid_base_query, "&cmd=DetailsSearch") %>%
+    stringr::str_replace_all(" ", "%20") %>%
+    stringr::str_replace_all("\\[", "%5B") %>%
+    stringr::str_replace_all("\\]", "%5D") %>%
+    stringr::str_replace_all("\"", "%22")
+
+  # Base URL and queries
+  base_url <- "https://www.ncbi.nlm.nih.gov"
+  search_query <- "/protein?term="
+
+  # Download HTML file
+  query_url <- paste0(base_url, search_query, txid_full_query)
+  html_file <- textreadr::read_html(query_url)
+
+  # Get ProteinID
+  protein_vector <- html_file %>%
+    stringr::str_c(collapse = "#") %>%
+    stringr::str_split("Accession:") %>%
+    unlist() %>%
+    .[-1]
+
+  # Check if there are Accessions in the data
+  if (length(protein_vector) != 0) {
+    protein_id <- protein_vector %>%
+      # Select random protein
+      sample(1) %>%
+      stringr::str_split("#") %>%
+      unlist() %>%
+      .[2]
+
+    # Get sequence from FASTA
+    sequence <- rentrez::entrez_fetch(db = "protein", id = protein_id, rettype = "fasta") %>%
+      stringr::str_split("\n") %>%
+      unlist() %>%
+      .[2:length(.)] %>%
+      stringr::str_c(collapse = "")
+  } else {
+    sequence <- NA
+  }
+
+  return(sequence)
+}
+```
+
+```{r}
+rentrez::entrez_fetch(db = "protein", id = 74700862, rettype = "fasta")
+```
+
+```{r}
+get_fasta_from_txid(txid = "5270")
+get_fasta_from_txid(txid = "56NOTHING")
+```
+
+
+```{r}
+# Get the non-effector data using all the PathogenID from 
+# non_effector_data <- effector_data %>% 
+#   select(ProteinID, PathogenID) %>% 
+#   rowwise() %>% 
+#   mutate(Sequence = get_fasta_from_txid(txid = PathogenID))
+```
+
+
+
+

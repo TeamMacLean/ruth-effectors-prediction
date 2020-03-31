@@ -1,0 +1,275 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "09/12/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Getting the results of hyperparameter scans
+
+## CNN-GRU
+
+```{r}
+# Load library
+library(tidyverse)
+```
+
+```{r}
+# Get the results of Bacteria
+df_result_bacteria <- data.table::fread("../../../../results/scan_separate_multi_class/bacteria/df_pred_results_0002-cnn-gru-grid-bacteria.csv")
+
+df_result_bacteria %>% 
+  arrange(desc(Accuracy)) %>% 
+  knitr::kable() 
+```
+
+
+```{r}
+# Get the results of Bacteria
+df_result_fungi <- data.table::fread("../../../../results/scan_separate_multi_class/fungi/df_pred_results_0002-cnn-gru-grid-fungi.csv")
+
+df_result_fungi %>% 
+  arrange(desc(Accuracy)) %>% 
+  knitr::kable() 
+```
+
+
+```{r}
+# Get the results of Bacteria
+df_result_oomycete <- data.table::fread("../../../../results/scan_separate_multi_class/oomycete/df_pred_results_0002-cnn-gru-grid-oomycete.csv")
+
+df_result_oomycete %>% 
+  arrange(desc(Accuracy)) %>% 
+  knitr::kable() 
+```
+
+
+## CNN-LSTM
+
+```{r include=FALSE}
+# Functions ------------------------------------------------
+
+read_log_into_df_with_params_list <- function(file, params_list, numeric_params) {
+  # Filter needed info from raw log, store in a vector of strings
+  # lines <- system(paste("grep -E 'loss:.*acc:|Epoch'", file), intern = TRUE)
+  # lines <- system(paste("grep -E 'loss:.*acc:|Epoch|\\[CV\\]'", file, "| grep -v 'total'"), intern = TRUE)
+  lines <- system(paste("cat ", file, " | tr -d '\\000' | grep -E 'loss:.*acc:|Epoch|\\[CV\\]' | grep -v 'total'"), intern = TRUE)
+
+  # Calculate size of vector
+  num_lines <- length(lines)
+  num_headers <- grep("Epoch", lines) %>% length()
+  num_clean_lines <- num_lines - num_headers
+
+  # We initialize the output vector of strings
+  clean_lines <- rep(NA, num_clean_lines)
+  count <- 1
+  run_count <- 0
+
+  # Loop for processing the lines
+  params_str <- NULL
+  for (i in 1:num_lines) {
+    line <- lines[[i]]
+    if (stringr::str_detect(line, "\\[CV\\]")) {
+      params_str <- line
+    } else if (stringr::str_detect(line, "Epoch")) {
+      # Store epoch "header"
+      epoch_str <- line
+      run_count <- run_count + 1
+    } else {
+      # Store data/log line
+      raw_str <- line
+
+      # Paste and save processed lines
+      clean_lines[[count]] <- paste(run_count, "-", params_str, "-", epoch_str, "-", raw_str)
+      count <- count + 1
+    }
+  }
+
+  # Transform vector of strings into data frame
+  df <- data.frame(as.list(clean_lines)) %>%
+    t() %>%
+    as_tibble() %>%
+    tibble::remove_rownames()
+
+  # Separate single column into desired columns
+  df <- df %>%
+    tidyr::separate(V1, c("run", "params", "epoch", "step", "eta", "loss", "accuracy"), sep = "-") %>%
+    tidyr::separate(params, params_list, sep = ", ") %>%
+    dplyr::mutate_at(vars(params_list), function(x) stringr::str_split(x, "=", simplify = TRUE)[, 2]) %>%
+    dplyr::mutate_at(
+      numeric_params,
+      as.numeric
+    )
+
+  return(df)
+}
+```
+
+```{r include=FALSE}
+clean_log_df_with_params <- function(data) {
+
+  # Use regex for getting the relevant content of each raw column
+  data <- data %>%
+    dplyr::mutate(
+      epoch = stringr::str_extract(epoch, "[0-9]*/[0-9]*"),
+      step = stringr::str_extract(step, "[0-9]*/[0-9]*"),
+      loss = stringr::str_extract(loss, "[0-9]*\\.[0-9]*"),
+      accuracy = stringr::str_extract(accuracy, "[0-9]*\\.[0-9]*")
+    )
+
+  # Change data types and remove useless column
+  data <- data %>%
+    mutate(
+      run = as.numeric(run),
+      loss = as.numeric(loss),
+      accuracy = as.numeric(accuracy)
+    ) %>%
+    select(-eta)
+
+  return(data)
+}
+
+
+summarise_log_data_with_params_list <- function(data, params_list) {
+  data <- data %>%
+    # Get last step of each single run
+    group_by_at(vars(c("run", "epoch", params_list))) %>%
+    slice(n()) %>%
+    # Divide epoch into current and max epoch
+    mutate(
+      curr_epoch = stringr::str_split(epoch, "/") %>% unlist %>% .[1] %>% as.numeric(),
+      max_epoch = stringr::str_split(epoch, "/") %>% unlist %>% .[2] %>% as.numeric(),
+    ) %>%
+    ungroup() %>%
+    # Get final loss/accuracy of each epoch
+    dplyr::filter(curr_epoch == max_epoch) %>%
+    select(-c(step, epoch, run, curr_epoch)) %>%
+    dplyr::rename(epochs = max_epoch) %>%
+    mutate(epochs = as.factor(epochs)) %>%
+    # Create model variable (5 runs)
+    tibble::rowid_to_column(var = "run") %>%
+    mutate(
+      model = cut(run, breaks = seq(0,1000,5), label = 1:200)
+    ) %>%
+    select(-run) %>%
+    # Summarise results
+    group_by_at(vars(c("model", "epochs", params_list))) %>%
+    summarise(
+      loss_mean = mean(loss),
+      loss_sd = sd(loss),
+      acc_mean = mean(accuracy),
+      acc_sd = sd(accuracy)
+    )
+
+  return(data)
+}
+```
+
+
+### CNN-LSTM Bacteria
+
+```{r}
+src_file_cnn_lstm_bacteria <- "../../../../results/scan_separate_multi_class/bacteria/0001-cnn-lstm-scan-bacteria.log"
+
+src_params_list_cnn_lstm_bacteria <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", "epochs_raw",
+  "batch_size", "activation_convolution", "activation_LSTM"
+)
+src_numeric_params_cnn_lstm_bacteria <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs_raw", "batch_size"
+)
+```
+
+```{r}
+data_cnn_lstm_bacteria <- src_file_cnn_lstm_bacteria %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm_bacteria, src_numeric_params_cnn_lstm_bacteria) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm_bacteria <- data_cnn_lstm_bacteria %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm_bacteria)
+```
+
+
+```{r}
+new_data_cnn_lstm_bacteria %>% 
+  dplyr::select(-c(loss_sd, acc_sd)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  arrange(desc(mean_train_score)) %>% 
+  knitr::kable()
+```
+
+
+
+### CNN-LSTM Fungi
+
+```{r}
+src_file_cnn_lstm_fungi <- "../../../../results/scan_separate_multi_class/fungi/0001-cnn-lstm-scan-fungi.log"
+
+src_params_list_cnn_lstm_fungi <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", "epochs_raw",
+  "batch_size", "activation_convolution", "activation_LSTM"
+)
+src_numeric_params_cnn_lstm_fungi <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs_raw", "batch_size"
+)
+```
+
+```{r}
+data_cnn_lstm_fungi <- src_file_cnn_lstm_fungi %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm_fungi, src_numeric_params_cnn_lstm_fungi) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm_fungi <- data_cnn_lstm_fungi %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm_fungi)
+```
+
+```{r}
+new_data_cnn_lstm_fungi %>% 
+  dplyr::select(-c(loss_sd, acc_sd)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  arrange(desc(mean_train_score)) %>% 
+  knitr::kable()
+```
+
+### CNN-LSTM Oomycete
+
+```{r}
+src_file_cnn_lstm_oomycete <- "../../../../results/scan_separate_multi_class/oomycete/0001-cnn-lstm-scan-oomycete.log"
+
+src_params_list_cnn_lstm_oomycete <- c(
+  "strides", "padding", "optimizers", "number_hidden_units",
+  "filters_LSTM", "filters", "epochs_raw",
+  "batch_size", "activation_convolution", "activation_LSTM"
+)
+src_numeric_params_cnn_lstm_oomycete <- c(
+  "strides", "number_hidden_units", "filters_LSTM",
+  "filters", "epochs_raw", "batch_size"
+)
+```
+
+```{r}
+data_cnn_lstm_oomycete <- src_file_cnn_lstm_oomycete %>%
+  read_log_into_df_with_params_list(src_params_list_cnn_lstm_oomycete, src_numeric_params_cnn_lstm_oomycete) %>%
+  clean_log_df_with_params()
+
+new_data_cnn_lstm_oomycete <- data_cnn_lstm_oomycete %>%
+  tidyr::drop_na() %>%
+  summarise_log_data_with_params_list(src_params_list_cnn_lstm_oomycete)
+```
+
+```{r}
+new_data_cnn_lstm_oomycete %>% 
+  dplyr::select(-c(loss_sd, acc_sd)) %>% 
+  dplyr::rename(mean_train_score = acc_mean) %>% 
+  arrange(desc(mean_train_score)) %>% 
+  knitr::kable()
+```

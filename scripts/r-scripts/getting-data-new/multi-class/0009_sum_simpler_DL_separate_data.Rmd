@@ -1,0 +1,83 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "02/12/2019"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Smaller network on deep learning models
+
+```{r setup}
+library(tidyverse)
+library(taxize)
+library(caret)
+reticulate::use_condaenv(condaenv = "tensorflow2", conda = "/anaconda3/bin/conda")
+```
+
+```{python}
+sys.executable
+```
+
+```{python}
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.colors import ListedColormap
+from tensorflow.compat.v1.keras.models import load_model
+```
+
+## CNN-GRU models
+
+```{python}
+# Get the pretarined model and show the summary of the model
+model_cnn_gru = load_model("../../../../data/getting-data-new/multi-class-data/data-sets/models/bacteria/cnn-gru/sequential_1.30-0.27.hdf5")
+model_cnn_gru.summary()
+```
+
+Now, we can get the results of the testing data of each class: Bacteria, Oomycete, and Fungi
+
+```{r}
+cnn_gru_bacteria <- data.table::fread("../../../../results/cnn-gru-separate-class/bacteria/df_results_test_cnn_gru_saved_model1.csv", drop = "V1") %>% select("acc")
+
+cnn_gru_fungi <- data.table::fread("../../../../results/cnn-gru-separate-class/fungi/df_results_test_cnn_gru_saved_model1.csv", drop = "V1") %>% select("acc")
+
+cnn_gru_oomycete <- data.table::fread("../../../../results/cnn-gru-separate-class/oomycete/df_results_test_cnn_gru_saved_model1.csv", drop = "V1") %>% select("acc")
+```
+
+```{r}
+cnn_gru_oomycete
+```
+
+
+
+
+
+## CNN-LSTM models
+
+```{python}
+# Get the pretarined model and show the summary of the model
+model_cnn_lstm = load_model("../../../../data/getting-data-new/multi-class-data/data-sets/models/bacteria/cnn-lstm/model_1.30-0.41.hdf5")
+model_cnn_lstm.summary()
+```
+
+```{r}
+cnn_lstm_bacteria <- data.table::fread("../../../../results/cnn-lstm-separate-class/bacteria/df_results_test_saved_model.csv", drop = "V1") %>% select("acc")
+
+cnn_lstm_fungi <- data.table::fread("../../../../results/cnn-lstm-separate-class/fungi/df_results_test_saved_model.csv", drop = "V1") %>% select("acc")
+
+cnn_lstm_oomycete <- data.table::fread("../../../../results/cnn-lstm-separate-class/oomycete/df_results_test_saved_model.csv", drop = "V1") %>% select("acc")
+```
+
+
+### Summary of results
+
+```{r}
+data.frame(
+  name = c("Bacteria", "Oomycete", "Fungi"),
+  acc_cnn_gru = c(cnn_gru_bacteria[["acc"]], cnn_gru_oomycete[["acc"]], cnn_gru_fungi[["acc"]]),
+  acc_cnn_lstm = c(cnn_lstm_bacteria[["acc"]], cnn_lstm_fungi[["acc"]], cnn_lstm_oomycete[["acc"]])
+)
+```

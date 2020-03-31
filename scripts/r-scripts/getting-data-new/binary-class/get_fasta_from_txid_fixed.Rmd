@@ -1,0 +1,170 @@
+---
+title: "Downloading sequence from taxonomyID from NCBI"
+author: "Ruth Kristianingsih"
+# output: html_notebook
+output: none
+---
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+# Functions
+
+```{r}
+get_txid_data <- function(txid) {
+  # Construct query
+  txid_query <- paste0("txid", txid, "[Organism]")
+  txid_base_query <- "NOT virulence[All Fields] NOT effector[All Fields] NOT elicitor[All Fields] NOT partial[All Fields] NOT multispecies[All Fields] NOT \"Unknown\"[Organism] NOT hypothetical[All Fields] NOT uncharacterized[All Fields] NOT unnamed[All Fields] NOT putative[All Fields]"
+  txid_full_query <- paste(txid_query, txid_base_query)
+
+  # Perform query
+  search <- rentrez::entrez_search(db = "protein", term = txid_full_query, use_history = TRUE)
+  records <- rentrez::entrez_fetch(db = "protein", web_history = search$web_history, retmax = search$count, rettype = "fasta")
+
+  # Split and clean individual records
+  records_clean <- records %>%
+    stringr::str_split("\n>") %>%
+    unlist() %>%
+    stringr::str_replace(">", "") %>%
+    unlist()
+
+  # Get ID and sequence
+  # To working within the list structure, and keep each record separated from one another,
+  # we use lapply(x, fun) (apply function fun to each element of list)
+  clean_txid_data <- data.frame(
+    txid = txid,
+    # Get ID
+    id = records_clean %>%
+      # Get first element of FASTA
+      stringr::str_split(" ") %>%
+      lapply(`[`, 1) %>%
+      # Remove possible NAs
+      lapply(function(x) {
+        stringr::str_replace_na(x, "")
+      }) %>%
+      unlist(),
+    # Get sequence
+    sequence = records_clean %>%
+      # Get sequence from FASTA
+      stringr::str_split("\n") %>%
+      lapply(`[`, 2:length(.)) %>%
+      # Remove possible NAs
+      lapply(function(x) {
+        stringr::str_replace_na(x, "")
+      }) %>%
+      # Collapse sequence into a single string
+      lapply(function(x) {
+        stringr::str_c(x, collapse = "")
+      }) %>%
+      unlist()
+  ) %>%
+    # Clean ID
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      # Force id to be a character
+      id = as.character(id),
+      # Clean strange something|REALID|something ids
+      id = ifelse(
+        stringr::str_detect(id, "\\|"),
+        stringr::str_split(id, "\\|") %>% unlist() %>% .[2],
+        id
+      ),
+    ) %>%
+    # Get rid of unusable data
+    dplyr::filter(
+      id != "",
+      !is.na(id)
+    ) %>%
+    ungroup()
+
+  return(clean_txid_data)
+}
+```
+
+```{r}
+get_txid_data_from_txid_list <- function(txid_list) {
+  # Empty data frame
+  tx_full <- data.frame(
+    rowid = numeric(),
+    txid = character(),
+    id = character(),
+    sequence = character()
+  )
+
+  # Add new data from txid_list
+  for (rowid in 1:length(txid_list)) {
+    tx_full <- tx_full %>%
+      rbind(
+        cbind(
+          rowid = rowid,
+          get_txid_data(txid_list[rowid])
+        )
+      )
+  }
+
+  return(tx_full)
+}
+```
+
+```{r}
+get_unique_tx_sample <- function(tx_data) {
+  repeated <- TRUE
+  # Perform different random samples
+  while (repeated) {
+    tx_small <- tx_data %>%
+      group_by(rowid, txid) %>%
+      dplyr::slice(base::sample(1:n(), 1))
+    # Stop when no duplicate ids are found
+    if (tx_small %>% ungroup() %>% select(id) %>% duplicated() %>% sum() == 0) {
+      repeated <- FALSE
+    }
+  }
+  
+  return(tx_small)
+}
+```
+
+# Run search
+
+```{r}
+txid_list <- c(5499, 5499, 8173, 5792, 8173)
+
+tx_full <- get_txid_data_from_txid_list(txid_list)
+```
+
+## Select unique samples with real data
+```{r}
+get_unique_tx_sample(tx_full)
+```
+
+
+## Getting non-effector data
+
+```{r}
+effector_data <- data.table::fread("effector_data.csv")
+```
+
+```{r}
+effector_data %>% 
+  colnames()
+```
+
+```{r}
+pathogenID_list <- effector_data[["PathogenID"]]
+```
+
+```{r}
+tx_all <- get_txid_data_from_txid_list(pathogenID_list)
+```
+
+```{r}
+saveRDS(tx_all, "tx_all.RDS")
+```
+
+
+
+## Select unique samples with real data
+```{r}
+non_effector_data <- get_unique_tx_sample(tx_all)
+```
