@@ -14,13 +14,13 @@ from [`phi-base` github
 repository](https://github.com/PHI-base/data/tree/master/releases). We
 can then import and clean the data on `R` using `tidyverse` library. And
 from the data we obtained which is `phi-base_v4-6_2018-12-05.csv` (the
-data are saved into `phi-base_current.csv`.), we can filter the data
-only for **effector (plant avirulence determinant)**.
+data are saved into `phi-base-main.csv`.), we can filter the data only
+for **effector (plant avirulence determinant)**.
 
 ``` r
 library(tidyverse)
 
-phi_base <- data.table::fread("../../data/phi-base_current.csv", header = TRUE)
+phi_base <- data.table::fread("../../../data/getting-data-old/phi-base-main.csv", header = TRUE)
 
 # filter all of the data with 'plant avirulence determinant' information
 phi_small <- phi_base %>%
@@ -45,7 +45,7 @@ protein IDs that we obtained from
 ’phi-base.org`is around 496 protein IDs, however only 482 that are succesfully mapped on`uni-prot.org\`
 due to the deleted data.
 
-![Uniprot Screnshoot](/data/images/uniprot-screenshoot.png)
+![Uniprot Screnshoot](../../../data/images/uniprot-screenshoot.png)
 
 ### Reading and cleaning the data
 
@@ -57,7 +57,7 @@ together with `tidyverse`.
 library(seqinr)
 
 # Read FASTA file
-fasta_data <- seqinr::read.fasta("../../data/uniprot-data-mapped.fasta")
+fasta_data <- seqinr::read.fasta("../../../data/getting-data-old/uniprot-data-mapped.fasta")
 ```
 
 After we read the `.fasta` data, we can see how the data look like, as
@@ -67,10 +67,10 @@ follows.
 fasta_data[[1]]
 ```
 
-    ##  [1] "m" "k" "l" "s" "l" "l" "s" "v" "e" "l" "a" "l" "l" "i" "a" "t" "t"
-    ## [18] "l" "p" "l" "c" "w" "a" "a" "a" "l" "p" "v" "g" "l" "g" "v" "g" "l"
-    ## [35] "d" "y" "c" "n" "s" "s" "c" "t" "r" "a" "f" "d" "c" "l" "g" "q" "c"
-    ## [52] "g" "r" "c" "d" "f" "h" "k" "l" "q" "c" "v" "h"
+    ##  [1] "m" "k" "l" "s" "l" "l" "s" "v" "e" "l" "a" "l" "l" "i" "a" "t" "t" "l" "p"
+    ## [20] "l" "c" "w" "a" "a" "a" "l" "p" "v" "g" "l" "g" "v" "g" "l" "d" "y" "c" "n"
+    ## [39] "s" "s" "c" "t" "r" "a" "f" "d" "c" "l" "g" "q" "c" "g" "r" "c" "d" "f" "h"
+    ## [58] "k" "l" "q" "c" "v" "h"
     ## attr(,"name")
     ## [1] "sp|P22287|AVR9_PASFU"
     ## attr(,"Annot")
@@ -110,14 +110,14 @@ for (i in 1:num_data) {
 }
 
 # Save data frame into CSV file
-write.csv(parsed_data, "../../data/uniprot-data-mapped.csv", row.names = FALSE)
+write.csv(parsed_data, "../../../data/getting-data-old/uniprot-data-mapped.csv", row.names = FALSE)
 ```
 
 We have data frame with two columns, the first column is the organism
 pathogen name and the second one is the sequence data.
 
 ``` r
-uniprot_data <- data.table::fread("../../data/uniprot-data-mapped.csv")
+uniprot_data <- data.table::fread("../../../data/getting-data-old/uniprot-data-mapped.csv")
 ```
 
 ### Analysing the data
@@ -131,17 +131,17 @@ row 40<sup>th</sup> until 50<sup>th</sup>.
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
-    ## ✔ ggplot2 3.1.0     ✔ purrr   0.2.5
-    ## ✔ tibble  1.4.2     ✔ dplyr   0.7.8
-    ## ✔ tidyr   0.8.2     ✔ stringr 1.3.1
-    ## ✔ readr   1.2.1     ✔ forcats 0.3.0
+    ## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.3
+    ## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
 
-    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::count()  masks seqinr::count()
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::count()  masks seqinr::count()
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
 
 ``` r
 # view the head of the data with restricted number of strings
@@ -151,18 +151,18 @@ uniprot_data[40:50,] %>%
   knitr::kable()
 ```
 
-| pathogen                                                        | sequence                       |
-|:----------------------------------------------------------------|:-------------------------------|
-| Pseudomonas syringae                                            | MGNVCFRPSRSHVSQEFSQSEFSAASPVRT |
-| Pseudomonas syringae pv. syringae (strain B728a)                | MGCVSSKASVISSDSFRASYTNSPEASSVH |
-| Pseudomonas savastanoi pv. phaseolicola (strain 1448A / Race 6) | MGCITSKPLVSSPQWHNSATNSENLETGQR |
-| Pseudomonas savastanoi pv. glycinea                             | MQDLSFSTIENHLGPAKDRFFGDGFKHVEY |
-| Pseudomonas savastanoi pv. glycinea                             | MQDLSFSTIENHLGPAKDHFFGDGFKHVEY |
-| Pseudomonas syringae                                            | MQSPSIHRNTGSIIQPTVTPDARAATDLQE |
-| Pseudomonas syringae                                            | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000)  | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
-| Pseudomonas syringae pv. syringae (strain B728a)                | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
-| Pseudomonas syringae                                            | MGCVSSTSRSTGYYSGYENHEEPRVASSPT |
+| protein\_id | pathogen                                                        | sequence                       |
+|:------------|:----------------------------------------------------------------|:-------------------------------|
+| Q52378      | Pseudomonas syringae                                            | MGNVCFRPSRSHVSQEFSQSEFSAASPVRT |
+| Q4ZX49      | Pseudomonas syringae pv. syringae (strain B728a)                | MGCVSSKASVISSDSFRASYTNSPEASSVH |
+| Q5D157      | Pseudomonas savastanoi pv. phaseolicola (strain 1448A / Race 6) | MGCITSKPLVSSPQWHNSATNSENLETGQR |
+| O08242      | Pseudomonas savastanoi pv. glycinea                             | MQDLSFSTIENHLGPAKDRFFGDGFKHVEY |
+| O08243      | Pseudomonas savastanoi pv. glycinea                             | MQDLSFSTIENHLGPAKDHFFGDGFKHVEY |
+| Q52389      | Pseudomonas syringae                                            | MQSPSIHRNTGSIIQPTVTPDARAATDLQE |
+| Q08242      | Pseudomonas syringae                                            | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
+| Q87Y16      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000)  | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
+| Q4ZLM6      | Pseudomonas syringae pv. syringae (strain B728a)                | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
+| Q52537      | Pseudomonas syringae                                            | MGCVSSTSRSTGYYSGYENHEEPRVASSPT |
 
 Let us take a look further the data we have right now. Here we have many
 organism name which start with ***Pseudomonas syringae***. Considering
@@ -180,28 +180,28 @@ uniprot_data  %>%
    knitr::kable()
 ```
 
-| pathogen                                                       | sequence                       |
-|:---------------------------------------------------------------|:-------------------------------|
-| Pseudomonas syringae                                           | MGNVCFRPSRSHVSQEFSQSEFSAASPVRT |
-| Pseudomonas syringae pv. syringae (strain B728a)               | MGCVSSKASVISSDSFRASYTNSPEASSVH |
-| Pseudomonas syringae                                           | MQSPSIHRNTGSIIQPTVTPDARAATDLQE |
-| Pseudomonas syringae                                           | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
-| Pseudomonas syringae pv. syringae (strain B728a)               | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
-| Pseudomonas syringae                                           | MGCVSSTSRSTGYYSGYENHEEPRVASSPT |
-| Pseudomonas syringae                                           | MTRISTSSVNSSFSYSAPAEEAQNRVSSAP |
-| Pseudomonas syringae pv. tomato                                | MKIAPVAINHSPLSREVPSHAAPTQAKQTN |
-| Pseudomonas syringae pv. syringae                              | MNPIHARFSSVEALRHSNVDIQAIKSEGQL |
-| Pseudomonas syringae pv. maculicola                            | MINLSNLSAVATSVARAALGESNTSKINHA |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MISSRIGGAGGVELSRVNQQHDTVPAQTAH |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MYIQQSGAQSGVAAKTQHDKPSSLSGLAPG |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MHRPITAGHTTSRLILDQSKQISRTPSESS |
-| Pseudomonas syringae pv. maculicola                            | MKIHNAGLTPPLPGISNGNVGKAAQSSITQ |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MHINRRVQQPPVTATDSFRTASDASLASSS |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MHINQSAQQPPGVAMESFRTASDASLASSS |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MAGINRAGPSGAYFVGHTDPEPVSGQAHGS |
-| Pseudomonas syringae                                           | MHANPLSSFNRAQHGNLTNVEASQVKSAGT |
-| Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MNPLQPIQHSITNSQMSGGQQLEAEGSQAH |
+| protein\_id | pathogen                                                       | sequence                       |
+|:------------|:---------------------------------------------------------------|:-------------------------------|
+| Q52378      | Pseudomonas syringae                                           | MGNVCFRPSRSHVSQEFSQSEFSAASPVRT |
+| Q4ZX49      | Pseudomonas syringae pv. syringae (strain B728a)               | MGCVSSKASVISSDSFRASYTNSPEASSVH |
+| Q52389      | Pseudomonas syringae                                           | MQSPSIHRNTGSIIQPTVTPDARAATDLQE |
+| Q08242      | Pseudomonas syringae                                           | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
+| Q87Y16      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
+| Q4ZLM6      | Pseudomonas syringae pv. syringae (strain B728a)               | MGNICVGGSRMAHQVNSPDRVSNNSGDEDN |
+| Q52537      | Pseudomonas syringae                                           | MGCVSSTSRSTGYYSGYENHEEPRVASSPT |
+| Q52432      | Pseudomonas syringae                                           | MTRISTSSVNSSFSYSAPAEEAQNRVSSAP |
+| Q6LAD6      | Pseudomonas syringae pv. tomato                                | MKIAPVAINHSPLSREVPSHAAPTQAKQTN |
+| Q08370      | Pseudomonas syringae pv. syringae                              | MNPIHARFSSVEALRHSNVDIQAIKSEGQL |
+| Q8RP09      | Pseudomonas syringae pv. maculicola                            | MINLSNLSAVATSVARAALGESNTSKINHA |
+| Q887D0      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MISSRIGGAGGVELSRVNQQHDTVPAQTAH |
+| G3XDC5      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MYIQQSGAQSGVAAKTQHDKPSSLSGLAPG |
+| Q888Y7      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MHRPITAGHTTSRLILDQSKQISRTPSESS |
+| Q8G8T8      | Pseudomonas syringae pv. maculicola                            | MKIHNAGLTPPLPGISNGNVGKAAQSSITQ |
+| G3XDB9      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MHINRRVQQPPVTATDSFRTASDASLASSS |
+| Q87W48      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MHINQSAQQPPGVAMESFRTASDASLASSS |
+| Q8RSY1      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MAGINRAGPSGAYFVGHTDPEPVSGQAHGS |
+| Q52431      | Pseudomonas syringae                                           | MHANPLSSFNRAQHGNLTNVEASQVKSAGT |
+| Q79LY0      | Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000) | MNPLQPIQHSITNSQMSGGQQLEAEGSQAH |
 
 One alternative we can do is defining the problem as predicting the
 pathogen species which only include the first two words of their name.
@@ -231,7 +231,7 @@ for (i in 1:num){
 We can load the data, and take an analysis further.
 
 ``` r
-new_parsed_data <- data.table::fread("../../data/new_parsed_data.csv", header = TRUE) %>% 
+new_parsed_data <- data.table::fread("../../../data/getting-data-old/new_parsed_data.csv", header = TRUE) %>% 
   dplyr::select(-V1)
 ```
 
@@ -353,6 +353,13 @@ knitr::kable(count_new_pathogen)
 | Yersinia pestis                |      1|
 | Yersinia pseudotuberculosis    |      3|
 | Zymoseptoria tritici           |      2|
+
+``` r
+write.csv(count_new_pathogen, '../../../data/getting-data-old/count_new_pathogen.csv')
+getwd()
+```
+
+    ## [1] "/Users/kristian/Documents/Workspace/ruth-effectors-prediction/scripts/r-scripts/getting-data-old"
 
 ### Further discussion
 

@@ -84,7 +84,7 @@ others <- c("Globodera rostochiensis",
 ``` r
 library(tidyverse)
 
-phi_base <- data.table::fread("../../data/phi-base-main.csv", header = TRUE)
+phi_base <- data.table::fread("../../../data/getting-data-old/phi-base-main.csv", header = TRUE)
 
 effector_matched_ids <- phi_base %>%
   tibble::rowid_to_column() %>% 
@@ -127,7 +127,7 @@ non_effector_IDs <- non_effector_matched_data  %>%
   unique() %>% 
   dplyr::filter_all(any_vars(!str_detect(., 'no data found')))
 
-write.table(non_effector_IDs, "../../data/0002-getting-control-sets/phi_base_non_effector_IDs.csv", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(non_effector_IDs, "../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/phi_base_non_effector_IDs.csv", quote = FALSE, row.names = FALSE, col.names = FALSE)
 ```
 
 Getting the FASTA data
@@ -137,7 +137,7 @@ Getting the FASTA data
 library(seqinr)
 
 # Read FASTA file
-uniprot_fasta_data <- seqinr::read.fasta("../../data/0002-getting-control-sets/uniprot_non_effector.fasta")
+uniprot_fasta_data <- seqinr::read.fasta("../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/uniprot_non_effector.fasta")
 ```
 
 ``` r
@@ -186,7 +186,7 @@ parse_fasta_data_uniprot <- function(file_path) {
 ```
 
 ``` r
-uniprot_noneffector_path <- "../../data/0002-getting-control-sets/uniprot_non_effector.fasta"
+uniprot_noneffector_path <- "../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/uniprot_non_effector.fasta"
 
 noneffector_data <- parse_fasta_data_uniprot(uniprot_noneffector_path)
 ```
@@ -195,7 +195,7 @@ Using protein IDS above, we can retrive the data from `uniprot`:
 
 ``` r
 # read the mapping result from phi-base unique proteinIDs to uniprot -- retrieved in .csv
-uniprot_raw <- data.table::fread("../../data/0002-getting-control-sets/uniprot_non_effector_data_raw_corrected.csv", fill = TRUE, sep = ",")
+uniprot_raw <- data.table::fread("../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/uniprot_non_effector_data_raw_corrected.csv", fill = TRUE, sep = ",")
 
 # rename a column of protein IDs obtained from phi-base, and the entry IDs from
 uniprot_raw <- uniprot_raw %>%
@@ -232,26 +232,12 @@ control_set_data <- noneffector_data_with_proteinID_correction %>%
             by = "protein_id") %>% 
   dplyr::select(protein_id, sequence, `Pathogen species`, category)
 
-write.csv(control_set_data, "../../data/0002-getting-control-sets/control_set_data.csv", row.names = FALSE)
+write.csv(control_set_data, "../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/control_set_data.csv", row.names = FALSE)
 ```
 
 ``` r
 library(tidyverse)
-```
-
-    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
-
-    ## ✔ ggplot2 3.1.1       ✔ purrr   0.3.2  
-    ## ✔ tibble  2.1.1       ✔ dplyr   0.8.0.1
-    ## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-    ## ✔ readr   1.3.1       ✔ forcats 0.4.0
-
-    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-
-``` r
-control_set_data <- data.table::fread("../../data/0002-getting-control-sets/control_set_data.csv") %>% 
+control_set_data <- data.table::fread("../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/control_set_data.csv") %>% 
   mutate(label = as.factor(0))
 ```
 
@@ -315,7 +301,7 @@ parse_fasta_data_ncbi <- function(file_path) {
 
 ``` r
 library(tidyverse)
-ncbi_oomycetes_path <- "../../data/ncbi-oomycetes.fasta"
+ncbi_oomycetes_path <- "../../../data/getting-data-old/ncbi-oomycetes.fasta"
 ncbi_oomycetes_parsed <- parse_fasta_data_ncbi(ncbi_oomycetes_path) %>% 
   select(protein_id, sequence, pathogen) %>% 
   rename(`Pathogen species` = pathogen) %>% 
@@ -324,14 +310,14 @@ ncbi_oomycetes_parsed <- parse_fasta_data_ncbi(ncbi_oomycetes_path) %>%
 control_set_data_complete <- control_set_data %>% 
   bind_rows(., ncbi_oomycetes_parsed)
 
-write.csv(control_set_data_complete, "../../data/0002-getting-control-sets/control_set_data_complete.csv", row.names = FALSE)
+write.csv(control_set_data_complete, "../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/control_set_data_complete.csv", row.names = FALSE)
 ```
 
 ``` r
 # getting information about the complete data sets
 
 library(tidyverse)
-control_set_data <- data.table::fread("../../data/0002-getting-control-sets/control_set_data_complete.csv")
+control_set_data <- data.table::fread("../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/control_set_data_complete.csv")
 
 # print the number of data
 data.frame(table(control_set_data$category))
@@ -351,8 +337,8 @@ The encoding process is done in a separated file script.
 ``` python
 import numpy as np
 
-x_control_data = np.load('../../data/0002-getting-control-sets/control-data/x_control.npy')
+x_control_data = np.load('../../../data/getting-data-old/0002-getting-control-sets/phi-base-old/control-data/x_control.npy')
 print("Shape of the ecoded sequence data:", x_control_data.shape)
 ```
 
-    ## ('Shape of the ecoded sequence data:', (2375, 2500, 20))
+    ## Shape of the ecoded sequence data: (2375, 2500, 20)

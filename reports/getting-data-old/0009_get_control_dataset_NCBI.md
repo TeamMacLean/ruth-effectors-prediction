@@ -12,19 +12,20 @@ Getting the effector data information
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
-    ## ✔ ggplot2 3.1.1       ✔ purrr   0.3.2  
-    ## ✔ tibble  2.1.1       ✔ dplyr   0.8.0.1
-    ## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-    ## ✔ readr   1.3.1       ✔ forcats 0.4.0
+    ## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.3
+    ## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
 
-    ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
 
 ``` r
-phi_base <- data.table::fread("../../data/phi-base-main.csv", header = TRUE)
+phi_base <- data.table::fread("../../../data/getting-data-old/phi-base-main.csv", header = TRUE)
+
 
 # filter all of the data with 'plant avirulence determinant' information
 phi_plant_effector <- phi_base %>%
@@ -32,6 +33,14 @@ phi_plant_effector <- phi_base %>%
   dplyr::select(`Protein ID`,
                 `Pathogen species`, 
                 `Pathogen strain`)
+
+phi_plant_effector_to_print <- phi_base %>%
+  dplyr::filter_all(any_vars(str_detect(., 'plant avirulence determinant')))
+
+phi_plant_effector_to_print <- phi_plant_effector_to_print %>% 
+  head(30)
+
+write.csv(phi_plant_effector_to_print, "phi_plant_effector_to_print.csv")
 ```
 
 In this `phi_plant_effector` data, we have several cases that we need to
@@ -174,7 +183,7 @@ phi_pathogen_strain_unique <- phi_plant_effector%>%
 ```
 
 ``` r
-effector_data <- data.table::fread("../../data/effector_with_IDs_organism.csv") %>% 
+effector_data <- data.table::fread("../../../data/getting-data-old/effector_with_IDs_organism.csv") %>% 
   rename(`Protein ID` = protein_id, `Pathogen species` = pathogen_short)
 
 effector_data %>% 
@@ -218,7 +227,7 @@ effector_sequence_with_metadata <- effector_data %>%
 effector_sequence_with_metadata <- effector_sequence_with_metadata %>% 
   group_by(`Pathogen strain`, `Pathogen species`)
 
-# write.csv(effector_sequence_with_metadata , "../../data/effector_sequence_with_metadata.csv", row.names = FALSE)
+# write.csv(effector_sequence_with_metadata , "../../../data/getting-data-old/effector_sequence_with_metadata.csv", row.names = FALSE)
 effector_sequence_with_metadata %>% 
   mutate(sequence = substr(sequence, 1, 30)) %>% 
   head(30) %>% 

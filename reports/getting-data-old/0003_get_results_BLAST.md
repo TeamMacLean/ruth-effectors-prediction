@@ -74,24 +74,24 @@ blast_results <- function(result_path){
     setNames(c("qseqid", "qlen", "sseqid", "slen", "length", "nident", "mismatch", "positive")) %>%
     rowwise() %>%
     mutate(
-      percent_indentical = (nident/max(qlen, slen))*100, # The percentage of identical sequence over the longer sequence
+      percent_identical = (nident/max(qlen, slen))*100, # The percentage of identical sequence over the longer sequence
       percent_positive = (positive/max(qlen, slen))*100 # The percentage of positive sequence over the longer sequence
       )
   
   # Get the data frame where the percent identical > 90
   df_identical_protein <- df_results %>% 
-    filter(percent_indentical > 90)
+    filter(percent_identical > 90)
 
   # Get the row indices of the subject data for all of the identical percentage > 90%
   subject_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > 90) %>%
+    filter(percent_identical > 90) %>%
     select(sseqid) %>%
     unique() %>%
     unlist()
 
   # Get the row indices of the query data for all of the identical percentage > 90%
   query_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > 90) %>%
+    filter(percent_identical > 90) %>%
     select(qseqid) %>%
     unique() %>%
     unlist()
@@ -228,14 +228,14 @@ get_info <- function(blast_train_x_val_path,
 
 ``` r
 # define all the path of the results and the datasets in .csv
-blast_train_x_val_path = "../../data/BLAST-data/blast_train_x_val.tsv"
-blast_train_x_test_path = "../../data/BLAST-data/blast_train_x_test.tsv"
-input_train_path = "../../data/BLAST-data/blast_train.csv"
-label_train_path = "../../data/BLAST-data/blast_label_train.csv"
-input_val_path = "../../data/BLAST-data/blast_val.csv"
-label_val_path = "../../data/BLAST-data/blast_label_val.csv"
-input_test_path = "../../data/BLAST-data/blast_test.csv"
-label_test_path = "../../data/BLAST-data/blast_label_test.csv"
+blast_train_x_val_path = "../../../data/getting-data-old/BLAST-data/blast_train_x_val.tsv"
+blast_train_x_test_path = "../../../data/getting-data-old/BLAST-data/blast_train_x_test.tsv"
+input_train_path = "../../../data/getting-data-old/BLAST-data/blast_train.csv"
+label_train_path = "../../../data/getting-data-old/BLAST-data/blast_label_train.csv"
+input_val_path = "../../../data/getting-data-old/BLAST-data/blast_val.csv"
+label_val_path = "../../../data/getting-data-old/BLAST-data/blast_label_val.csv"
+input_test_path = "../../../data/getting-data-old/BLAST-data/blast_test.csv"
+label_test_path = "../../../data/getting-data-old/BLAST-data/blast_label_test.csv"
 
 
 all_results <-  get_info(blast_train_x_val_path,
@@ -249,7 +249,7 @@ all_results <-  get_info(blast_train_x_val_path,
 
 all_removed_rowss_freq <- all_results[["all_removed_rows_freq"]]
 
-write.csv(all_removed_rowss_freq, "../../data/all_removed_rows_freq.csv", row.names = FALSE)
+# write.csv(all_removed_rowss_freq, "../../../data/getting-data-old/all_removed_rows_freq.csv", row.names = FALSE)
 ```
 
 #### Results for comparing the validation data set and training dataset
@@ -268,7 +268,7 @@ df_iden_train_x_val %>%
          "Subject Length" = slen,
          "Alignment Length" = length,
          "No Identical Matches" = nident,
-         "% Identical Matches" =  percent_indentical
+         "% Identical Matches" =  percent_identical
           ) %>%
   knitr::kable()
 ```
@@ -610,7 +610,7 @@ df_iden_train_x_test %>%
          "Subject Length" = slen,
          "Alignment Length" = length,
          "No Identical Matches" = nident,
-         "% Identical Matches" =  percent_indentical
+         "% Identical Matches" =  percent_identical
           ) %>% 
   head(10) %>% 
   knitr::kable()
@@ -640,7 +640,7 @@ summary %>%
 
 # save summary to .csv
 
-write.csv(summary, "../../data/summary_count_data_removed.csv", row.names = FALSE
+write.csv(summary, "../../../data/getting-data-old/summary_count_data_removed.csv", row.names = FALSE
 ```
 
 ``` r
@@ -731,7 +731,7 @@ oomycetes <- c("Hyaloperonospora arabidopsidis",
 ```
 
 ``` r
-effector_data <- data.table::fread("../../data/effector_with_IDs_organism.csv")
+effector_data <- data.table::fread("../../../data/getting-data-old/effector_with_IDs_organism.csv")
 
 effector_removed_with_species <- removed_all_effector %>%
   left_join(effector_data, by = "sequence") %>% 
@@ -742,7 +742,7 @@ effector_removed_with_species <- removed_all_effector %>%
   group_by(category) %>% 
   summarise(count = n())
 
-noneffector_data <- data.table::fread("../../data/noneffector_with_IDs_organism.csv")
+noneffector_data <- data.table::fread("../../../data/getting-data-old/noneffector_with_IDs_organism.csv")
 
 noneffector_removed_with_species <- removed_all_noneffector %>%
   left_join(noneffector_data, by = "sequence") %>% 
@@ -786,9 +786,9 @@ df_validation_new_after_removed <- all_results[["removed_validation"]][["df"]]
 df_testing_new_after_removed <- all_results[["removed_testing"]][["df"]]
 
 # save them to .csv format
-write.csv(df_training_new_after_removed, "../../data/df_training_new_after_removed.csv", col.names = TRUE)
-write.csv(df_testing_new_after_removed, "../../data/df_testing_new_after_removed.csv", col.names = TRUE)
-write.csv(df_validation_new_after_removed, "../../data/df_validation_new_after_removed.csv", col.names = TRUE)
+write.csv(df_training_new_after_removed, "../../../data/getting-data-old/df_training_new_after_removed.csv", col.names = TRUE)
+write.csv(df_testing_new_after_removed, "../../../data/getting-data-old/df_testing_new_after_removed.csv", col.names = TRUE)
+write.csv(df_validation_new_after_removed, "../../../data/getting-data-old/df_validation_new_after_removed.csv", col.names = TRUE)
 ```
 
 According to the blast results we obtained previously, there are some
@@ -798,9 +798,9 @@ sequences.
 ### Load the data for each datasets that has been removed
 
 ``` r
-df_train <- data.table::fread("../../data/df_training_new_after_removed.csv", drop = "V1")
-df_val <- data.table::fread("../../data/df_validation_new_after_removed.csv", drop = "V1")
-df_test <- data.table::fread("../../data/df_testing_new_after_removed.csv", drop = "V1")
+df_train <- data.table::fread("../../../data/getting-data-old/df_training_new_after_removed.csv", drop = "V1")
+df_val <- data.table::fread("../../../data/getting-data-old/df_validation_new_after_removed.csv", drop = "V1")
+df_test <- data.table::fread("../../../data/getting-data-old/df_testing_new_after_removed.csv", drop = "V1")
 ```
 
 ### Load fasta data
@@ -856,8 +856,8 @@ parse_fasta_data_ncbi <- function(file_path) {
 ``` r
 # path 
 
-add_effector_path <- "../../data/BLAST-data/additional-data-fasta/batch_entrez_effector.fasta"
-add_noneffector_path <- "../../data/BLAST-data/additional-data-fasta/batch_entrez_noneffector.fasta"
+add_effector_path <- "../../../data/getting-data-old/BLAST-data/additional-data-fasta/batch_entrez_effector.fasta"
+add_noneffector_path <- "../../../data/getting-data-old/BLAST-data/additional-data-fasta/batch_entrez_noneffector.fasta"
 
 add_effector_parsed <- parse_fasta_data_ncbi(add_effector_path)
 add_noneffector_parsed <- parse_fasta_data_ncbi(add_noneffector_path)
@@ -871,7 +871,7 @@ add_effector <- add_effector_parsed %>%
   select(sequence) %>% 
   mutate(label = as.factor(1))
 
-all_removed_rows_freq <- data.table::fread("../../data/all_removed_rows_freq.csv")
+all_removed_rows_freq <- data.table::fread("../../../data/getting-data-old/all_removed_rows_freq.csv")
 
 all_removed_rows_freq %>%
   knitr::kable()
@@ -892,17 +892,49 @@ df_test <- df_test %>%
   rbind(., add_noneffector[113:140, ]) %>% 
   rbind(., add_effector[28:38, ])
 
-write.csv(df_train, "../../data/BLAST-data/0003-new-data-sets/training-data.csv", col.names = TRUE)
-write.csv(df_val, "../../data/BLAST-data/0003-new-data-sets/validation-data.csv", col.names = TRUE)
-write.csv(df_test, "../../data/BLAST-data/0003-new-data-sets/testing-data.csv", col.names = TRUE)
+write.csv(df_train, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/training-data.csv", col.names = TRUE)
+write.csv(df_val, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/validation-data.csv", col.names = TRUE)
+write.csv(df_test, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/testing-data.csv", col.names = TRUE)
 ```
 
 ### View the new data
 
 ``` r
-df_train <- data.table::fread("../../data/BLAST-data/0003-new-data-sets/training-data.csv")
-df_val <- data.table::fread("../../data/BLAST-data/0003-new-data-sets/validation-data.csv")
-df_test <- data.table::fread("../../data/BLAST-data/0003-new-data-sets/testing-data.csv")
+library(tidyverse)
+df_train <- data.table::fread("../../../data/getting-data-old/BLAST-data/0003-new-data-sets/training-data.csv")
+
+df_train_sequence <- df_train %>% 
+  select(sequence) 
+
+# write.table(df_train_sequence, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/training-sequence.csv", row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+df_train_label <- df_train %>% 
+  select(label)
+
+# write.table(df_train_label, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/training-label.csv", row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+df_val <- data.table::fread("../../../data/getting-data-old/BLAST-data/0003-new-data-sets/validation-data.csv")
+
+df_val_sequence <- df_val %>% 
+  select(sequence)
+
+# write.table(df_val_sequence, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/validation-sequence.csv", row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+df_val_label <- df_val %>% 
+  select(label)
+
+# write.table(df_val_label, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/validation-label.csv", row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+
+df_test <- data.table::fread("../../../data/getting-data-old/BLAST-data/0003-new-data-sets/testing-data.csv")
+
+df_test_sequence <- df_test %>% 
+  select(sequence)
+# write.table(df_test_sequence, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/testing-sequence.csv", row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+df_test_label <- df_test %>% 
+  select(label)
+# write.table(df_test_label, "../../../data/getting-data-old/BLAST-data/0003-new-data-sets/testing-label.csv", row.names = FALSE, col.names = FALSE, quote = FALSE)
 ```
 
 #### Training data

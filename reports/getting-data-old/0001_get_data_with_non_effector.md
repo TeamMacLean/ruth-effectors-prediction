@@ -12,7 +12,7 @@ repository](https://github.com/PHI-base/data/tree/master/releases).
 Figure is the diagram of how we get the data.
 
 ![Flow Chart of Getting the
-Data](../data/images/getting-data-flowchart.png)
+Data](../../../data/images/getting-data-flowchart.png)
 
 Effector Data
 -------------
@@ -27,19 +27,19 @@ data.
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 
-    ## ✔ ggplot2 3.1.1       ✔ purrr   0.3.2  
-    ## ✔ tibble  2.1.1       ✔ dplyr   0.8.0.1
-    ## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-    ## ✔ readr   1.3.1       ✔ forcats 0.4.0
+    ## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+    ## ✓ tibble  2.1.3     ✓ dplyr   0.8.3
+    ## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.4.0
 
-    ## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
 
 ``` r
-phi_base <- data.table::fread("../../data/phi-base-main.csv", header = TRUE)
+phi_base <- data.table::fread("../../../data/getting-data-old/phi-base-main.csv", header = TRUE)
 
 # filter all of the data with 'plant avirulence determinant' information
 phi_effector <- phi_base %>%
@@ -81,7 +81,7 @@ phi_effector_proteinID_unique %>%
 #   dplyr::filter(`Pathogen species` == "Salmonella enterica") %>%
 #   select(`Protein ID`)
 
-write.csv(phi_effector_proteinID_unique, "../../data/phi_effector_proteinID_unique.csv")
+write.csv(phi_effector_proteinID_unique, "../../../data/getting-data-old/phi_effector_proteinID_unique.csv")
 phi_effector_proteinID_unique
 ```
 
@@ -109,7 +109,7 @@ protein IDs that we obtained from
 ’phi-base.org`is around 496 protein IDs, however only 482 that are succesfully mapped on`uni-prot.org\`
 due to the deleted data.
 
-![Uniprot Screnshoot](../data/images/uniprot-screenshoot.png)
+![Uniprot Screnshoot](../../../data/images/uniprot-screenshoot.png)
 
 ### Reading and cleaning the data
 
@@ -130,7 +130,7 @@ library(seqinr)
 
 ``` r
 # Read FASTA file
-fasta_data <- seqinr::read.fasta("../../data/uniprot-data-mapped.fasta")
+fasta_data <- seqinr::read.fasta("../../../data/getting-data-old/uniprot-data-mapped.fasta")
 ```
 
 After we read the `.fasta` data, we can see how the data look like, as
@@ -140,10 +140,10 @@ follows.
 fasta_data[[1]]
 ```
 
-    ##  [1] "m" "k" "l" "s" "l" "l" "s" "v" "e" "l" "a" "l" "l" "i" "a" "t" "t"
-    ## [18] "l" "p" "l" "c" "w" "a" "a" "a" "l" "p" "v" "g" "l" "g" "v" "g" "l"
-    ## [35] "d" "y" "c" "n" "s" "s" "c" "t" "r" "a" "f" "d" "c" "l" "g" "q" "c"
-    ## [52] "g" "r" "c" "d" "f" "h" "k" "l" "q" "c" "v" "h"
+    ##  [1] "m" "k" "l" "s" "l" "l" "s" "v" "e" "l" "a" "l" "l" "i" "a" "t" "t" "l" "p"
+    ## [20] "l" "c" "w" "a" "a" "a" "l" "p" "v" "g" "l" "g" "v" "g" "l" "d" "y" "c" "n"
+    ## [39] "s" "s" "c" "t" "r" "a" "f" "d" "c" "l" "g" "q" "c" "g" "r" "c" "d" "f" "h"
+    ## [58] "k" "l" "q" "c" "v" "h"
     ## attr(,"name")
     ## [1] "sp|P22287|AVR9_PASFU"
     ## attr(,"Annot")
@@ -183,14 +183,14 @@ for (i in 1:num_data) {
 }
 
 # Save data frame into CSV file
-write.csv(parsed_data, "../../data/uniprot-data-mapped.csv", row.names = FALSE)
+write.csv(parsed_data, "../../../data/getting-data-old/uniprot-data-mapped.csv", row.names = FALSE)
 ```
 
 We have data frame with two columns, the first column is the organism
 pathogen name and the second one is the sequence data.
 
 ``` r
-uniprot_data <- data.table::fread("../../data/uniprot-data-mapped.csv", header = TRUE)
+uniprot_data <- data.table::fread("../../../data/getting-data-old/uniprot-data-mapped.csv", header = TRUE)
 ```
 
 ### Analysing the data
@@ -390,7 +390,7 @@ proteinIDs data from Phi-base and the mapped results in uni-prot.
 library(tidyverse)
 
 # read the mapping result from phi-base unique proteinIDs to uniprot -- retrieved in .csv
-uniprot_raw <- data.table::fread("../../data/uniprot-results-mapped-raw.csv", fill = TRUE, sep = "\t")
+uniprot_raw <- data.table::fread("../../../data/getting-data-old/uniprot-results-mapped-raw.csv", fill = TRUE, sep = "\t")
 
 # rename a column of protein IDs obtained from phi-base, and the entry IDs from
 uniprot_raw <- uniprot_raw %>%
@@ -478,6 +478,13 @@ effector_data <- uniprot_effector_with_proteinID_correction %>%
     name_src = as.factor(name_src)
   ) %>%
   dplyr::select(-pathogen_short.x, -pathogen_short.y)
+
+effector <- effector_data %>% 
+  select(sequence) %>% 
+  mutate(label = as.factor(1))
+
+write.csv(effector_data, "../../../data/getting-data-old/effector_with_IDs_organism.csv", row.names = FALSE)
+write.csv(effector, "../../../data/getting-data-old/effector.csv", row.names = FALSE)
 ```
 
 Then now, we have the final data which is `effector_data` with
@@ -887,7 +894,7 @@ nrow(noneffector_data_from_phi_base_full)
 noneffector_protein_IDs_full <- noneffector_data_from_phi_base_full %>% 
   select(`Protein ID`)
 
-write.csv(noneffector_protein_IDs_full, "../../data/noneffector_protein_IDs_full.csv")
+write.csv(noneffector_protein_IDs_full, "../../../data/getting-data-old/noneffector_protein_IDs_full.csv")
 ```
 
 #### Get the noneffector that are not available in the phi-base
@@ -932,7 +939,7 @@ non_available_noneffector_data %>%
 | Xanthomonas axonopodis         |                      8|
 
 ``` r
-write.csv(non_available_noneffector_data, "../../data/non_available_noneffector_data.csv")
+write.csv(non_available_noneffector_data, "../../../data/getting-data-old/non_available_noneffector_data.csv")
 ```
 
 Using the reference list `non_available_noneffector_data.csv`, we can
