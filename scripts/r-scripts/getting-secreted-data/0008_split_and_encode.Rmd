@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "23/01/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -56,7 +55,7 @@ split_data_without_identical <- function(dataset, p1, p2, test_data = TRUE, whil
   while_step <- 1
 
   while (!(n_identical_val == 0 & n_identical_test == 0) & while_step < while_limit) {
-    cat("Step", n_identical_val, n_identical_test, while_step, "\n")
+    # cat("Step", n_identical_val, n_identical_test, while_step, "\n")
 
     # Get data splitted
     list_datasets <- get_data_splitted(dataset, p1, p2, test_data = TRUE)
@@ -78,18 +77,19 @@ split_data_without_identical <- function(dataset, p1, p2, test_data = TRUE, whil
 
     blast_train_vs_val <- blast_results(
       result_path = here::here(dir_path = path_blast, paste0(dataset_name, "_training", "_vs_", dataset_name, "_validation.tsv")),
-      percent_threshold = 90
+      percent_threshold = 95
       )[["df_identical_protein"]]
     
     blast_train_vs_test <- blast_results(
       result_path = here::here(dir_path = path_blast, paste0(dataset_name, "_training", "_vs_", dataset_name, "_testing.tsv")),
-      percent_threshold = 90
+      percent_threshold = 95
       )[["df_identical_protein"]]
 
     # Check wether they have identical data or not
     n_identical_val <- nrow(blast_train_vs_val)
     n_identical_test <- nrow(blast_train_vs_test)
-
+    
+    cat("Step", while_step, ":", "n_identical_train_vs_val", n_identical_val, ",", "n_identical_train_vs_test", n_identical_test, "\n")
     while_step <- while_step + 1
   }
 
@@ -143,7 +143,18 @@ non_effector_seq_oomycete <- readRDS("../../../data/secreted_data/updated_signal
   `colnames<-`(c("ProteinID", "Sequence"))
 ```
 
+
+```{r}
+effector_seq_bacteria %>% saveRDS("effector_seq_bacteria.RDS")
+
+non_effector_seq_bacteria %>%  saveRDS("non_effector_seq_bacteria.RDS")
+```
+
+
 ## Processing the data
+
+
+### Fungi 
 
 ```{r}
 effector_seq_fungi <- readRDS("effector_seq_fungi.RDS")
@@ -154,16 +165,20 @@ fungi_full_datasets <- get_data_labeled_binary(effector_seq_fungi, non_effector_
 fungi_splitted <- get_data_splitted(fungi_full_datasets, p1 = 0.6, p2 = 0.2, test_dataset = TRUE)
 ```
 
+
+### Oomycete 
+
 ```{r}
-fungi_final_split <- split_data_without_identical(
-  dataset = fungi_full_datasets, 
-  p1 = 0.6, 
-  p2 = 0.2,
-  test_data = TRUE,
-  while_limit = 25, 
-  init_seed = 2906
-)
+oomycete_seq_fungi <- readRDS("effector_seq_oomycete.RDS")
+non_oomycete_seq_fungi <- readRDS("noneffector_seq_oomycete.RDS")
+
+oomycete_full_datasets <- get_data_labeled_binary(effector_seq_oomycete, non_effector_seq_oomycete)
+
+oomycete_splitted <- get_data_splitted(fungi_full_datasets, p1 = 0.6, p2 = 0.2, test_dataset = TRUE)
 ```
+
+
+### Bacteria
 
 ```{r}
 bacteria_full_datasets <- get_data_labeled_binary(effector_seq_bacteria, non_effector_seq_bacteria)
@@ -173,10 +188,12 @@ bacteria_final_split <- split_data_without_identical(
   p1 = 0.6, 
   p2 = 0.2,
   test_data = TRUE,
-  while_limit = 25, 
-  init_seed = 11
+  while_limit = 250, 
+  init_seed = 30
 )
 ```
+
+### Oomycete
 
 ```{r}
 oomycete_full_datasets <- get_data_labeled_binary(effector_seq_oomycete, non_effector_seq_oomycete)
@@ -189,5 +206,33 @@ oomycete_final_split <- split_data_without_identical(
   while_limit = 25, 
   init_seed = 2906
 )
+```
+
+```r
+fungi_final_split[[1]] %>% 
+  data.table::fwrite("secreted_fungi_training.csv")
+
+fungi_final_split[[2]] %>% 
+  data.table::fwrite("secreted_fungi_validation.csv")
+
+fungi_final_split[[3]] %>% 
+  data.table::fwrite("secreted_fungi_testing.csv")
+```
+
+
+
+```r
+# Save the results
+
+oomycete_final_split[[1]] %>% 
+  data.table::fwrite("secreted_oomycete_training.csv")
+
+oomycete_final_split[[2]] %>% 
+  data.table::fwrite("secreted_oomycete_validation.csv")
+
+oomycete_final_split[[3]] %>% 
+  data.table::fwrite("secreted_oomycete_testing.csv")
+
+
 ```
 

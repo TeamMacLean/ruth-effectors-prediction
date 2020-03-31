@@ -1,0 +1,58 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "18/12/2019"
+output: html_document
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Testing the R package `biomaRt`
+
+## Introduction
+
+In this report, testing on the use of `biomaRt` will be done. 
+
+## Execution
+
+```{r}
+# Load libraries
+library("biomaRt")
+```
+
+```{r}
+listMarts()
+```
+
+```{r}
+ensembl <- useMart("ENSEMBL_MART_ENSEMBL")
+
+datasets <- listDatasets(ensembl)
+head(datasets)
+```
+
+```{r}
+effector_data_multiclass <- readRDS("../../../data/getting-data-new/multi-class-data/class_df_effectors.rds")
+non_effector_data_multiclass <- readRDS("../../../data/getting-data-new/multi-class-data/class_df_noneffectors.rds")
+```
+
+```{r}
+effector_data_multiclass %>% 
+  dplyr::group_by(class) %>%
+  summarise(count = n())
+  
+```
+
+
+
+```{r}
+pathogen_id_fungi <- effector_data_multiclass %>% 
+  ungroup() %>% 
+  dplyr::filter(class == "fungi") %>% 
+  pull(PathogenID)
+
+pathogen_id_fungi
+```
+

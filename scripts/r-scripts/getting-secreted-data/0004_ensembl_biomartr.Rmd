@@ -1,0 +1,79 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "01/01/2020"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# Test how to use biomart package in R
+
+```{r setup}
+library(biomaRt)
+library(tidyverse)
+```
+
+
+# Using biomaRt
+```{r}
+listMarts(host = "https://fungi.ensembl.org", port = 443)
+```
+
+```{r}
+ensembl_fungi <- biomaRt::useMart(
+  host = "https://fungi.ensembl.org",
+  biomart = "fungi_mart",
+  port = 443
+)
+
+fungi_datasets <- listDatasets(ensembl_fungi)
+
+fungi_datasets %>% 
+  knitr::kable()
+```
+
+## Test
+```{r}
+# mart <- useMart("fungi_mart", dataset = "aclavatus_eg_gene")
+mart <- biomaRt::useMart(
+  host = "https://fungi.ensembl.org",
+  biomart = "fungi_mart",
+  port = 443, 
+  dataset = "aclavatus_eg_gene"
+)
+
+```
+
+
+```{r}
+# seq <- getSequence(
+#   id = "BRCA1",
+#   type = "hgnc_symbol",
+#   seqType = "peptide", 
+#   mart = mart
+# )
+# show(seq)
+
+listFilters(mart) %>% 
+  knitr::kable()
+
+listAttributes(mart) %>% 
+  knitr::kable()
+```
+
+# Using biomartr
+
+```{r}
+biomartr::organismBM(organism = "Blumeria graminis")
+```
+
+```{r}
+biomartr::getProteome(
+  db = "ensembl",
+  organism = "Blumeria graminis",
+  path = file.path("_ncbi_downloads", "proteomes")
+)
+```
+

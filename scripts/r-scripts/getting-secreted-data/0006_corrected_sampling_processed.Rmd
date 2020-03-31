@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "29/01/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -29,94 +28,32 @@ library(dplyr)
 
 # Source functions
 source(here::here("scripts/r-scripts/r-functions", "blast_data.R"))
-source(here::here("scripts/r-scripts/r-functions", "dealing_with_df.R"))
+# source(here::here("scripts/r-scripts/r-functions", "dealing_with_df.R"))
 source(here::here("scripts/r-scripts/r-functions", "getting_sample_data.R"))
 ```
 
-### Test function
-
-```{r}
-test_dataframe <- data.frame(
-  organism = c("organism_1", "organism_1", "organism_1", "organism_1", "organism_2", "organism_2"),
-  ID = c("ID_1", "ID_2", "ID_3", "ID_4", "ID_5", "ID_6"),
-  seq = c(
-    "MRLHILLFTLSSSTSLALTGSTTMDPFHPSVDTLLAADRHIGERVTRQRHLREEVGPETLKVEQVTAMIAKHESDLMALADSLGMHPLNFLVALKKRNPKKKVILLADQYRERWKIKNGDTTPSRPHRF",
-    "MRLHILLFTLSSSTSLALTGSTTMDPFHPSVDTLLAADRHIGERVTRQRHLREEVGPETLKVEQVTAMIAKHESDLMALADSLGMHPRNFLVALKKRNPKKKVILLADQYRERWKIKNGDTTPSRPHRFALTG",
-    "MRLHILLFTLSSSTSLALTGSTTMDPFHPSVDTLLAADRHIGERVTRQRHLREEVGPETLKVEQVTAMIALHESDLMALADSLGMHPLNFLVALKKRNPKKKVILLADQYRERWKIKNGDTTPSRPHRFDLS",
-    "MRFLLVAVVAMMALVSSSTAAVAETSNDINTMNNNQEFARSLRNTEERSIAAILAEAGEEDRAAWRINYRAWYKAKLTPTQVKTVLGVSQAEMNNVAKQLQRLYLGYYSFYTAMEKKKEEKKRLATP",
-    "MRFLLVAVVAMMALVSSSTAAVAETSNDINTMNNNQEFARSLRNTEERSIAAILAEAGEEDRAAWRINYRAWYKAKLTPTQVKTVLGVSQAEMNNVAKQLQRLYLGYYSFYTAMEKKKEEK",
-    "MRFLLVAVVAMMALVSSSTAAVAETSNDINTMNNNQEFARSLRNTEERSIAAILAEAGEEDRAAWRINYRAWYKAKLTPTQVKTVLGVSQAEMNNVAKQLQRLYLGYYSFYTAMEKKKEEKKRLATPAA"
-  )
-)
-
-# test_dataframe %>%
-#   knitr::kable()
-```
-
-```{r}
-# Lookup dummy
-
-lookup_dummy <- data.frame(
-  organism = c("organism_1", "organism_2"),
-  count = c(2, 3)
-)
-
-lookup_dummy["count"][2, ]
-```
-
-
-```{r}
-getting_sample_data(
-  tbl = test_dataframe,
-  col_organism = organism,
-  col_id = ID,
-  col_seq = seq,
-  organism_name = "organism_2",
-  num_sample = 3
-)
-```
-
-
-
-```{r}
-df_list <- list()
-
-for (i in 1:nrow(lookup_dummy)) {
-  print(i)
-  # df <- getting_sample_data(test_dataframe, lookup_dummy["organism"][i,], lookup_dummy["count"][i,], max_iterations = 5)
-  df <- getting_sample_data(test_dataframe, as.character(lookup_dummy[["organism"]][i]), lookup_dummy[["count"]][i])
-
-  df_list[[i]] <- df
-}
-
-df <- df_list %>%
-  purrr::reduce(rbind)
-```
-
-```{r}
-df
-```
-
-
 ### Run with bacteria
 
-```{r}
-# Read the full table pf the prediction result of the SignalP
+#### Load sequence and lookup data
 
-bacteria_full_table <- data.table::fread("../../../data/secreted_data/updated_signalp_results/bacteria_full_table.csv") %>%
+```{r}
+# Read the full table of the prediction result of the SignalP
+bacteria_full_table <- data.table::fread(here::here("data/secreted_data/updated_signalp_results", "bacteria_full_table.csv")) %>%
   # Make the name of organisms consistent with the lookup table
-  mutate(
+  dplyr::mutate(
     organism_name = organism_name %>%
       stringr::str_replace_all("^_", "") %>%
       stringr::str_to_lower()
   ) %>%
   dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+```
 
-
-bacteria_lookup_table <- data.table::fread("../../../data/secreted_data/dataset-download-scripts/pathogen_species_final.csv") %>%
+```{r}
+bacteria_lookup_table <- data.table::fread(here::here("data/secreted_data/signalp-pipeline", "bacteria_lookup_table.csv")) %>%
   `colnames<-`(c("Pathogenspecies", "Count")) %>%
   group_by(Pathogenspecies) %>%
-  summarise(total_count = sum(Count))
+  summarise(samples_needed = sum(Count)) %>%
+  ungroup()
 
 bacteria_lookup_table <- bacteria_lookup_table %>%
   mutate(
@@ -127,7 +64,6 @@ bacteria_lookup_table <- bacteria_lookup_table %>%
   )
 
 bacteria_lookup_table <- bacteria_lookup_table %>%
-  ungroup() %>%
   # Manual name fixes
   mutate(
     Pathogenspecies = Pathogenspecies %>%
@@ -147,47 +83,342 @@ bacteria_lookup_table <- bacteria_lookup_table %>%
   ) %>%
   # Fix repeated Pathogenspecies
   group_by(Pathogenspecies) %>%
-  summarise(total_count = sum(total_count))
+  summarise(samples_needed = sum(samples_needed))
+```
+
+#### Merge sequence data with lookup
+
+```{r}
+bacteria_merged_table <- merge_data_with_lookup_table(
+  bag_data = bacteria_full_table,
+  bag_var = organism_name,
+  lookup_data = bacteria_lookup_table,
+  lookup_var = Pathogenspecies
+)
+
+# Check if the merged table doesn't have any NAs
+if (
+  length(
+    bacteria_merged_table %>%
+      filter(samples_needed %>% is.na()) %>%
+      pull(organism_name) %>% unique()
+  ) == 0
+) {
+  rm(bacteria_full_table, bacteria_lookup_table)
+}
+```
+
+#### Sample sequences
+
+```r
+bacteria_sampled_table <- bacteria_merged_table %>%
+  map_sampleing_function(
+    col_organism = organism_name, 
+    col_id = ID, 
+    col_seq = sequence
+  )
+```
+
+#### Check quality of samples
+
+We check first if enough samples were obtained compares to the needed samples from the lookup table.
+
+```{r}
+# Read the results 
+
+bacteria_sampled_table <- readRDS("../../../data/secreted_data/ready_to_process/sampled_data_without_identical/bacteria_sampled_table_good.RDS")
 ```
 
 
 ```{r}
-getting_sample_data(
-  tbl = bacteria_full_table %>% dplyr::rename(organism_nameee = organism_name),
-  col_organism = organism_nameee,
+bacteria_sampled_table %>% 
+  dplyr::group_by(organism_name) %>% 
+  dplyr::slice(1) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::summarise(
+    needed_samples = sum(num_samples),
+    actual_samples = sum(sampled_number)
+  )
+```
+
+Then we check if there are any duplicate sequences within the samples.
+
+```{r}
+bacteria_sampled_table %>% blast_with_ifself(
   col_id = ID,
   col_seq = sequence,
-  organism_name = "pseudomonas_syringae.gaw0119_1.0_311105",
-  num_sample = 200
+  percent_threshold = 90
+) %>% 
+  knitr::kable()
+```
+
+```{r}
+bacteria_sampled_table %>% blast_with_ifself(
+  col_id = ID,
+  col_seq = sequence,
+  percent_threshold = 10
+) %>% 
+  knitr::kable()
+```
+
+#### Save results
+
+```{r}
+# bacteria_sampled_table %>%
+#   saveRDS(here::here("scripts/r-scripts/getting-secreted-data", "bacteria_sampled_table_good02.RDS"))
+```
+
+
+
+### Run with fungi
+
+#### Load sequence and lookup data
+
+```{r}
+# Read the full table of the prediction result of the SignalP
+fungi_full_table <- data.table::fread(here::here("data/secreted_data/updated_signalp_results", "fungi_full_table.csv")) %>%
+  # Make the name of organisms consistent with the lookup table
+  mutate(
+    organism_name = organism_name %>%
+      stringr::str_replace_all("^_", "") %>%
+      stringr::str_to_lower()
+  ) %>%
+  dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+```
+
+```{r}
+fungi_lookup_table <- data.table::fread(here::here("data/secreted_data/signalp-pipeline", "fungi_lookup_table.csv")) %>%
+  # `colnames<-`(c("Pathogenspecies", "Count")) %>%
+  group_by(Pathogenspecies) %>%
+  summarise(samples_needed = sum(Count)) %>%
+  ungroup()
+
+fungi_lookup_table <- fungi_lookup_table %>%
+  mutate(
+    Pathogenspecies = Pathogenspecies %>%
+      stringr::str_to_lower() %>%
+      stringr::str_remove_all("\\.") %>%
+      stringr::str_replace_all(" ", "_")
+  )
+
+fungi_lookup_table <- fungi_lookup_table %>%
+  # Manual name fixes
+  mutate(
+    Pathogenspecies = Pathogenspecies %>%
+      stringr::str_replace_all("\\(", "") %>%
+      stringr::str_replace_all("\\)", "") %>%
+      stringr::str_replace_all("-", "_"),
+    Pathogenspecies = ifelse(
+      Pathogenspecies == "pyrenophora_tritici_repentis",
+      "pyrenophora_triticirepentis",
+      Pathogenspecies
+    ),
+  ) %>%
+  # Fix repeated Pathogenspecies
+  group_by(Pathogenspecies) %>%
+  summarise(samples_needed = sum(samples_needed))
+```
+
+#### Merge sequence data with lookup
+
+```{r}
+fungi_merged_table <- merge_data_with_lookup_table(
+  bag_data = fungi_full_table,
+  bag_var = organism_name,
+  lookup_data = fungi_lookup_table,
+  lookup_var = Pathogenspecies
 )
-```
 
-```{r}
-# for testing
-
-lookup_test <- bacteria_lookup_table %>%
-  head(3)
-```
-
-
-```{r}
-lookup_test
-```
-
-```{r}
-# Tesr using actual data
-df_list <- list()
-
-for (i in 1:nrow(lookup_dummy)) {
-  print(i)
-
-  df <- getting_sample_data(tbl = bacteria_full_table, col_organism = "organism_name", organism_name = as.character(lookup_test[["Pathogenspecies"]][i]), num_sample = lookup_test[["total_count"]][i])
-
-  df_list[[i]] <- df
+# Check if the merged table doesn't have any NAs
+if (
+  length(
+    fungi_merged_table %>%
+      filter(samples_needed %>% is.na()) %>%
+      pull(organism_name) %>% unique()
+  ) == 0
+) {
+  rm(fungi_full_table, fungi_lookup_table)
 }
-
-df <- df_list %>%
-  purrr::reduce(rbind)
 ```
 
+#### Sample sequences
+
+```r
+fungi_sampled_table <- fungi_merged_table %>%
+  map_sampleing_function(
+    col_organism = organism_name, 
+    col_id = ID, 
+    col_seq = sequence
+  )
+```
+
+#### Check quality of samples
+
+We check first if enough samples were obtained compares to the needed samples from the lookup table.
+
+```{r}
+fungi_sampled_table <- readRDS("../../../data/secreted_data/ready_to_process/sampled_data_without_identical/fungi_sampled_table_good.RDS")
+```
+
+
+```{r}
+fungi_sampled_table %>% 
+  dplyr::group_by(organism_name) %>% 
+  dplyr::slice(1) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::summarise(
+    needed_samples = sum(samples_needed),
+    actual_samples = sum(samples_obtained)
+  )
+```
+
+Then we check if there are any duplicate sequences within the samples.
+```{r}
+fungi_sampled_table %>% blast_with_ifself(
+  col_id = ID,
+  col_seq = sequence,
+  percent_threshold = 90
+) %>% 
+  knitr::kable()
+```
+
+```{r}
+fungi_sampled_table %>% blast_with_ifself(
+  col_id = ID,
+  col_seq = sequence,
+  percent_threshold = 10
+) %>% 
+  knitr::kable()
+```
+
+#### Save results
+
+```{r}
+# fungi_sampled_table %>%
+  # saveRDS(here::here("scripts/r-scripts/getting-secreted-data", "fungi_sampled_table_good01.RDS"))
+```
+
+
+### Run with oomycete
+
+#### Load sequence and lookup data
+
+```{r}
+# Read the full table of the prediction result of the SignalP
+oomycete_full_table <- data.table::fread(here::here("data/secreted_data/updated_signalp_results", "protists_full_table.csv")) %>%
+  # Make the name of organisms consistent with the lookup table
+  mutate(
+    organism_name = organism_name %>%
+      stringr::str_replace_all("^_", "") %>%
+      stringr::str_to_lower()
+  ) %>%
+  dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+```
+
+```{r}
+oomycete_lookup_table <- data.table::fread(here::here("data/secreted_data/signalp-pipeline", "oomycete_lookup_table.csv")) %>%
+  # `colnames<-`(c("Pathogenspecies", "Count")) %>%
+  group_by(Pathogenspecies) %>%
+  summarise(samples_needed = sum(Count)) %>%
+  ungroup()
+
+oomycete_lookup_table <- oomycete_lookup_table %>%
+  mutate(
+    Pathogenspecies = Pathogenspecies %>%
+      stringr::str_to_lower() %>%
+      stringr::str_remove_all("\\.") %>%
+      stringr::str_replace_all(" ", "_")
+  )
+
+oomycete_lookup_table <- oomycete_lookup_table %>%
+  # Manual name fixes
+  mutate(
+    Pathogenspecies = Pathogenspecies %>%
+      stringr::str_replace_all("\\(", "") %>%
+      stringr::str_replace_all("\\)", "") %>%
+      stringr::str_replace_all("-", "_")
+  ) %>%
+  # Fix repeated Pathogenspecies
+  group_by(Pathogenspecies) %>%
+  summarise(samples_needed = sum(samples_needed))
+```
+
+#### Merge sequence data with lookup
+
+```{r}
+oomycete_merged_table <- merge_data_with_lookup_table(
+  bag_data = oomycete_full_table,
+  bag_var = organism_name,
+  lookup_data = oomycete_lookup_table,
+  lookup_var = Pathogenspecies
+)
+
+# Check if the merged table doesn't have any NAs
+if (
+  length(
+    oomycete_merged_table %>%
+      filter(samples_needed %>% is.na()) %>%
+      pull(organism_name) %>% unique()
+  ) == 0
+) {
+  rm(oomycete_full_table, oomycete_lookup_table)
+}
+```
+
+#### Sample sequences
+
+```r
+oomycete_sampled_table <- oomycete_merged_table %>%
+  map_sampleing_function(
+    col_organism = organism_name, 
+    col_id = ID, 
+    col_seq = sequence
+  )
+```
+
+#### Check quality of samples
+
+We check first if enough samples were obtained compares to the needed samples from the lookup table.
+
+```{r}
+oomycete_sampled_table <- readRDS("../../../scripts/r-scripts/getting-secreted-data/oomycete_sampled_table_good.RDS")
+```
+
+
+```{r}
+oomycete_sampled_table %>% 
+  dplyr::group_by(organism_name) %>% 
+  dplyr::slice(1) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::summarise(
+    needed_samples = sum(samples_needed),
+    actual_samples = sum(samples_obtained)
+  )
+```
+
+Then we check if there are any duplicate sequences within the samples.
+```{r}
+oomycete_sampled_table %>% blast_with_ifself(
+  col_id = ID,
+  col_seq = sequence,
+  percent_threshold = 90
+) %>% 
+  knitr::kable()
+```
+
+```{r}
+oomycete_sampled_table %>% blast_with_ifself(
+  col_id = ID,
+  col_seq = sequence,
+  percent_threshold = 10
+) %>% 
+  knitr::kable()
+```
+
+#### Save results
+
+```{r}
+# oomycete_sampled_table %>%
+#   saveRDS(here::here("scripts/r-scripts/getting-secreted-data", "oomycete_sampled_table_good01.RDS"))
+```
 

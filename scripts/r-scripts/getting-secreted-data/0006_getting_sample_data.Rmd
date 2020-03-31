@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "19/01/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -20,7 +19,7 @@ library(tidyverse)
 ```
 
 ```{r}
-sample_from_lookup_table <- function(data, data_var, lookup, lookup_var) {
+merge_data_withlookup_table <- function(data, data_var, lookup, lookup_var) {
   # Create lookup pattern for base_name
   lookup_pattern <- lookup %>%
     # Arrange by level of "specificity"
@@ -62,40 +61,40 @@ sample_from_lookup_table <- function(data, data_var, lookup, lookup_var) {
     dplyr::group_by(base_names) %>%
     dplyr::mutate(
       available_count = n(),
-      enough_data = available_count >= total_count
+      enough_raw_data = available_count >= total_count
     ) %>%
     dplyr::select(-available_count)
 
   # Take samples without replacement for available data
-  data_with_enough <- merged_table %>%
-    dplyr::filter(enough_data) %>%
-    dplyr::group_by(base_names) %>%
-    dplyr::sample_n(
-      size = total_count,
-      replace = FALSE
-    )
+  # data_with_enough <- merged_table %>%
+  #   dplyr::filter(enough_data) %>%
+  #   dplyr::group_by(base_names) %>%
+  #   dplyr::sample_n(
+  #     size = total_count,
+  #     replace = FALSE
+  #   )
 
   # Take samples with replacement when missing data
-  data_without_enough <- merged_table %>%
-    dplyr::filter(!enough_data) %>%
-    dplyr::group_by(base_names) %>%
-    dplyr::sample_n(
-      size = total_count,
-      replace = TRUE
-    )
-
+  # data_without_enough <- merged_table %>%
+  #   dplyr::filter(!enough_data) %>%
+  #   dplyr::group_by(base_names) %>%
+  #   dplyr::sample_n(
+  #     size = total_count,
+  #     replace = TRUE
+  #   )
+  
   # Merge again
-  merged_table <- rbind(
-    data_with_enough,
-    data_without_enough
-  ) %>%
-    # Remove intermediary base_names column
-    dplyr::ungroup() %>%
-    dplyr::mutate(oversampled = !enough_data) %>%
-    dplyr::select(
-      # -base_names,
-      -enough_data
-    )
+  # merged_table <- rbind(
+  #   data_with_enough,
+  #   data_without_enough
+  # ) %>%
+  #   # Remove intermediary base_names column
+  #   dplyr::ungroup() %>%
+  #   dplyr::mutate(oversampled = !enough_data) %>%
+  #   dplyr::select(
+  #     # -base_names,
+  #     -enough_data
+  #   )
 
   return(merged_table)
 }
@@ -502,7 +501,7 @@ data.frame(desc = c("retrieved_seq", "lookup_table_seq", "na_seq"),
   knitr::kable()
 ```
 
-### Get rid of the effector data where the non-effector data does not exist
+## Get rid of the effector data where the non-effector data does not exist
 
 ```{r}
 effector_species_proteinID <- readRDS("../../../data/secreted_data/data_processed_after_signalp/effector_data_info.RDS") %>% 
@@ -523,8 +522,7 @@ effector_complete <- effector_proteinID_seq_class %>%
 
 effector_complete <- effector_complete %>%
   dplyr::mutate(Pathogenspecies = stringr::str_to_lower(Pathogenspecies)) %>%
-  dplyr::mutate(Pathogenspecies = stringr::str_replace_all(Pathogenspecies, " ", "_")) %>% 
-  dplyr::select(-c(ProteinID))
+  dplyr::mutate(Pathogenspecies = stringr::str_replace_all(Pathogenspecies, " ", "_"))
 
 effector_complete %>% 
   saveRDS("../../../data/secreted_data/data_processed_after_signalp/effector_complete_three_pathogens.RDS")

@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "03/02/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -30,9 +29,25 @@ library(caret)
 source(here::here("scripts/r-scripts/r-functions", "split_datasets.R"))
 ```
 
+```{r}
+# Load keras library
+library(keras)
+```
+
+
+Import the library that we need to reprocess the data. 
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
 ### Define functions
 
+#### Get sequences for each class
+
 ```{r}
+# Funtion to get each pathogen class given a full table of effector data
 get_seq_each_class <- function(df_effector, class_var) {
   df_seq <- df_effector %>%
     dplyr::filter(class == class_var) %>%
@@ -40,6 +55,49 @@ get_seq_each_class <- function(df_effector, class_var) {
 
   return(df_seq)
 }
+```
+
+#### One hot encoding funtion
+
+```{python}
+# Funtion to get the index of each character
+def get_key(mydict, element):
+    key = list(mydict.keys())[list(mydict.values()).index(element)]
+    return(key)
+
+# List of amino acids to encode
+amino = ['R', 'K', 'D', 'E', 'Q', 'N', 'H', 'S', 'T', 'Y', 'C', 'W', 'A', 'I', 'L', 'M', 'F', 'V', 'P', 'G']
+token_index = dict(zip(range(1, (len(amino)+1)), amino))
+
+
+max_length = 934 # Max sequence on the validation data
+def get_encoding(mydata, max_length):
+    results = np.zeros((len(mydata), max_length, max(token_index.keys())))
+    for i, sample in enumerate(mydata):
+        for j, character in enumerate(sample):
+            if character in token_index.values():
+                index = get_key(token_index, character) - 1
+                results[i, j, index] = 1. 
+            else:
+                results[i, j, :] = results[i, j, :]
+    return results
+```
+
+#### Integer Encoding 
+
+```{python}
+def get_value(mydict, element):
+    key = mydict.get(element)
+    return(key)
+    
+dic = {'A':1, 'B':22, 'U':23,'J':24,'Z':25,'O':26,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'K':9,'L':10,'M':11,'N':12,'P':13,'Q':14,'R':15,'S':16,'T':17,'V':18,'W':19,'Y':20,'X':21}
+
+def get_integer_encoding(input):
+    results = np.zeros((len(input), max_len))
+    for i, sample in enumerate(input):
+        for j, character in enumerate(sample):
+            results[i, j] = get_value(dic, character)
+    return results
 ```
 
 ### Load the data
@@ -81,7 +139,7 @@ non_effector_seq_oomycete <- readRDS("../../../data/secreted_data/ready_to_proce
 
 ### Fungi 
 
-```{r}
+```r
 # Combine and labeled data
 fungi_full_datasets <- get_data_labeled_binary(effector_seq_fungi, non_effector_seq_fungi)
 
@@ -101,7 +159,7 @@ fungi_splitted[[3]] %>%
 
 ### Oomycete 
 
-```{r}
+```r
 oomycete_full_datasets <- get_data_labeled_binary(effector_seq_oomycete, non_effector_seq_oomycete)
 
 oomycete_splitted <- get_data_splitted(oomycete_full_datasets, p1 = 0.6, p2 = 0.2, test_dataset = TRUE)
@@ -119,7 +177,7 @@ oomycete_splitted[[3]] %>%
 
 ### Bacteria
 
-```{r}
+```r
 bacteria_full_datasets <- get_data_labeled_binary(effector_seq_bacteria, non_effector_seq_bacteria)
 
 bacteria_splitted <- get_data_splitted(bacteria_full_datasets, p1 = 0.6, p2 = 0.2, test_dataset = TRUE)
@@ -136,7 +194,7 @@ bacteria_splitted[[3]] %>%
 
 ### Data all together
 
-```{r}
+```r
 # Get both effector and non-effector ready
 effector_final <- effector_final_after_blast %>% 
   dplyr::select(Sequence)
@@ -147,7 +205,7 @@ non_effector_final <- rbind(non_effector_seq_bacteria, non_effector_seq_fungi, n
 full_data <- get_data_labeled_binary(effector_final, non_effector_final)
 
 # Split datasets
-full_data_splitted <- get_data_splitted(bacteria_full_datasets, p1 = 0.6, p2 = 0.2, test_dataset = TRUE)
+full_data_splitted <- get_data_splitted(full_data, p1 = 0.6, p2 = 0.2, test_dataset = TRUE)
 
 full_data_splitted[[1]] %>% 
   data.table::fwrite("../../../data/secreted_data/ready_to_process/splitted-data/all_training.csv")
@@ -157,13 +215,504 @@ full_data_splitted[[2]] %>%
 
 full_data_splitted[[3]] %>% 
   data.table::fwrite("../../../data/secreted_data/ready_to_process/splitted-data/all_testing.csv")
-
 ```
-
 
 
 ## Encode Data
 
-### For each pathogen data
+### Oomycete
+
+```{python}
+# Oomycete
+training_oomycete = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/oomycete_training.csv", index_col = False)
+validation_oomycete = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/oomycete_validation.csv", index_col = False)
+testing_oomycete = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/oomycete_testing.csv", index_col = False)
+```
+
+```{python}
+training_oomycete.head(2)
+```
+
+
+```{python}
+# Define the input and the label of data 
+
+# Training datasets
+input_train_oomycete = training_oomycete[["Sequence"]]
+label_train_oomycete = training_oomycete[["label"]]
+
+# Validation datasets
+input_val_oomycete = validation_oomycete[["Sequence"]]
+label_val_oomycete = validation_oomycete[["label"]]
+
+# Testing data 
+input_test_oomycete = testing_oomycete[["Sequence"]]
+label_test_oomycete = testing_oomycete[["label"]]
+```
+
+
+
+
+
+```{python}
+# To get the information about the length of the data
+
+from collections import Counter
+field_length_train_oomycete = input_train_oomycete.Sequence.astype(str).map(len) 
+field_length_val_oomycete = input_val_oomycete.Sequence.astype(str).map(len)
+field_length_test_oomycete = input_test_oomycete.Sequence.astype(str).map(len) 
+
+print(max(field_length_train_oomycete)) 
+print(max(field_length_val_oomycete)) 
+print(max(field_length_test_oomycete))
+```
+
+```{python}
+# Change the data to list
+x_train_oomycete = input_train_oomycete.Sequence.tolist()
+x_val_oomycete = input_val_oomycete.Sequence.tolist()
+x_test_oomycete = input_test_oomycete.Sequence.tolist()
+```
+
+```{python}
+# Define the maximum list
+max_length = 820
+
+# Encoding by calling the function get_encoding()
+one_hot_train_oomycete = get_encoding(x_train_oomycete, max_length)
+one_hot_val_oomycete = get_encoding(x_val_oomycete, max_length)
+one_hot_test_oomycete = get_encoding(x_test_oomycete, max_length)
+```
+
+```{python}
+# View the encoding results
+input_train_oomycete.info()
+print(one_hot_test_oomycete[1:2, :20, :20])
+```
+
+#### Change the label into list data format
+
+```{python}
+# Change the data into 
+y_train_oomycete = label_train_oomycete.label.tolist()
+y_val_oomycete = label_val_oomycete.label.tolist()
+y_test_oomycete = label_test_oomycete.label.tolist()
+```
+
+```{python}
+# View the label data
+
+print(y_train_oomycete)
+```
+
+###### Integer Encoding Oomycete
+
+```{python}
+# Encoding by calling the function get_encoding()
+
+# Define the maximum list of oomycete max sequeence
+max_len = 820
+
+integer_train_oomycete = get_integer_encoding(x_train_oomycete)
+integer_val_oomycete = get_integer_encoding(x_val_oomycete)
+integer_test_oomycete = get_integer_encoding(x_test_oomycete)
+```
+
+```{python}
+print(integer_train_oomycete.shape)
+
+# View the results of the encoded sequences
+# integer_train_oomycete[:10, :50]
+```
+
+
+
+#### Save all of the Oomycete all of the data encoded
+
+```python
+# Save the input data
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_oomycete.npy', one_hot_train_oomycete)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_oomycete.npy', one_hot_val_oomycete)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_oomycete.npy', one_hot_test_oomycete)
+
+# Save the label data 
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_train_oomycete.npy', y_train_oomycete)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_val_oomycete.npy', y_val_oomycete)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_test_oomycete.npy', y_test_oomycete)
+```
+
+```{python}
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_int_oomycete.npy', integer_train_oomycete)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_int_oomycete.npy', integer_val_oomycete)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_int_oomycete.npy', integer_test_oomycete)
+```
+
+### Fungi
+
+```{python}
+# fungi
+training_fungi = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/fungi_training.csv", index_col = False)
+validation_fungi = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/fungi_validation.csv", index_col = False)
+testing_fungi = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/fungi_testing.csv", index_col = False)
+```
+
+```{python}
+training_fungi.head(2)
+```
+
+
+```{python}
+# Define the input and the label of data 
+
+# Training datasets
+input_train_fungi = training_fungi[["Sequence"]]
+label_train_fungi = training_fungi[["label"]]
+
+# Validation datasets
+input_val_fungi = validation_fungi[["Sequence"]]
+label_val_fungi = validation_fungi[["label"]]
+
+# Testing data 
+input_test_fungi = testing_fungi[["Sequence"]]
+label_test_fungi = testing_fungi[["label"]]
+```
+
+
+```{python}
+# To get the information about the length of the data
+
+from collections import Counter
+field_length_train_fungi = input_train_fungi.Sequence.astype(str).map(len) 
+field_length_val_fungi = input_val_fungi.Sequence.astype(str).map(len)
+field_length_test_fungi = input_test_fungi.Sequence.astype(str).map(len) 
+
+print(max(field_length_train_fungi)) 
+print(max(field_length_val_fungi)) 
+print(max(field_length_test_fungi))
+```
+
+```python
+# Change the data to list
+x_train_fungi = input_train_fungi.Sequence.tolist()
+x_val_fungi = input_val_fungi.Sequence.tolist()
+x_test_fungi = input_test_fungi.Sequence.tolist()
+```
+
+```python
+# Define the maximum list
+max_length = 4034
+
+# Encoding by calling the function get_encoding()
+one_hot_train_fungi = get_encoding(x_train_fungi, max_length)
+one_hot_val_fungi = get_encoding(x_val_fungi, max_length)
+one_hot_test_fungi = get_encoding(x_test_fungi, max_length)
+```
+
+```python
+# View the encoding results
+input_train_fungi.info()
+print(one_hot_test_fungi[1:2, :20, :20])
+```
+
+#### Change the label into list data format
+
+```python
+# Change the data into 
+y_train_fungi = label_train_fungi.label.tolist()
+y_val_fungi = label_val_fungi.label.tolist()
+y_test_fungi = label_test_fungi.label.tolist()
+```
+
+```python
+# View the label data
+
+print(y_train_fungi)
+```
+
+##### Integer encoding fungi
+
+```{python}
+# Encoding by calling the function get_encoding()
+
+# Define the maximum list of fungi max sequeence
+max_len = 4034
+
+integer_train_fungi = get_integer_encoding(x_train_fungi)
+integer_val_fungi = get_integer_encoding(x_val_fungi)
+integer_test_fungi = get_integer_encoding(x_test_fungi)
+```
+
+```{python}
+print(integer_train_fungi.shape)
+
+# View the results of the encoded sequences
+# integer_train_fungi[:10, :50]
+```
+
+
+#### Save all of the fungi all of the data encoded
+
+```python
+# Save the input data
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_fungi.npy', one_hot_train_fungi)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_fungi.npy', one_hot_val_fungi)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_fungi.npy', one_hot_test_fungi)
+
+# Save the label data 
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_train_fungi.npy', y_train_fungi)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_val_fungi.npy', y_val_fungi)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_test_fungi.npy', y_test_fungi)
+```
+
+
+```python
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_int_fungi.npy', integer_train_fungi)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_int_fungi.npy', integer_val_fungi)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_int_fungi.npy', integer_test_fungi)
+```
+
+
+### Bacteria
+
+```python
+# bacteria
+training_bacteria = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/bacteria_training.csv", index_col = False)
+validation_bacteria = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/bacteria_validation.csv", index_col = False)
+testing_bacteria = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/bacteria_testing.csv", index_col = False)
+```
+
+```python
+training_bacteria.head(2)
+```
+
+
+```python
+# Define the input and the label of data 
+
+# Training datasets
+input_train_bacteria = training_bacteria[["Sequence"]]
+label_train_bacteria = training_bacteria[["label"]]
+
+# Validation datasets
+input_val_bacteria = validation_bacteria[["Sequence"]]
+label_val_bacteria = validation_bacteria[["label"]]
+
+# Testing data 
+input_test_bacteria = testing_bacteria[["Sequence"]]
+label_test_bacteria = testing_bacteria[["label"]]
+```
+
+
+```python
+# To get the information about the length of the data
+
+from collections import Counter
+field_length_train_bacteria = input_train_bacteria.Sequence.astype(str).map(len) 
+field_length_val_bacteria = input_val_bacteria.Sequence.astype(str).map(len)
+field_length_test_bacteria = input_test_bacteria.Sequence.astype(str).map(len) 
+
+print(max(field_length_train_bacteria)) 
+print(max(field_length_val_bacteria)) 
+print(max(field_length_test_bacteria))
+```
+
+```python
+# Change the data to list
+x_train_bacteria = input_train_bacteria.Sequence.tolist()
+x_val_bacteria = input_val_bacteria.Sequence.tolist()
+x_test_bacteria = input_test_bacteria.Sequence.tolist()
+```
+
+```{python}
+# Define the maximum list
+max_length = 2574
+
+# Encoding by calling the function get_encoding()
+one_hot_train_bacteria = get_encoding(x_train_bacteria, max_length)
+one_hot_val_bacteria = get_encoding(x_val_bacteria, max_length)
+one_hot_test_bacteria = get_encoding(x_test_bacteria, max_length)
+```
+
+```{python}
+# View the encoding results
+input_train_bacteria.info()
+print(one_hot_test_bacteria[1:2, :20, :20])
+```
+
+##### Integer encoding bacteria
+
+```{python}
+# Encoding by calling the function get_encoding()
+
+# Define the maximum list of bacteria max sequeence
+max_len = 2574
+
+integer_train_bacteria = get_integer_encoding(x_train_bacteria)
+integer_val_bacteria = get_integer_encoding(x_val_bacteria)
+integer_test_bacteria = get_integer_encoding(x_test_bacteria)
+```
+
+```{python}
+print(integer_train_bacteria.shape)
+```
+
+
+#### Change the label into list data format
+
+```{python}
+# Change the data into 
+y_train_bacteria = label_train_bacteria.label.tolist()
+y_val_bacteria = label_val_bacteria.label.tolist()
+y_test_bacteria = label_test_bacteria.label.tolist()
+```
+
+```{python}
+# View the label data
+
+print(len(y_train_bacteria))
+```
+
+#### Save all of the bacteria all of the data encoded
+
+```python
+# Save the input data
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_bacteria.npy', one_hot_train_bacteria)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_bacteria.npy', one_hot_val_bacteria)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_bacteria.npy', one_hot_test_bacteria)
+
+# Save the label data 
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_train_bacteria.npy', y_train_bacteria)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_val_bacteria.npy', y_val_bacteria)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_test_bacteria.npy', y_test_bacteria)
+```
+
+```python
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_int_bacteria.npy', integer_train_bacteria)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_int_bacteria.npy', integer_val_bacteria)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_int_bacteria.npy', integer_test_bacteria)
+```
+
 
 ### Data all together
+
+```python
+# all
+training_all = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/all_training.csv", index_col = False)
+validation_all = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/all_validation.csv", index_col = False)
+testing_all = pd.read_csv("../../../data/secreted_data/ready_to_process/splitted-data/all_testing.csv", index_col = False)
+```
+
+```python
+training_all.head(2)
+```
+
+
+```python
+# Define the input and the label of data 
+
+# Training datasets
+input_train_all = training_all[["Sequence"]]
+label_train_all = training_all[["label"]]
+
+# Validation datasets
+input_val_all = validation_all[["Sequence"]]
+label_val_all = validation_all[["label"]]
+
+# Testing data 
+input_test_all = testing_all[["Sequence"]]
+label_test_all = testing_all[["label"]]
+```
+
+
+```python
+# To get the information about the length of the data
+
+from collections import Counter
+field_length_train_all = input_train_all.Sequence.astype(str).map(len) 
+field_length_val_all = input_val_all.Sequence.astype(str).map(len)
+field_length_test_all = input_test_all.Sequence.astype(str).map(len) 
+
+print(max(field_length_train_all)) 
+print(max(field_length_val_all)) 
+print(max(field_length_test_all))
+```
+
+```python
+# Change the data to list
+x_train_all = input_train_all.Sequence.tolist()
+x_val_all = input_val_all.Sequence.tolist()
+x_test_all = input_test_all.Sequence.tolist()
+```
+
+```python
+# Define the maximum list
+max_length = 4034
+
+# Encoding by calling the function get_encoding()
+one_hot_train_all = get_encoding(x_train_all, max_length)
+one_hot_val_all = get_encoding(x_val_all, max_length)
+one_hot_test_all = get_encoding(x_test_all, max_length)
+```
+
+```python
+# View the encoding results
+input_train_all.info()
+print(one_hot_test_all[1:2, :20, :20])
+```
+
+##### Change the label into list data format
+
+```{python}
+# Change the data into 
+y_train_all = label_train_all.label.tolist()
+y_val_all = label_val_all.label.tolist()
+y_test_all = label_test_all.label.tolist()
+```
+
+```{python}
+# View the label data
+
+print(len(y_train_all))
+```
+
+##### Integer encoding all
+
+```{python}
+# Encoding by calling the function get_encoding()
+
+# Define the maximum list of all max sequeence
+max_len = 4034
+
+integer_train_all = get_integer_encoding(x_train_all)
+integer_val_all = get_integer_encoding(x_val_all)
+integer_test_all = get_integer_encoding(x_test_all)
+```
+
+```{python}
+print(integer_train_all.shape)
+
+# View the results of the encoded sequences
+# integer_train_all[:10, :50]
+```
+
+##### Save all of the all all of the data encoded
+
+```python
+# Save the input data
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_all.npy', one_hot_train_all)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_all.npy', one_hot_val_all)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_all.npy', one_hot_test_all)
+
+# Save the label data 
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_train_all.npy', y_train_all)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_val_all.npy', y_val_all)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/y_test_all.npy', y_test_all)
+```
+
+```{python}
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_train_int_all.npy', integer_train_all)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_val_int_all.npy', integer_val_all)
+np.save('../../../data/secreted_data/ready_to_process/encoded_files/x_test_int_all.npy', integer_test_all)
+```
+
+

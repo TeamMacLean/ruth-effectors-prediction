@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "21/01/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -197,24 +196,24 @@ blast_results <- function(result_path) {
     setNames(c("qseqid", "qlen", "sseqid", "slen", "length", "nident", "mismatch", "positive")) %>%
     rowwise() %>%
     mutate(
-      percent_indentical = (nident / max(qlen, slen)) * 100, # The percentage of identical sequence over the longer sequence
+      percent_identical = (nident / max(qlen, slen)) * 100, # The percentage of identical sequence over the longer sequence
       percent_positive = (positive / max(qlen, slen)) * 100 # The percentage of positive sequence over the longer sequence
     )
 
   # Get the data frame where the percent identical > 90
   df_identical_protein <- df_results %>%
-    filter(percent_indentical > 90)
+    filter(percent_identical > 90)
 
   # Get the row indices of the subject data for all of the identical percentage > 90%
   subject_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > 90) %>%
+    filter(percent_identical > 90) %>%
     select(sseqid) %>%
     unique() %>%
     unlist()
 
   # Get the row indices of the query data for all of the identical percentage > 90%
   query_index_list_to_remove <- df_results %>%
-    filter(percent_indentical > 90) %>%
+    filter(percent_identical > 90) %>%
     select(qseqid) %>%
     unique() %>%
     unlist()

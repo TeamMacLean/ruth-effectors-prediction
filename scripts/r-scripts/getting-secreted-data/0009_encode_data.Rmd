@@ -2,8 +2,7 @@
 title: "Untitled"
 author: "Ruth Kristianingsih"
 date: "27/01/2020"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../../../reports/getting-data-secreted") })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
 output:
   md_document:
     variant: markdown_github
@@ -38,9 +37,7 @@ cwd = os.getcwd()
 print(cwd)
 ```
 
-### Load the data 
-
-#### Oomycete data
+### Oomycete data
 
 In this process, the proocess of encoding the oomycete data will be shown
 
@@ -97,7 +94,7 @@ plt.title('Histogram of Length of Sequences')
 plt.show()
 ```
 
-### One hot encoding
+#### One hot encoding
 
 ```{python}
 # Funtion to get the index of each character
@@ -172,3 +169,103 @@ np.save('../../../data/secreted_data/split-blast/encoded_files/y_train_oomycete.
 np.save('../../../data/secreted_data/split-blast/encoded_files/y_val_oomycete.npy', y_val_oomycete)
 np.save('../../../data/secreted_data/split-blast/encoded_files/y_test_oomycete.npy', y_test_oomycete)
 ```
+
+### Fungi data
+
+In this process, the proocess of encoding the oomycete data will be shown
+
+```{python}
+# Oomycete
+training_fungi = pd.read_csv("../../../data/secreted_data/split-blast/csv_files/secreted_fungi_training.csv", index_col = False)
+validation_fungi = pd.read_csv("../../../data/secreted_data/split-blast/csv_files/secreted_fungi_validation.csv", index_col = False)
+testing_fungi = pd.read_csv("../../../data/secreted_data/split-blast/csv_files/secreted_fungi_testing.csv", index_col = False)
+```
+
+```{python}
+training_fungi.head(2)
+```
+
+
+```{python}
+# Define the input and the label of data 
+
+# Training datasets
+input_train_fungi = training_fungi[["Sequence"]]
+label_train_fungi = training_fungi[["label"]]
+
+# Validation datasets
+input_val_fungi = validation_fungi[["Sequence"]]
+label_val_fungi = validation_fungi[["label"]]
+
+# Testing data 
+input_test_fungi = testing_fungi[["Sequence"]]
+label_test_fungi = testing_fungi[["label"]]
+```
+
+
+```{python}
+# To get the information about the data
+
+from collections import Counter
+field_length_train_fungi = input_train_fungi.Sequence.astype(str).map(len) 
+field_length_val_fungi = input_val_fungi.Sequence.astype(str).map(len)
+field_length_test_fungi = input_test_fungi.Sequence.astype(str).map(len) 
+
+print(max(field_length_train_fungi)) 
+print(max(field_length_val_fungi)) 
+print(max(field_length_test_fungi))
+```
+
+#### One hot encoding
+
+```{python}
+# Change the data to list
+
+x_train_fungi = input_train_fungi.Sequence.tolist()
+x_val_fungi = input_val_fungi.Sequence.tolist()
+x_test_fungi = input_test_fungi.Sequence.tolist()
+```
+
+```{python}
+# Encoding by calling the function get_encoding()
+max_length_fungi = 4034 
+
+one_hot_train_fungi = get_encoding(x_train_fungi, max_length = max_length_fungi)
+one_hot_val_fungi = get_encoding(x_val_fungi, max_length = max_length_fungi)
+one_hot_test_fungi = get_encoding(x_test_fungi, max_length = max_length_fungi)
+```
+
+```{python}
+# View the encoding results
+input_train_fungi.info()
+print(one_hot_test_fungi[1:2, :20, :20])
+```
+
+#### Change the label into list data format
+
+```{python}
+# Change the data into 
+y_train_fungi = label_train_fungi.label.tolist()
+y_val_fungi = label_val_fungi.label.tolist()
+y_test_fungi = label_test_fungi.label.tolist()
+```
+
+```{python}
+y_train_fungi
+```
+
+
+#### Save all of the data
+
+```{python}
+# Save the input data
+np.save('../../../data/secreted_data/split-blast/encoded_files/x_train_fungi.npy', one_hot_train_fungi)
+np.save('../../../data/secreted_data/split-blast/encoded_files/x_val_fungi.npy', one_hot_val_fungi)
+np.save('../../../data/secreted_data/split-blast/encoded_files/x_test_fungi.npy', one_hot_test_fungi)
+
+# Save the label data 
+np.save('../../../data/secreted_data/split-blast/encoded_files/y_train_fungi.npy', y_train_fungi)
+np.save('../../../data/secreted_data/split-blast/encoded_files/y_val_fungi.npy', y_val_fungi)
+np.save('../../../data/secreted_data/split-blast/encoded_files/y_test_fungi.npy', y_test_fungi)
+```
+

@@ -1,0 +1,81 @@
+---
+title: "Untitled"
+author: "Ruth Kristianingsih"
+date: "03/02/2020"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
+output:
+  md_document:
+    variant: markdown_github
+---
+
+
+# Blast all of datasets against the effector data
+
+## Background
+
+## Load data
+
+```{r}
+# Effector data
+
+effector_final <- readRDS("../../../data/secreted_data/data_processed_after_signalp/effector_final_after_blast.RDS")
+```
+
+```{r}
+# Read the full table of the prediction result of the SignalP
+bacteria_full_table <- data.table::fread(here::here("data/secreted_data/updated_signalp_results", "bacteria_full_table.csv")) %>%
+  # Make the name of organisms consistent with the lookup table
+  dplyr::mutate(
+    organism_name = organism_name %>%
+      stringr::str_replace_all("^_", "") %>%
+      stringr::str_to_lower()
+  ) %>%
+  dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+```
+
+```{r}
+# Read the full table of the prediction result of the SignalP
+oomycete_full_table <- data.table::fread(here::here("data/secreted_data/updated_signalp_results", "protists_full_table.csv")) %>%
+  # Make the name of organisms consistent with the lookup table
+  mutate(
+    organism_name = organism_name %>%
+      stringr::str_replace_all("^_", "") %>%
+      stringr::str_to_lower()
+  ) %>%
+  dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+```
+
+```{r}
+# Read the full table of the prediction result of the SignalP
+fungi_full_table <- data.table::fread(here::here("data/secreted_data/updated_signalp_results", "fungi_full_table.csv")) %>%
+  # Make the name of organisms consistent with the lookup table
+  mutate(
+    organism_name = organism_name %>%
+      stringr::str_replace_all("^_", "") %>%
+      stringr::str_to_lower()
+  ) %>%
+  dplyr::filter(prediction == "Signal peptide", signalp_prob > 0.9)
+```
+
+## Bacteria against whole effector 
+
+Change effector to fasta
+
+```{r}
+source("../r-functions/blast_data.R")
+```
+
+
+```{r}
+effector_fasta <- get_fasta_from_df(df = effector_final, column_id = "ProteinID", column_seq = "Sequence", fasta_name = "effector",dir_path = "../../../data/secreted_data/blast_effector_vs_signalp_results_initial_blast")
+```
+
+
+```{r}
+bacteria_full_fasta <- get_fasta_from_df(df = bacteria_full_datasets, column_id = ID, column_seq = "sequence", fasta_name = "bacteria",dir_path = "../../../data/secreted_data/blast_effector_vs_signalp_results_initial_blast")
+```
+
+```{r}
+fungi_full_fasta <- get_fasta_from_df(df = fungi_full_datasets, column_id = ID, column_seq = "sequence", fasta_name = "fungi",dir_path = "../../../data/secreted_data/blast_effector_vs_signalp_results_initial_blast")
+```
+
