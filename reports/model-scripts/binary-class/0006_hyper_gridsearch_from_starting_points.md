@@ -117,4 +117,4 @@ ggplot(results_gridsearch) +
   scale_x_continuous(breaks = seq(0.6, 0.8, 0.01))
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model_scripts/binary-class/0006_hyper_gridsearch_from_starting_points_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](0006_hyper_gridsearch_from_starting_points_files/figure-markdown_github/unnamed-chunk-5-1.png)

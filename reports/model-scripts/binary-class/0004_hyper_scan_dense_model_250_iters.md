@@ -14,32 +14,32 @@ models.
 
 ``` r
 # Read the CSV files
-result_hyper_scan_new <- data.table::fread("../../../../data/model_scripts/result_hyper_tuned.csv", drop = 'V1') %>% 
+result_hyper_scan_new <- data.table::fread("../../../../data/model_scripts/result_hyper_tuned.csv", drop = 'V1') %>%
   dplyr::select(starts_with("param_"), mean_test_score, mean_train_score)
 
-result_hyper_scan_old <- data.table::fread("../../../../data/model_scripts/result_hyper_tuned_old.csv", drop = 'V1') %>% 
+result_hyper_scan_old <- data.table::fread("../../../../data/model_scripts/result_hyper_tuned_old.csv", drop = 'V1') %>%
   dplyr::select(starts_with("param_"), mean_test_score, mean_train_score)
 
-result_all <- result_hyper_scan_new  %>% 
+result_all <- result_hyper_scan_new  %>%
   rbind(result_hyper_scan_old)
 
-results_hyper_scan_250iters <- result_hyper_scan_new %>% 
+results_hyper_scan_250iters <- result_hyper_scan_new %>%
    mutate(
   param_num_hidden_layers = str_remove_all(param_num_hidden_layers, "\\["),
   param_num_hidden_layers = str_remove_all(param_num_hidden_layers, "\\]")
-  ) %>% 
-  separate(param_num_hidden_layers, c("Layer1","Layer2", "Layer3"), sep = "([,])") %>% 
-  dplyr::select(-param_shuffle) %>% 
+  ) %>%
+  separate(param_num_hidden_layers, c("Layer1","Layer2", "Layer3"), sep = "([,])") %>%
+  dplyr::select(-param_shuffle) %>%
   rename(optimizers = param_optim_methods,
-         l2_rate = param_l2_rate, 
-         input_hidden_units = param_input_num_hidden_units, 
-         input_drop_out = param_input_dropout_rates, 
-         epochs = param_epochs, 
-         dropout = param_dropout_rates, 
-         batch_size = param_batch_size, 
-         batch_norm = param_batch_norm, 
-         activation = param_activation_function) %>% 
-  mutate_all(function(x) ifelse(is.na(x), 0, x)) %>% 
+         l2_rate = param_l2_rate,
+         input_hidden_units = param_input_num_hidden_units,
+         input_drop_out = param_input_dropout_rates,
+         epochs = param_epochs,
+         dropout = param_dropout_rates,
+         batch_size = param_batch_size,
+         batch_norm = param_batch_norm,
+         activation = param_activation_function) %>%
+  mutate_all(function(x) ifelse(is.na(x), 0, x)) %>%
   mutate(
     hidden_layers = (Layer1 != 0) + (Layer2 != 0) + (Layer3 != 0)
   )
@@ -49,23 +49,23 @@ results_hyper_scan_250iters <- result_hyper_scan_new %>%
     ## 3, 4, 5, 7, 8, 13, 14, 16, 18, 19, 21, 22, 23, 24, 26, 30, 31, 33, ...].
 
 ``` r
-results_hyper_scan_100iters <- result_hyper_scan_old %>% 
+results_hyper_scan_100iters <- result_hyper_scan_old %>%
    mutate(
   param_num_hidden_layers = str_remove_all(param_num_hidden_layers, "\\["),
   param_num_hidden_layers = str_remove_all(param_num_hidden_layers, "\\]")
-  ) %>% 
-  separate(param_num_hidden_layers, c("Layer1","Layer2", "Layer3"), sep = "([,])") %>% 
-  dplyr::select(-param_shuffle) %>% 
+  ) %>%
+  separate(param_num_hidden_layers, c("Layer1","Layer2", "Layer3"), sep = "([,])") %>%
+  dplyr::select(-param_shuffle) %>%
   rename(optimizers = param_optim_methods,
-         l2_rate = param_l2_rate, 
-         input_hidden_units = param_input_num_hidden_units, 
-         input_drop_out = param_input_dropout_rates, 
-         epochs = param_epochs, 
-         dropout = param_dropout_rates, 
-         batch_size = param_batch_size, 
-         batch_norm = param_batch_norm, 
-         activation = param_activation_function) %>% 
-  mutate_all(function(x) ifelse(is.na(x), 0, x)) %>% 
+         l2_rate = param_l2_rate,
+         input_hidden_units = param_input_num_hidden_units,
+         input_drop_out = param_input_dropout_rates,
+         epochs = param_epochs,
+         dropout = param_dropout_rates,
+         batch_size = param_batch_size,
+         batch_norm = param_batch_norm,
+         activation = param_activation_function) %>%
+  mutate_all(function(x) ifelse(is.na(x), 0, x)) %>%
   mutate(
     hidden_layers = (Layer1 != 0) + (Layer2 != 0) + (Layer3 != 0)
   )
@@ -86,42 +86,42 @@ library(randomForest)
 
     ## Type rfNews() to see new features/changes/bug fixes.
 
-    ## 
+    ##
     ## Attaching package: 'randomForest'
 
     ## The following object is masked from 'package:dplyr':
-    ## 
+    ##
     ##     combine
 
     ## The following object is masked from 'package:ggplot2':
-    ## 
+    ##
     ##     margin
 
 ``` r
-results_hyper_scan_250iters <- results_hyper_scan_250iters %>% 
+results_hyper_scan_250iters <- results_hyper_scan_250iters %>%
   select(-mean_train_score, -batch_norm)
 
-results_hyper_scan_100iters <- results_hyper_scan_100iters %>% 
+results_hyper_scan_100iters <- results_hyper_scan_100iters %>%
   select(-mean_train_score, -batch_norm)
 
 # Select all of the column names of hyperparameters in the dataframe
-cols <- results_hyper_scan_250iters %>% 
-  dplyr::select(-c(mean_test_score)) %>% 
-  colnames() 
+cols <- results_hyper_scan_250iters %>%
+  dplyr::select(-c(mean_test_score)) %>%
+  colnames()
 
-cols_100 <- results_hyper_scan_100iters %>% 
-  dplyr::select(-c(mean_test_score)) %>% 
-  colnames() 
+cols_100 <- results_hyper_scan_100iters %>%
+  dplyr::select(-c(mean_test_score)) %>%
+  colnames()
 
 # Change all of the hyperparameters variables as factors
-results_hyper_scan_250iters[cols] <- lapply(results_hyper_scan_250iters[cols], factor)  
+results_hyper_scan_250iters[cols] <- lapply(results_hyper_scan_250iters[cols], factor)
 
-results_hyper_scan_100iters[cols] <- lapply(results_hyper_scan_100iters[cols], factor)  
+results_hyper_scan_100iters[cols] <- lapply(results_hyper_scan_100iters[cols], factor)
 
 test_100 <- randomForest(mean_test_score ~ .,
-                            data = results_hyper_scan_100iters, 
-                            ntree = 100, 
-                            mtry = 2, 
+                            data = results_hyper_scan_100iters,
+                            ntree = 100,
+                            mtry = 2,
                             importance=TRUE)
 
 test_100$rsq[100]*100
@@ -163,7 +163,7 @@ for (i in 1:num_iter) {
 df_100 <- data.frame(mtry_list, var_explained_100)
 df_250 <- data.frame(mtry_list, var_explained_250)
 
-df_100 %>% 
+df_100 %>%
   knitr::kable()
 ```
 
@@ -188,7 +188,7 @@ gg <- ggplot(df_100) +
 gg
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model_scripts/binary-class/0004-hyper-scan-dense-model_250_iters_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0004_hyper_scan_dense_model_250_iters_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
 rf_classifier <- randomForest(
@@ -214,13 +214,13 @@ rf_classifier_250 <- randomForest(
 rf_classifier
 ```
 
-    ## 
+    ##
     ## Call:
-    ##  randomForest(formula = mean_test_score ~ ., data = results_hyper_scan_100iters,      ntree = 1000, mtry = df_100[which.max(df_100$var_explained),          "mtry_list"], importance = TRUE) 
+    ##  randomForest(formula = mean_test_score ~ ., data = results_hyper_scan_100iters,      ntree = 1000, mtry = df_100[which.max(df_100$var_explained),          "mtry_list"], importance = TRUE)
     ##                Type of random forest: regression
     ##                      Number of trees: 1000
     ## No. of variables tried at each split: 2
-    ## 
+    ##
     ##           Mean of squared residuals: 0.005716183
     ##                     % Var explained: 5.79
 
@@ -230,19 +230,19 @@ Since the best is when mtry = 9, then we will take that.
 varImpPlot(rf_classifier)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model_scripts/binary-class/0004-hyper-scan-dense-model_250_iters_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](0004_hyper_scan_dense_model_250_iters_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 ``` r
 varImpPlot(rf_classifier_250)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model_scripts/binary-class/0004-hyper-scan-dense-model_250_iters_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](0004_hyper_scan_dense_model_250_iters_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 ``` r
-mean_test <- result_hyper_scan %>% 
-  select(mean_test_score) 
+mean_test <- result_hyper_scan %>%
+  select(mean_test_score)
 
-mean_test %>% 
+mean_test %>%
   arrange(desc(mean_test$mean_test_score))
 ```
 
@@ -254,10 +254,10 @@ library(tidyverse)
 
 plot_single_variable <- function(data, variable, filter_size, y_low_lim = 0.41, y_upp_lim = 0.75) {
   if(!is.null(filter_size)) {
-    data <- data %>% 
+    data <- data %>%
       dplyr::filter(filters == filter_size)
   }
-  
+
   plot <- ggplot(data) +
     aes(x = {{ variable }}, y = mean_test_score) +
     geom_point() +
@@ -265,7 +265,7 @@ plot_single_variable <- function(data, variable, filter_size, y_low_lim = 0.41, 
     labs(
       y = "Mean accuracy"
     )
-  
+
   return(plot)
 }
 
@@ -279,7 +279,7 @@ plot_all_variables <- function(data, filter_size = NULL) {
       plot_single_variable(data, Layer3, filter_size),
       plot_single_variable(data, l2_rate, filter_size),
       plot_single_variable(data, input_hidden_units, filter_size),
-      plot_single_variable(data, input_drop_out, filter_size), 
+      plot_single_variable(data, input_drop_out, filter_size),
       plot_single_variable(data, epochs, filter_size),
       plot_single_variable(data, dropout, filter_size),
       plot_single_variable(data, batch_size, filter_size),
@@ -288,18 +288,18 @@ plot_all_variables <- function(data, filter_size = NULL) {
       plot_single_variable(data, hidden_layers, filter_size)
     ),
     nrow = 1, ncol = 13,
-    xAxisLabels = c("optimizers", 
-                    "Layer1", 
-                    "Layer2", 
-                    "Layer3", 
-                    "l2_rate",           
+    xAxisLabels = c("optimizers",
+                    "Layer1",
+                    "Layer2",
+                    "Layer3",
+                    "l2_rate",
                     "input_hidden_units",
-                    "input_drop_out",  
-                    "epochs",   
-                    "dropout",           
-                    "batch_size",     
-                    # "batch_norm",    
-                    "activation",       
+                    "input_drop_out",
+                    "epochs",
+                    "dropout",
+                    "batch_size",
+                    # "batch_norm",
+                    "activation",
                     "hidden_layers"),
     ylab = "Mean Acc"
   ) +
@@ -313,15 +313,15 @@ gg_best_hyper_values <- plot_all_variables(results_hyper_scan_250iters)
 gg_best_hyper_values
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model_scripts/binary-class/0004-hyper-scan-dense-model_250_iters_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](0004_hyper_scan_dense_model_250_iters_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 ``` r
 cols
 ```
 
-    ##  [1] "optimizers"         "Layer1"             "Layer2"            
+    ##  [1] "optimizers"         "Layer1"             "Layer2"
     ##  [4] "Layer3"             "l2_rate"            "input_hidden_units"
-    ##  [7] "input_drop_out"     "epochs"             "dropout"           
+    ##  [7] "input_drop_out"     "epochs"             "dropout"
     ## [10] "batch_size"         "activation"         "hidden_layers"
 
 ``` r
@@ -329,8 +329,8 @@ cols
 predict_results <- data.table::fread("../../../../data/model_scripts/df_result_prediction_100_combination.csv", drop = "V1")
 
 # Show the results by sort the accuracy
-predict_results %>% 
-  arrange(Accuracy) %>%  
+predict_results %>%
+  arrange(Accuracy) %>%
   knitr::kable()
 ```
 

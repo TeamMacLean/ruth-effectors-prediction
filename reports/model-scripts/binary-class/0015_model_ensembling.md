@@ -26,7 +26,7 @@ Methods
 There are two ensemble method will be used in this experiments:
 
 -   Weighted average ensemble: the `validation accuracy` will be taken
-    as the weight of each model.  
+    as the weight of each model.
 -   Voting classifier
 
 Additionally, in order to achieve the aim, several steps need to be
@@ -66,7 +66,7 @@ test_label <- data.table::fread("../../../../data/getting-data-new/binary-class-
 test_label <- test_label %>%
   `colnames<-`(c('sequence'))
 
-test_label <- test_label %>% 
+test_label <- test_label %>%
   mutate_each(list(as.factor))
 ```
 
@@ -77,35 +77,35 @@ test_label <- test_label %>%
 ``` r
 # Define a function to get all accuracy of the models
 get_all_acc <- function(data, true_label){
-  
+
   # Change all of the label into factor
   data <- data %>%
-    select(-c(sequence)) %>% 
+    select(-c(sequence)) %>%
     mutate_each(list(as.factor))
-  
+
   # Get the number of column
   num_col <- ncol(data)
-  
+
   # Initialize the list of accuracy
   list_acc <- numeric(length = num_col)
-  
+
   # Take all the sequence of the label
-  true_label <- true_label %>% 
-    mutate_each(list(as.factor)) %>% 
+  true_label <- true_label %>%
+    mutate_each(list(as.factor)) %>%
     pull(sequence)
-  
+
   # For loop in getting acc for each models
   for (i in 1:num_col){
-    pred_each_model <- data %>% 
+    pred_each_model <- data %>%
       pull(colnames(data)[i])
-  
+
     tab <- table(true_label, pred_each_model)
-    
+
     acc_each_model <- confusionMatrix(tab)$overall["Accuracy"]
-    
+
     list_acc[i] <- acc_each_model
   }
-  
+
   # Turn the list into dataframe
 
   df_acc  <- data.frame(matrix(unlist(list_acc), ncol=length(list_acc), byrow = F)) %>%
@@ -140,7 +140,7 @@ plot_venn_diagram_limma <- function(data) {
     # Transform back to VennCounts class
     as.matrix() %>%
     `class<-`("VennCounts")
-  
+
   venn_counts %>%
     limma::vennDiagram(
       # circle.col = c("#f35e5a", "#929705", "#18b56a", "#149ffe", "#de4af0", "#de4af0")
@@ -161,7 +161,7 @@ plot_confusion_matrices <- function(data, true_label, model_list) {
     # Select chosen model only
     pivot_longer(-Reference, names_to = "model", values_to = "Prediction") %>%
     # Filter models
-    filter(model %in% model_list) %>% 
+    filter(model %in% model_list) %>%
     # Calculate frequencies
     table() %>%
     as.data.frame()
@@ -197,17 +197,17 @@ plot_cormat <- function(rfm_df, cor_trans = NULL, variable = NULL) {
       cols = -var_x,
       names_to = "var_y",
       values_to = "cor"
-    ) %>% 
+    ) %>%
     dplyr::mutate(
       var_x = factor(var_x, levels = unique(.[["var_x"]])),
       var_y = factor(var_y, levels = unique(.[["var_x"]]))
     )
-  
+
   if (!is.null(variable)) {
     rfm_df <- rfm_df %>%
       dplyr::filter(var_x == variable)
   }
-  
+
   # Transform correlation
   if (is.null(cor_trans)) {
     fill_limits <- c(-1, 1)
@@ -222,7 +222,7 @@ plot_cormat <- function(rfm_df, cor_trans = NULL, variable = NULL) {
       fill_limits <- c(0, 1)
     }
   }
-  
+
   # Plot
   gg <- rfm_df %>%
     ggplot() +
@@ -235,10 +235,10 @@ plot_cormat <- function(rfm_df, cor_trans = NULL, variable = NULL) {
       x = NULL,
       y = NULL
     ) +
-    geom_text(aes(label = round(cor, 2)), vjust = 0.5, size=3) + 
+    geom_text(aes(label = round(cor, 2)), vjust = 0.5, size=3) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           panel.border = element_blank())
-  
+
   return(gg)
 }
 ```
@@ -247,7 +247,7 @@ plot_cormat <- function(rfm_df, cor_trans = NULL, variable = NULL) {
 
 ``` r
 # Ensemble results for all epochs
-get_all_acc(ensemble_results, test_label) %>% 
+get_all_acc(ensemble_results, test_label) %>%
   knitr::kable()
 ```
 
@@ -267,7 +267,7 @@ plot_confusion_matrices(
   ggsave(filename = "confusion_matrices.pdf", width = 8, height = 5, dpi = 192, device = cairo_pdf)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ### Pearson Correlation Matrix
 
@@ -278,7 +278,7 @@ plot_cormat(ensemble_results %>% dplyr::select(-c(sequence)), cor_trans = NULL, 
   ggsave(filename = "correlation_matrices.pdf", width = 6, height = 5, dpi = 192, device = cairo_pdf)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ``` r
 # plot_cormat(ensemble_results %>% dplyr::select(-c(sequence)), cor_trans = "abs", variable = NULL)

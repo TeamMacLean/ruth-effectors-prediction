@@ -55,7 +55,7 @@ training_oomycete.head(2)
     ## 1      A5YTY8  MRLAQVVVVIAASFLVATDALSTTNANQAKIIKGTSPGGHSPRLLR...      1
 
 ``` python
-# Define the input and the label of data 
+# Define the input and the label of data
 
 # Training datasets
 input_train_oomycete = training_oomycete[["Sequence"]]
@@ -65,7 +65,7 @@ label_train_oomycete = training_oomycete[["label"]]
 input_val_oomycete = validation_oomycete[["Sequence"]]
 label_val_oomycete = validation_oomycete[["label"]]
 
-# Testing data 
+# Testing data
 input_test_oomycete = testing_oomycete[["Sequence"]]
 label_test_oomycete = testing_oomycete[["label"]]
 ```
@@ -74,17 +74,17 @@ label_test_oomycete = testing_oomycete[["label"]]
 # To get the information about the data
 
 from collections import Counter
-field_length_train_oomycete = input_train_oomycete.Sequence.astype(str).map(len) 
+field_length_train_oomycete = input_train_oomycete.Sequence.astype(str).map(len)
 field_length_val_oomycete = input_val_oomycete.Sequence.astype(str).map(len)
-field_length_test_oomycete = input_test_oomycete.Sequence.astype(str).map(len) 
+field_length_test_oomycete = input_test_oomycete.Sequence.astype(str).map(len)
 
-print(max(field_length_train_oomycete)) 
+print(max(field_length_train_oomycete))
 ```
 
     ## 820
 
 ``` python
-print(max(field_length_val_oomycete)) 
+print(max(field_length_val_oomycete))
 ```
 
     ## 934
@@ -127,7 +127,7 @@ plt.title('Histogram of Length of Sequences')
 plt.show()
 ```
 
-<img src="/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/getting-data-secreted/0009-encode-data_files/figure-markdown_github/unnamed-chunk-8-1.png" width="672" />
+<img src="0009_encode_data_files/figure-markdown_github/unnamed-chunk-8-1.png" width="672" />
 
 ### One hot encoding
 
@@ -149,7 +149,7 @@ def get_encoding(mydata, max_length):
         for j, character in enumerate(sample):
             if character in token_index.values():
                 index = get_key(token_index, character) - 1
-                results[i, j, index] = 1. 
+                results[i, j, index] = 1.
             else:
                 results[i, j, :] = results[i, j, :]
     return results
@@ -209,7 +209,7 @@ print(one_hot_test_oomycete[1:2, :20, :20])
 #### Change the label into list data format
 
 ``` python
-# Change the data into 
+# Change the data into
 y_train_oomycete = label_train_oomycete.label.tolist()
 y_val_oomycete = label_val_oomycete.label.tolist()
 y_test_oomycete = label_test_oomycete.label.tolist()
@@ -231,7 +231,7 @@ np.save('../../../data/secreted_data/split-blast/encoded_files/x_train_oomycete.
 np.save('../../../data/secreted_data/split-blast/encoded_files/x_val_oomycete.npy', one_hot_val_oomycete)
 np.save('../../../data/secreted_data/split-blast/encoded_files/x_test_oomycete.npy', one_hot_test_oomycete)
 
-# Save the label data 
+# Save the label data
 np.save('../../../data/secreted_data/split-blast/encoded_files/y_train_oomycete.npy', y_train_oomycete)
 np.save('../../../data/secreted_data/split-blast/encoded_files/y_val_oomycete.npy', y_val_oomycete)
 np.save('../../../data/secreted_data/split-blast/encoded_files/y_test_oomycete.npy', y_test_oomycete)

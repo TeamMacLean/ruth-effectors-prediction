@@ -92,7 +92,7 @@ acc_train_best1
 get_gg_acc(acc_train_best1, acc_val_best1)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 ### After regularization
 
@@ -142,7 +142,7 @@ acc_val_best1_with_reg %>%
 get_gg_acc(acc_train_best1_with_reg, acc_val_best1_with_reg)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ``` r
 acc_train_without_actv_reg <- data.table::fread("../../../../results/results/cnn-lstm/df_results_train_best1_without_actv_reg.csv")
@@ -165,7 +165,7 @@ acc_test_best1_with_reg
 get_gg_acc(acc_train_without_actv_reg, acc_val_without_actv_reg)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 ``` r
 acc_test_without_actv_reg %>% 
@@ -195,7 +195,7 @@ acc_test_best1_gru <- data.table::fread("../../../../results/results/cnn-gru/df_
 get_gg_acc(acc_train_best1_gru, acc_val_best1_gru)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 ``` r
 acc_test_best1_gru
@@ -220,7 +220,7 @@ acc_test_best1_gru_with_reg <- data.table::fread("../../../../results/results/cn
 get_gg_acc(acc_train_best1_gru_with_reg, acc_val_best1_gru_with_reg)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 LSTM Embedding
 --------------
@@ -235,7 +235,7 @@ acc_test_best1_lstm_embed <- data.table::fread("../../../../results/results/lstm
 get_gg_acc(acc_train_best1_lstm_embed, acc_val_best1_lstm_embed)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-18-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 ``` r
 acc_test_best1_lstm_embed
@@ -261,7 +261,7 @@ acc_test_best1_gru_embed <- data.table::fread("../../../../results/results/gru-e
 get_gg_acc(acc_train_best1_gru_embed, acc_val_best1_gru_embed)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![](0013_report_cnn_lstm_with_reg_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 ``` r
 acc_test_best1_gru_embed

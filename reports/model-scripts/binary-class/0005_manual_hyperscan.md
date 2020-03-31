@@ -34,13 +34,13 @@ predict_results_first_hyperparscan <- data.table::fread("../../../../data/model_
 predict_results_second_hyperparscan <- data.table::fread("../../../../data/model_scripts/df_result_prediction_100_combination.csv", drop ="V1")
 
 # Combine two results of prediction
-combined <- predict_results_first_hyperparscan %>% 
+combined <- predict_results_first_hyperparscan %>%
   rbind(predict_results_second_hyperparscan)
 
 # Show the results by sort the accuracy
-combined %>% 
-  arrange(Accuracy) %>%  
-  tail(6) %>% 
+combined %>%
+  arrange(Accuracy) %>%
+  tail(6) %>%
   knitr::kable()
 ```
 
@@ -176,8 +176,8 @@ cbind(df6, model = "model6")
 )
 
 rm(df1, df2, df3, df4, df5, df6)
-results_gridsearch %>% 
-  filter(model == "model6") %>% 
+results_gridsearch %>%
+  filter(model == "model6") %>%
   knitr::kable()
 ```
 
@@ -274,7 +274,7 @@ ggplot(results_gridsearch) +
   scale_x_continuous(breaks = seq(0.6, 0.8, 0.01))
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model_scripts/binary-class/0005_manual_hyperscan_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](0005_manual_hyperscan_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 According the result above, we can see that from the Gridsearch of the
 hyperparamaters space we cannot get the results with accuracy more than
