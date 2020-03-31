@@ -1,18 +1,10 @@
----
-title: "Untitled"
-author: "Ruth Kristianingsih"
-date: "21/06/2019"
-knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = here::here("reports", stringr::str_remove(getwd(), here::here("scripts/r-scripts/")))) })
-output:
-  md_document:
-    variant: markdown_github
----
+Getting the fasta file from Phi base to dataframe format
+========================================================
 
-# Getting the fasta file from Phi base to dataframe format
+In this report, it will be shown how we can split the fasta file from
+Phi-base to dataframe format that is more accessible.
 
-In this report, it will be shown how we can split the fasta file from Phi-base to dataframe format that is more accessible. 
-
-```r
+``` r
 # Change the fasta data from Phi-base to dataframe
 phi_base_fasta <- readLines("../../../data/phi-base-current-data/phi-base_current.fasta") %>%
   # Get rid of header
@@ -45,7 +37,3 @@ phi_base_fasta <- phi_base_fasta %>%
 # Save the data into RDS object so that it can be loaded easily
 # saveRDS(phi_base_fasta, "phi_base_fasta.RDS")
 ```
-
-
-
-
