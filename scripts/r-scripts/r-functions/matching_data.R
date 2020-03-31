@@ -116,10 +116,3 @@ noneffector <- phi_base %>%
   filter(!(rowid %in% effector_rowids)) %>%
   rename(pathogen_short = `Pathogen species`) %>%
   select(-rowid)
-
-
-
-
-
-
-
