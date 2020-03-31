@@ -161,7 +161,7 @@ plt.title('Histogram of Length of Sequences')
 plt.show()
 ```
 
-<img src="/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/getting-data-old/0006_encoding_data_files/figure-markdown_github/unnamed-chunk-8-1.png" width="672" />
+<img src="0006_encoding_data_files/figure-markdown_github/unnamed-chunk-8-1.png" width="672" />
 
 First encoding method - one hot encoding
 ----------------------------------------
