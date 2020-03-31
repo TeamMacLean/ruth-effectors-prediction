@@ -54,7 +54,7 @@ acc_test_best1_gru <- data.table::fread("../../../../results/results/cnn-gru/df_
 get_gg_acc(acc_train_best1_gru, acc_val_best1_gru)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0010_report_cnn_gru_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](0010_report_cnn_gru_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
 acc_test_best1_gru <- acc_test_best1_gru %>% 
@@ -90,7 +90,7 @@ acc_test_best2_gru <- data.table::fread("../../../../results/results/cnn-gru/df_
 get_gg_acc(acc_train_best2_gru, acc_val_best2_gru)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0010_report_cnn_gru_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0010_report_cnn_gru_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
 acc_test_best2_gru <- acc_test_best2_gru %>% 
@@ -126,7 +126,7 @@ acc_test_best_model13_gru <- data.table::fread("../../../../results/results/cnn-
 get_gg_acc(acc_train_best_model13_gru, acc_val_best_model13_gru)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0010_report_cnn_gru_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](0010_report_cnn_gru_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 ``` r
 acc_test_best_model13_gru <- acc_test_best_model13_gru %>% 

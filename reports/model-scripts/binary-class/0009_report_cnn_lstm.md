@@ -53,7 +53,7 @@ acc_test_best1 <- data.table::fread("../../../../results/results/cnn-lstm/df_res
 get_gg_acc(acc_train_best1, acc_val_best1)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
 acc_test_best1 <- acc_test_best1 %>% 
@@ -89,7 +89,7 @@ acc_test_best2 <- data.table::fread("../../../../results/results/cnn-lstm/df_res
 get_gg_acc(acc_train_best2, acc_val_best2)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
 acc_test_best2 <- acc_test_best2 %>% 
@@ -125,7 +125,7 @@ acc_test_best3 <- data.table::fread("../../../../results/results/cnn-lstm/df_res
 get_gg_acc(acc_train_best3, acc_val_best3)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 ``` r
 acc_test_best3 <- acc_test_best3 %>% 
@@ -161,7 +161,7 @@ acc_test_best_model8 <- data.table::fread("../../../../results/results/cnn-lstm/
 get_gg_acc(acc_train_best_model8, acc_val_best_model8)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 ``` r
 acc_test_best_model8 <- acc_test_best_model8 %>% 
@@ -197,7 +197,7 @@ acc_test_best_model13 <- data.table::fread("../../../../results/results/cnn-lstm
 get_gg_acc(acc_train_best_model13, acc_val_best_model13)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 ``` r
 acc_test_best_model13 <- acc_test_best_model13 %>% 
@@ -233,7 +233,7 @@ acc_test_best_model20 <- data.table::fread("../../../../results/results/cnn-lstm
 get_gg_acc(acc_train_best_model20, acc_val_best_model20)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-24-1.png)
+![](0009_report_cnn_lstm_files/figure-markdown_github/unnamed-chunk-24-1.png)
 
 ``` r
 acc_test_best_model20 <- acc_test_best_model20 %>% 

@@ -267,7 +267,7 @@ plot_confusion_matrices(
   ggsave(filename = "confusion_matrices.pdf", width = 8, height = 5, dpi = 192, device = cairo_pdf)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ### Pearson Correlation Matrix
 
@@ -278,7 +278,7 @@ plot_cormat(ensemble_results %>% dplyr::select(-c(sequence)), cor_trans = NULL, 
   ggsave(filename = "correlation_matrices.pdf", width = 6, height = 5, dpi = 192, device = cairo_pdf)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](0015_model_ensembling_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ``` r
 # plot_cormat(ensemble_results %>% dplyr::select(-c(sequence)), cor_trans = "abs", variable = NULL)

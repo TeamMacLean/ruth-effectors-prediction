@@ -78,7 +78,7 @@ val_cnn_lstm <- data.table::fread("../../../../results/saved_models_for_ensemble
 get_plot(train_cnn_lstm, val_cnn_lstm)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 CNN-GRU
 -------
@@ -92,7 +92,7 @@ val_cnn_gru <- data.table::fread("../../../../results/saved_models_for_ensemble/
 get_plot(train_cnn_gru, val_cnn_gru)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 LSTM - Embedding
 ----------------
@@ -106,7 +106,7 @@ val_lstm_emb <- data.table::fread("../../../../results/saved_models_for_ensemble
 get_plot(train_lstm_emb, val_lstm_emb)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 GRU - Embedding
 ---------------
@@ -120,4 +120,4 @@ val_gru_emb <- data.table::fread("../../../../results/saved_models_for_ensemble/
 get_plot(train_gru_emb, val_gru_emb)
 ```
 
-![](/Users/kristian/Documents/Workspace/ruth-effectors-prediction/reports/model-scripts/binary-class/0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](0014_pretrained_models_files/figure-markdown_github/unnamed-chunk-10-1.png)
