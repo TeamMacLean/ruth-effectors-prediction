@@ -72,10 +72,10 @@ get_plot_based_properties <- function(data_frame, properties){
   aes(
     x = seq_position, 
     y = value, 
-    color = seq, 
+    # color = seq, 
     group = seq
   ) +
-  geom_point(size = 1) +
+  geom_point(size = 1, color = "black") +
   # scale_color_viridis_d() +
   scale_x_continuous(breaks = seq(0, 50, 5), minor_breaks = seq(0,50, 1)) +
   facet_wrap(~type) +

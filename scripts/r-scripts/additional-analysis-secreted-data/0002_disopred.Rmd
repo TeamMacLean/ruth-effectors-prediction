@@ -71,12 +71,14 @@ plot_disordered_percent <- function(data, max_pos = 150, pos_bin_size = 10, perc
     ) %>%
     group_by(dataset, position_cat) %>%
     summarise(
-      percent_disordered = sum(stringr::str_detect(pred, "disordered") & percent >= percent_threshold) / n(),
+      percent_disordered = (sum(stringr::str_detect(pred, "disordered") & percent >= percent_threshold) / n()) * 100,
     ) %>%
     ggplot() +
     aes(x = position_cat, y = percent_disordered, group = dataset, color = dataset) +
     geom_line() +
     geom_point() +
+    labs(x = "Position range", y = "Percentage of disorder (%)") +
+    theme_bw() +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 }
 ```
@@ -85,4 +87,3 @@ plot_disordered_percent <- function(data, max_pos = 150, pos_bin_size = 10, perc
 data %>%
   plot_disordered_percent()
 ```
-
