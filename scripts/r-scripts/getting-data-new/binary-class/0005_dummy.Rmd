@@ -263,7 +263,8 @@ heatmap_data <- log_diff %>%
   mutate_all(function(x) ifelse(is.nan(x), 0, x)) %>% 
   mutate_all(function(x) ifelse(is.infinite(x), 0, x))
 
-saveRDS(heatmap_data, "heatmap_data.rds")
+here::here("data/getting-data-new/binary-class-data", "heatmap_data.rds") %>% 
+  saveRDS(heatmap_data)
 ```
 
 
