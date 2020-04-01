@@ -50,7 +50,7 @@ library(ggplot2)
 
 #### Function to get the accuracy for each model
 
-```{r}
+```{r get_all_acc}
 # Define a function to get all accuracy of the models
 get_all_acc <- function(data, true_label){
   
@@ -88,10 +88,9 @@ get_all_acc <- function(data, true_label){
 }
 ```
 
-
 #### Function to get th confusion Matrix
 
-```{r}
+```{r plot_confusion_matrices}
 plot_confusion_matrices <- function(data, true_label, model_list) {
   conf_matrix_df <- data %>%
     select(-sequence) %>%
@@ -182,6 +181,75 @@ plot_cormat <- function(rfm_df, cor_trans = NULL, variable = NULL) {
           panel.border = element_blank())
   
   return(gg)
+}
+```
+
+```{r plot_venn_diagram_limma}
+plot_venn_diagram_limma <- function(data) {
+  # Store original column names
+  model_names <- colnames(data)
+  
+  color_list <- c("#f35e5a", "#929705", "#18b56a", "#149ffe", "#de4af0", "#de4af0")
+
+  venn_counts <- data %>%
+    # Calculate counts
+    dplyr::mutate_all(., as.logical) %>%
+    limma::vennCounts() %>%
+    `class<-`("matrix") %>%
+    as.data.frame() %>%
+    # Rename columns
+    tidyr::unite(
+      col = lookup_string,
+      model_names,
+      sep = "_",
+      remove = FALSE
+    ) %>%
+    # Group 0000 and 1111 cases
+    mutate(
+      lookup_string = ifelse(
+        lookup_string == paste0(rep("0", length(model_names)), collapse = "_"),
+        paste0(rep("1", length(model_names)), collapse = "_"),
+        lookup_string
+      )
+    ) %>%
+    select(-model_names) %>%
+    tidyr::separate(
+      col = lookup_string,
+      into = model_names,
+      sep = "_",
+      remove = FALSE
+    ) %>%
+    group_by_at(vars(model_names)) %>%
+    summarise(
+      Counts = sum(Counts)
+    ) %>%
+    # Transform back to VennCounts class
+    ungroup() %>% 
+    rbind(
+      data.frame(
+        t(c(rep(0, length(model_names)),NA))
+      ) %>% 
+      `colnames<-`(c(model_names, "Counts"))
+    ) %>% 
+    tidyr::unite(
+      col = row_num,
+      model_names,
+      sep = "",
+      remove = FALSE
+    ) %>% 
+    mutate(
+      row_num = strtoi(row_num, base = 2)
+    ) %>% 
+    arrange(row_num) %>%
+    select(-row_num) %>% 
+    as.matrix() %>%
+    `class<-`("VennCounts")
+
+  venn_counts %>%
+    limma::vennDiagram(
+      circle.col = color_list[1:length(model_names)],
+      include=c("up","down")
+    )
 }
 ```
 
@@ -406,9 +474,9 @@ oomycete
 
 ```{r}
 # Load all of the results file of ensembling
-fungi_ensemble_results <- data.table::fread("../../../../../scripts/jupyter-note/model_ensemble/pred_result/fungi/df_pred_ens_fungi.csv", drop = "V1")
+fungi_ensemble_results <- data.table::fread("../../../../../scripts/python-scripts/model_ensemble/pred_result/fungi/df_pred_ens_fungi.csv", drop = "V1")
 
-fungi_ensemble_results_2models <- data.table::fread("../../../../../scripts/jupyter-note/model_ensemble/pred_result/fungi/df_pred_ens_fungi_2models.csv", drop = "V1")
+fungi_ensemble_results_2models <- data.table::fread("../../../../../scripts/python-scripts/model_ensemble/pred_result/fungi/df_pred_ens_fungi_2models.csv", drop = "V1")
 
 fungi_ensemble_results_cnnlstm_gruemb <- data.table::fread("../../../../../scripts/jupyter-note/model_ensemble/pred_result/fungi/df_pred_ens_fungi_cnnlstm_gruemb.csv", drop = "V1")
 
@@ -513,3 +581,24 @@ fungi
 #   ggsave(filename = "correlation_matrix_fungi.pdf", width = 8, height = 5, dpi = 192, device = cairo_pdf)
   
 ```
+
+### Plot venn diagram of fungi results
+
+```{r}
+test <- fungi_ensemble_results %>% dplyr::select(-c(sequence, ensemble_voting, ensemble_weighted))
+```
+
+
+```{r}
+data <- fungi_ensemble_results %>% 
+  dplyr::select(c(cnn_lstm, cnn_gru, gru_emb, cnn_lstm, lstm_emb))
+
+plot_venn_diagram_limma(fungi_ensemble_results %>% 
+  dplyr::select(c(cnn_lstm, cnn_gru)))
+```
+
+```{r}
+plot_venn_diagram_limma(fungi_ensemble_results %>% 
+  dplyr::select(c(cnn_lstm, lstm_emb)))
+```
+
