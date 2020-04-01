@@ -198,6 +198,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 #### Worked on
 
 - updating path on Rmd and commit to the repo in Dan's team repositories
+- working on plotting disopred results
 
 #### Weekly meeting 
 
