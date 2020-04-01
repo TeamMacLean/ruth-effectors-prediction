@@ -23,12 +23,14 @@ source("formatting_functions.R")
 
 ##  `r "2020-04-01" -> curr_date; get_formatted_date(curr_date)`
 
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
 #### Worked on
 
-- making costomized venn diagram for the results of effector prediction [`plot_venn_diagram.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_venn_diagram.R)
+- making costumized venn diagram for the results of effector prediction [`plot_venn_diagram.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_venn_diagram.R)
 - organised repositories for the python scripts
 - updated some R-scripts for:
 
-  - plot correlation matrix (normal and clustered): [plot_corr_matrix.R](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_corr_matrix.R)
-  - plot confusion matrix: [plot_confusion_matrices.R](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_confusion_matrices.R)
-  - get accuracy given prediction results for multiple models in one dataframe: [get_accuracy.R](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/get_accuracy.R)
+  - plot correlation matrix (normal and clustered): [`plot_corr_matrix.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_corr_matrix.R)
+  - plot confusion matrix: [`plot_confusion_matrices.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_confusion_matrices.R)
+  - get accuracy given prediction results for multiple models in one dataframe: [`get_accuracy.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/get_accuracy.R)
