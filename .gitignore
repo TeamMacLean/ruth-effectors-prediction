@@ -8,3 +8,4 @@
 *.log
 .ipynb_checkpoints
 __pycache__
+all_functions_list.csv
