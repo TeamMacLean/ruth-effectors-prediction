@@ -34,3 +34,13 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - plot correlation matrix (normal and clustered): [`plot_corr_matrix.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_corr_matrix.R)
   - plot confusion matrix: [`plot_confusion_matrices.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/plot_confusion_matrices.R)
   - get accuracy given prediction results for multiple models in one dataframe: [`get_accuracy.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/get_accuracy.R)
+  
+  
+##  `r "2020-04-02" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on
+
+- evaluating my data on effectorP 1.0 and 2.0
+- analysing the results on each dataset
