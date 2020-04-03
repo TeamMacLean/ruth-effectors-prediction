@@ -1,0 +1,111 @@
+Evaluate the existed data on the EffectorP
+==========================================
+
+Introduction
+------------
+
+In this report, a results of a prediction from DeepT3 will be shown and
+the accuracy results will be calculated.
+
+Results
+-------
+
+``` r
+fasta_to_df <- function(file_path) {
+  file_path %>%
+    seqinr::read.fasta() %>%
+    purrr::map(
+      .f = function(x) {
+        data.frame(
+          c(
+            x %>% attributes() %>% unlist(),
+            x %>%
+              paste0(collapse = "") %>%
+              stringr::str_to_upper() %>%
+              `names<-`("sequence")
+          ) %>% 
+          rbind()
+        )
+      }
+    ) %>% 
+    purrr::reduce(rbind) %>% 
+    tibble::remove_rownames()
+}
+```
+
+``` r
+get_data_ori_ready <- function(path){
+  
+  data <- path %>% 
+    fasta_to_df() %>%
+    dplyr::select(name) %>% 
+    `colnames<-`(c("id")) %>% 
+    dplyr::mutate(label = stringr::str_remove_all(id, ".*_"), 
+                  id =  stringr::str_extract(id, "[^_]*"))
+  
+  return(data)
+}
+```
+
+``` r
+get_prediction <- function(path){
+  
+  data <- data.table::fread(path, header = FALSE) %>% 
+  `colnames<-`(c("pred")) %>% 
+  dplyr::mutate(pred = case_when(
+  pred == "T3SE" ~ 1, 
+  TRUE ~ 0
+  ))
+  
+  return(data)
+}
+```
+
+``` r
+calculate_accuracy <- function(true_data, pred_data) {
+  
+  tab <- table(pred_data %>% 
+                 dplyr::select(pred) %>% 
+                 pull(), 
+               true_data %>% 
+                 dplyr::select(label) %>% 
+                 pull())
+
+  # Calculate acc
+  acc <- confusionMatrix(tab)$overall["Accuracy"]
+  
+  return(acc)
+}
+```
+
+Get the original data:
+
+``` r
+bacteria_train_original_data <- get_data_ori_ready("../../../data/secreted_data/ready_to_process/fasta_files/bacteria_training.fasta")
+   
+bacteria_val_original_data <- get_data_ori_ready("../../../data/secreted_data/ready_to_process/fasta_files/bacteria_validation.fasta") 
+
+bacteria_test_original_data <- get_data_ori_ready("../../../data/secreted_data/ready_to_process/fasta_files/bacteria_testing.fasta")
+```
+
+Get the prediction results:
+
+``` r
+pred_bacteria_train <- get_prediction("../../../data/secreted_data/pred_deept3/result_training.txt")
+pred_bacteria_val <- get_prediction("../../../data/secreted_data/pred_deept3/result_validation.txt")
+pred_bacteria_test <- get_prediction("../../../data/secreted_data/pred_deept3/result_testing.txt")
+```
+
+``` r
+data.frame(data = c("bacteria_train", 
+                    "bacteria_val", 
+                    "bacteria_test"), 
+                                      acc_deepT3 = c(calculate_accuracy(bacteria_train_original_data, pred_bacteria_train), 
+                                                         calculate_accuracy(bacteria_val_original_data, pred_bacteria_val), 
+                                                         calculate_accuracy(bacteria_test_original_data, pred_bacteria_test)))
+```
+
+    ##             data acc_deepT3
+    ## 1 bacteria_train  0.8552632
+    ## 2   bacteria_val  0.8026316
+    ## 3  bacteria_test  0.8684211
