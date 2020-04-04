@@ -1,14 +1,17 @@
-Evaluate the existed data on the EffectorP
-==========================================
+Evaluate our data on the existed tool DeepT3
+============================================
 
 Introduction
 ------------
 
 In this report, a results of a prediction from DeepT3 will be shown and
-the accuracy results will be calculated.
+the accuracy results will be calculated. Note that the cut-off /
+threshold of this model is 0.5.
 
 Results
 -------
+
+### Define functions
 
 ``` r
 fasta_to_df <- function(file_path) {
@@ -78,6 +81,8 @@ calculate_accuracy <- function(true_data, pred_data) {
 }
 ```
 
+### Evaluate model on bacteria data
+
 Get the original data:
 
 ``` r
@@ -100,12 +105,50 @@ pred_bacteria_test <- get_prediction("../../../data/secreted_data/pred_deept3/re
 data.frame(data = c("bacteria_train", 
                     "bacteria_val", 
                     "bacteria_test"), 
-                                      acc_deepT3 = c(calculate_accuracy(bacteria_train_original_data, pred_bacteria_train), 
-                                                         calculate_accuracy(bacteria_val_original_data, pred_bacteria_val), 
-                                                         calculate_accuracy(bacteria_test_original_data, pred_bacteria_test)))
+           acc_deepT3 = c(calculate_accuracy(bacteria_train_original_data, pred_bacteria_train),
+                          calculate_accuracy(bacteria_val_original_data, pred_bacteria_val),
+                          calculate_accuracy(bacteria_test_original_data, pred_bacteria_test))) %>% 
+  knitr::kable()
 ```
 
-    ##             data acc_deepT3
-    ## 1 bacteria_train  0.8552632
-    ## 2   bacteria_val  0.8026316
-    ## 3  bacteria_test  0.8684211
+| data            |  acc\_deepT3|
+|:----------------|------------:|
+| bacteria\_train |    0.8552632|
+| bacteria\_val   |    0.8026316|
+| bacteria\_test  |    0.8684211|
+
+### Evaluate model on oomycete and fungi-data
+
+Get the original data or the true label:
+
+``` r
+oomycete_testing_original_data <- get_data_ori_ready("../../../data/secreted_data/ready_to_process/fasta_files/oomycete_testing.fasta") 
+fungi_testing_original_data <- get_data_ori_ready("../../../data/secreted_data/ready_to_process/fasta_files/fungi_testing.fasta")
+```
+
+Get the prediction results for both oomycete and fungi:
+
+``` r
+pred_oomycete_test <- get_prediction("../../../data/secreted_data/pred_deept3/result_oomycete_testing.txt")
+pred_fungi_test <- get_prediction("../../../data/secreted_data/pred_deept3/result_fungi_testing.txt")
+```
+
+Accuracy:
+
+``` r
+data.frame(data = c("fungi_test", 
+                    "oomycete_test"), 
+           acc_deepT3 = c(calculate_accuracy(fungi_testing_original_data, pred_fungi_test),
+                          calculate_accuracy(oomycete_testing_original_data, pred_oomycete_test))) %>% 
+  knitr::kable()
+```
+
+| data           |  acc\_deepT3|
+|:---------------|------------:|
+| fungi\_test    |    0.5263158|
+| oomycete\_test |    0.5588235|
+
+### Conclusion
+
+The results apart from bacteria datasets are still very poor, this is
+because the model is trained on the bacteria data only.
