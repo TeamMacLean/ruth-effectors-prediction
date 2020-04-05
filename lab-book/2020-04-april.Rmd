@@ -44,3 +44,20 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 - evaluating my data on effectorP 1.0 and 2.0
 - analysing the results on each dataset
+
+##  `r "2020-04-03" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r gitlogr::get_git_commit_count(curr_date)`
+
+#### Worked on
+
+- tried to install some other existing effector prediction tools:
+
+|                                     Tools                                    	| Effector Pathogen 	|       Cut-off      	|                  Note                  	|
+|:----------------------------------------------------------------------------:	|:-----------------:	|:------------------:	|:--------------------------------------:	|
+| [EffectorP](http://effectorp.csiro.au./)                                     	|       fungi       	|                    	|                  done                  	|
+| [DeepT3](https://github.com/lje00006/DeepT3/tree/master/DeepT3/DeepT3-Keras) 	|      bacteria     	|  probability = 0.5 	|                  done                  	|
+| [EffectiveT3](https://effectors.csb.univie.ac.at/method/effectivet3)         	|      bacteria     	| probability = 0.95 	|                  done                  	|
+| [T3SS](https://omictools.com/t3ss-effector-prediction-tool)                  	|      bacteria     	|          -         	|            can not be found            	|
+| [Sieve](http://www.sysbep.org/sieve)                                         	|      bacteria     	|          -         	| can not be found                       	|
+| [SecretEPDB](http://secretepdb.erc.monash.edu/defaultAction.action)          	|      bacteria     	|          -         	| can not be accessed  (just got hacked) 	|
