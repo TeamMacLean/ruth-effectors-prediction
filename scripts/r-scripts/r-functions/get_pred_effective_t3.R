@@ -10,6 +10,7 @@ get_pred_effective_t3 <- function(fasta_path, module = "STD") {
   command <- glue::glue(
     "cd ", java_path, ";",
     "java -jar TTSS_GUI-1.0.1.jar -f ", fasta_path, " -m ", module_file, " -t selective -q"
+    # "java -jar TTSS_GUI-1.0.1.jar -f ", fasta_path, " -m ", module_file, " -t cutoff=0.5 -q"
   )
 
   raw_data <- system(command, intern = TRUE, ignore.stderr = TRUE)
@@ -41,4 +42,4 @@ get_pred_effective_t3 <- function(fasta_path, module = "STD") {
 
 
 # This how this can be used
-bacteria_preds <- get_pred_effective_t3("/Users/kristian/Documents/Workspace/ruth-effectors-prediction/data/secreted_data/ready_to_process/fasta_files/bacteria_testing.fasta")
+# bacteria_preds <- get_pred_effective_t3("/Users/kristian/Documents/Workspace/ruth-effectors-prediction/data/secreted_data/ready_to_process/fasta_files/bacteria_testing.fasta")
