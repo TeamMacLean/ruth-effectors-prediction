@@ -120,7 +120,7 @@ bacteria_on_effectorP <- data.frame(data = c("bacteria_train",
                                       acc_effectorP_2 = c(calculate_accuracy(bacteria_train_effectorp_2), 
                                                          calculate_accuracy(bacteria_val_effectorp_2), 
                                                          calculate_accuracy(bacteria_test_effectorp_2)))
-bacteria_on_effectorP
+bacteria_on_effectorP 
 ```
 
 
@@ -187,7 +187,8 @@ All data together:
 ```{r}
 rbind(bacteria_on_effectorP, 
       oomycete_on_effectorP, 
-      fungi_on_effectorP) 
+      fungi_on_effectorP) %>% 
+  knitr::kable()
 ```
 
 ### Further on fungi data

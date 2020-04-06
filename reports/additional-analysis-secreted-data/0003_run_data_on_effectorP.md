@@ -113,7 +113,7 @@ bacteria_on_effectorP <- data.frame(data = c("bacteria_train",
                                       acc_effectorP_2 = c(calculate_accuracy(bacteria_train_effectorp_2), 
                                                          calculate_accuracy(bacteria_val_effectorp_2), 
                                                          calculate_accuracy(bacteria_test_effectorp_2)))
-bacteria_on_effectorP
+bacteria_on_effectorP 
 ```
 
     ##             data acc_effectorP_1 acc_effectorP_2
@@ -193,19 +193,21 @@ All data together:
 ``` r
 rbind(bacteria_on_effectorP, 
       oomycete_on_effectorP, 
-      fungi_on_effectorP) 
+      fungi_on_effectorP) %>% 
+  knitr::kable()
 ```
 
-    ##             data acc_effectorP_1 acc_effectorP_2
-    ## 1 bacteria_train       0.4210526       0.4692982
-    ## 2   bacteria_val       0.3947368       0.4605263
-    ## 3  bacteria_test       0.3552632       0.4868421
-    ## 4 oomycete_train       0.5490196       0.5784314
-    ## 5   oomycete_val       0.7058824       0.6764706
-    ## 6  oomycete_test       0.5588235       0.5294118
-    ## 7    fungi_train       0.7118644       0.7033898
-    ## 8      fungi_val       0.7631579       0.7105263
-    ## 9     fungi_test       0.7894737       0.7368421
+| data            |  acc\_effectorP\_1|  acc\_effectorP\_2|
+|:----------------|------------------:|------------------:|
+| bacteria\_train |          0.4210526|          0.4692982|
+| bacteria\_val   |          0.3947368|          0.4605263|
+| bacteria\_test  |          0.3552632|          0.4868421|
+| oomycete\_train |          0.5490196|          0.5784314|
+| oomycete\_val   |          0.7058824|          0.6764706|
+| oomycete\_test  |          0.5588235|          0.5294118|
+| fungi\_train    |          0.7118644|          0.7033898|
+| fungi\_val      |          0.7631579|          0.7105263|
+| fungi\_test     |          0.7894737|          0.7368421|
 
 ### Further on fungi data
 
