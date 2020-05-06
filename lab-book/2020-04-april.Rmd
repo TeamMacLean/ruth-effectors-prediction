@@ -15,6 +15,14 @@ library(tidyverse)
 
 # Formatting functions
 source("formatting_functions.R")
+
+git_path_list <- c(
+  here::here(), 
+  "~/Documents/Workspace/effector_class_ms", 
+  "~/Documents/Workspace/tsl-project-report", 
+  "~/Documents/Workspace/deepredeff", 
+  "~/Documents/Workspace/ruth-subcellular-localisation"
+)
 ```
 
 # April 2020 Lab Report <img src="figures/tsl-logo.png" align="right" width="120" />
@@ -23,7 +31,7 @@ source("formatting_functions.R")
 
 ##  `r "2020-04-01" -> curr_date; get_formatted_date(curr_date)`
 
-Commits: `r gitlogr::get_git_commit_count(curr_date)`
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
@@ -38,7 +46,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   
 ##  `r "2020-04-02" -> curr_date; get_formatted_date(curr_date)`
 
-Commits: `r gitlogr::get_git_commit_count(curr_date)`
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
@@ -47,7 +55,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 ##  `r "2020-04-03" -> curr_date; get_formatted_date(curr_date)`
 
-Commits: `r gitlogr::get_git_commit_count(curr_date)`
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
@@ -61,5 +69,105 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 | [T3SS](https://omictools.com/t3ss-effector-prediction-tool)                  	|      bacteria     	|                              -                             	|            can not be found            	|
 | [Sieve](http://www.sysbep.org/sieve)                                         	|      bacteria     	|                              -                             	| can not be found                       	|
 | [SecretEPDB](http://secretepdb.erc.monash.edu/defaultAction.action)          	|      bacteria     	|                              -                             	| can not be accessed  (just got hacked) 	|
-| [OPT4e](https://github.com/zhesna/OPT4e)                                     	|      bacteria     	|                                                            	|                                        	|
-| [PyPredT6](http://projectphd.droppages.com/PyPredT6.html)                    	|      bacteria     	|                                                            	|                                        	|
+
+Note that the last two is also bacteria, I will focus more on presenting the one I have. 
+
+##  `r "2020-04-06" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catch up meeting:
+
+- making better comparison between prediction results using existing tools and tool I developed using some metrics like ROC, sensitivity, specificity ==> contact Joe Win for the oomycete predictor
+- better waiting from the results from disopred than trying to new tool, that may take more time (and this additional part is not urgent / priority)
+- try to make function that can ensemble both two results (from venn diagram) for fungi ensemble
+- start to make package in R for the prediction tool
+
+##   `r "2020-04-07" -> curr_date; "2020-04-08" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on:
+
+- evaluate the oomycete data using the oomycete effector predictor `effectR`
+- read the R package procedure 
+
+##   `r "2020-04-09" -> curr_date; "2020-04-13" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE, comment = "Easter Break")`
+
+
+##   `r "2020-04-14" -> curr_date; "2020-04-17" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+#### Worked on:
+
+- creating the package for effector prediction [https://github.com/ruthkr/effectorpred](https://github.com/ruthkr/effectorpred)
+- compare the previous work and our model with our model (calculate several metrics), also confusion matrices
+- updating the report
+
+##  `r "2020-04-20" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catch up meeting:
+
+- think about a package name that represent the goal, the methods, also the pathogen 
+- since the prediction takes forever, then try to do benchmark to identify the problems, suspected problem sources:
+  - the encoding part
+  - the predict function used, maybe keras::predict_proba() or keras::predict_classes() instead of stats::predict
+- not necessarily put one function in different single files
+- think about what user may need and do
+- make user manual documentation
+
+##   `r "2020-04-20" -> curr_date; "2020-04-25" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+#### Worked on:
+
+- did several benchmarkings on each functions and calculated the timing of each function run 
+- name changed from `effectorpred` to `deeffpred`
+- comparing the base package with the stringr, also function from the base package with keras function
+- completed the package 
+
+
+##  `r "2020-04-27" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catch up meeting:
+
+- Dan suggested name `deepredeff` which is more pronouncable
+- tried to do profiling for all functions since the problem is that the combination of break down calculation time for each function does not match with the whole function running time. The whole function is very slow. 
+- report need to be done
+- make the load data function parallel to minimize the running time
+- maybe defining the function init that initializes all model and paramaters
+
+
+##   `r "2020-04-28" -> curr_date; "2020-04-30" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+#### Worked on:
+
+- completing all ensembles
+- added the intefer encoding
+- completing reports
+- testing and benchmarking the R-package
+  - testing on how actually purr effect on the computation time 
+  - testing between array and list input
+- uninstall and install both R and python, updated, since found out that the main problem
+
+
+
+
+
+
+
+
+
+
+
+
+
+
