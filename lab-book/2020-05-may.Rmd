@@ -1,0 +1,192 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+
+git_path_list <- c(
+  here::here(), 
+  "~/Documents/Workspace/effector_class_ms", 
+  "~/Documents/Workspace/tsl-project-report", 
+  "~/Documents/Workspace/deepredeff", 
+  "~/Documents/Workspace/ruth-subcellular-localisation"
+)
+```
+
+# May 2020 Lab Report <img src="figures/tsl-logo.png" align="right" width="120"/>
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+##  `r "2020-05-01" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+- completing the report 
+
+***
+
+
+##  `r "2020-05-04" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+- focus on the API
+  - do not use only x on the variable, and do not use pathogen (use model), since fungi/bacteria/oomyecte are not pathogen
+- consider aastring set as a standard format of protein sequence, also dataframe
+- see package [https://github.com/TeamMacLean/redpatch](https://github.com/TeamMacLean/redpatch) by Dan as an example to write test code, continous integration, and documentation (vignette)
+- think about creating S3 object (nested dataframe), thinking about what kind of other output I can provide to the user instead of just dataframe of prediction results
+
+
+##  `r "2020-05-05" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+- finished creating flowchart
+- completed the MS 
+- continued the benchmark process on `deepredeff`
+
+
+##  `r "2020-05-06" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-07" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-08" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
+
+
+***
+
+
+##  `r "2020-05-11" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+##  `r "2020-05-12" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-13" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-14" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-15" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+***
+
+
+##  `r "2020-05-18" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+##  `r "2020-05-19" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-20" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-21" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-22" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+***
+
+
+##  `r "2020-05-25" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
+
+
+##  `r "2020-05-26" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-27" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-28" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+##  `r "2020-05-29" -> curr_date; get_formatted_date(curr_date)`
