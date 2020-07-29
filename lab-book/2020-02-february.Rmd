@@ -22,7 +22,7 @@ source("formatting_functions.R")
 ### [Ruth Kristianingsih](https://github.com/ruthkr)
 
 
-##  `r "2020-02-03" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-03" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -35,7 +35,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - putting sigmoid in after calculating weighted average
 
 
-##   `r "2020-02-04" -> curr_date; "2020-02-07" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-02-04" -> curr_date; "2020-02-07" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -51,13 +51,13 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 ***
 
 
-##  `r "2020-02-10" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-10" -> curr_date; get_formatted_date(curr_date)`
 
 #### Activities:
 
 - Going for a German visa application in London. 
 
-##  `r "2020-02-11" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-11" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -69,7 +69,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - working also on the project report, since we want to publish it
 - try to get another datasets from previous research done in the same topics (bacteria and fungi)
 
-##  `r "2020-02-12" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-12" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -83,7 +83,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - Upadates of the job running: there is no job finished yet
 - updated the lab book for February 2020
 
-##  `r "2020-02-13" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-13" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
  
@@ -94,7 +94,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - make pearson correlation matrix ggplot with the ensemble models in the corner
 
 
-##  `r "2020-02-14" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-14" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -109,7 +109,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - make a script with the k-fold working
 - make a report on how well each model performs
 
-##  `r "2020-02-17" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-17" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -121,7 +121,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - making some Rmd with different pathogens, so that we can see the progress of each manually tuning of the models, also to get the data from previous work (Transfer Learning)
 - created a heatmap and simple graphs on python for Bacteria - CNN GRU
 
-##  `r "2020-02-18" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-02-18" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 

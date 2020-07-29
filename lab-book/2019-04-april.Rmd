@@ -22,7 +22,7 @@ source("formatting_functions.R")
 ### [Ruth Kristianingsih](https://github.com/ruthkr)
 
 
-##  `r "2019-04-10" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-10" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -33,7 +33,7 @@ source("formatting_functions.R")
 - Copied some protein IDs.
 
 
-##  `r "2019-04-11" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-11" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -44,7 +44,7 @@ source("formatting_functions.R")
 - After got the protein IDs, then used it to get the sequence data.
 
 
-##  `r "2019-04-12" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-12" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -56,7 +56,7 @@ source("formatting_functions.R")
 ***
 
 
-##  `r "2019-04-15" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-15" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -71,7 +71,7 @@ source("formatting_functions.R")
 - Next task: get the data of non-effector from NCBI.
 
 
-##  `r "2019-04-16" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-16" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -80,7 +80,7 @@ source("formatting_functions.R")
 - Finished hyper scan Model 1 and 2 scripts (run in GPU).
 
 
-##  `r "2019-04-17" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-17" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -90,7 +90,7 @@ source("formatting_functions.R")
 - Getting the non-effector data from NCBI and phi-base.
 
 
-##  `r "2019-04-18" -> curr_date; get_formatted_date(curr_date, comment = "Half Day")`
+## `r "2019-04-18" -> curr_date; get_formatted_date(curr_date, comment = "Half Day")`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -108,7 +108,7 @@ source("formatting_functions.R")
 ***
 
 
-##  `r "2019-04-23" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-23" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -118,7 +118,7 @@ source("formatting_functions.R")
 - Added the running time in SBATCH scripts in tsl-gpu (one job got canceled bc of the time limit).
 
 
-##  `r "2019-04-24" -> curr_date; "2019-04-26" -> to_date; get_formatted_date(curr_date, to_date)
+## `r "2019-04-24" -> curr_date; "2019-04-26" -> to_date; get_formatted_date(curr_date, to_date)
 `
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)` -->
@@ -134,7 +134,7 @@ source("formatting_functions.R")
 ***
 
 
-##  `r "2019-04-29" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-29" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 
@@ -152,7 +152,7 @@ source("formatting_functions.R")
   2. Then just find the sequence samples based on the number of Order.
 
 
-##  `r "2019-04-30" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-04-30" -> curr_date; get_formatted_date(curr_date)`
 
 <!-- Commits: `r gitlogr::get_git_commit_count(curr_date)` -->
 

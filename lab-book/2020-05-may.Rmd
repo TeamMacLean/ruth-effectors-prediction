@@ -21,7 +21,8 @@ git_path_list <- c(
   "~/Documents/Workspace/effector_class_ms", 
   "~/Documents/Workspace/tsl-project-report", 
   "~/Documents/Workspace/deepredeff", 
-  "~/Documents/Workspace/ruth-subcellular-localisation"
+  "~/Documents/Workspace/ruth-subcellular-localisation", 
+  "~/Documents/Workspace/ruth-effectors-prediction/"
 )
 ```
 
@@ -30,7 +31,7 @@ git_path_list <- c(
 ### [Ruth Kristianingsih](https://github.com/ruthkr)
 
 
-##  `r "2020-05-01" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-01" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -41,7 +42,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 ***
 
 
-##  `r "2020-05-04" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-04" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -54,7 +55,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - think about creating S3 object (nested dataframe), thinking about what kind of other output I can provide to the user instead of just dataframe of prediction results
 
 
-##  `r "2020-05-05" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-05" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -65,99 +66,101 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - continued the benchmark process on `deepredeff`
 
 
-##  `r "2020-05-06" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-06" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
+- adding the new input class possibility: "AAString" and "AAStringset"
+- corrected the API name 
 
-##  `r "2020-05-07" -> curr_date; get_formatted_date(curr_date)`
+
+## `r "2020-05-07" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
+- created the pkgdown set for documentating the package [https://github.com/ruthkr/deepredeff](https://github.com/ruthkr/deepredeff)
+- fixing the bug on the main function
+- parallel the load_model()
 
-##  `r "2020-05-08" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
+## `r "2020-05-08" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
 
+Early May Bank Holiday  
 
 ***
 
 
-##  `r "2020-05-11" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-11" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Weekly catchup meeting
 
+- focus first on how I will design the API of the package 
+- try to find Bioconductor package that can turn any input to AAString to dataframe ( no need to use additional function I got)
+- small details to fix: license, package version, better documentation
+- test scripts 
+
 #### Worked on
 
 
-##  `r "2020-05-12" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-12" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
-
-##  `r "2020-05-13" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
-
-#### Worked on
+- manuscripts
+- designed the API for the package
 
 
-##  `r "2020-05-14" -> curr_date; get_formatted_date(curr_date)`
 
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+## `r "2020-05-13" -> curr_date; "2020-05-15" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
 
 #### Worked on
 
+- package
 
-##  `r "2020-05-15" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
-
-#### Worked on
+  - trying to re-make the main function into S3 Objects for different classes
+  - create more structured tbl_deepredeff object
 
 
 ***
 
 
-##  `r "2020-05-18" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-18" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Weekly catchup meeting
 
-#### Worked on
+- make simple tests, focus on functions that will get called by the users
+- create Rmd that will be vignette: imagine you being a user so you can imagine what to expect
+- no need to do autoplot if I can just use plot(): start with simple ggplot
 
+## `r "2020-05-19" -> curr_date; "2020-05-22" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
-##  `r "2020-05-19" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
-
-#### Worked on
-
-
-##  `r "2020-05-20" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
 
 #### Worked on
 
+- add more sample data in Deepredeff, previously it was only two sequences for each pathogen
+- solve testing problem for predict effector
+- complete readme
+- standardize the output df: name for input FASTA and df are trunctaed, but not if the input are AAString and AAStringset
+- fix the autoplot
+- continue the visualise convnet
+- license
+- making vignette
+- complete some of the manuscript
 
-##  `r "2020-05-21" -> curr_date; get_formatted_date(curr_date)`
 
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
-
-#### Worked on
-
-
-##  `r "2020-05-22" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 #### Worked on
 
@@ -165,28 +168,21 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 ***
 
 
-##  `r "2020-05-25" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
+## `r "2020-05-25" -> curr_date; get_formatted_date(curr_date, comment = "Bank Holiday")`
+
+There is no weekly catch up meeting. 
+
+## `r "2020-05-26" -> curr_date; get_formatted_date(curr_date, comment = "Privilege Day")`
 
 
-##  `r "2020-05-26" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-05-27" -> curr_date; "2020-05-29" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
-
-#### Worked on
-
-
-##  `r "2020-05-27" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
 
 #### Worked on
 
-
-##  `r "2020-05-28" -> curr_date; get_formatted_date(curr_date)`
-
-Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
-
-#### Worked on
+- completed the Grad-CAM part in the manuscript
+- make plot generated from chunks
 
 
-##  `r "2020-05-29" -> curr_date; get_formatted_date(curr_date)`
+

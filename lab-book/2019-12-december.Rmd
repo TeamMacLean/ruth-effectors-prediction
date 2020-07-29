@@ -22,7 +22,7 @@ source("formatting_functions.R")
 ### [Ruth Kristianingsih](https://github.com/ruthkr)
 
 
-##  `r "2019-12-02" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-02" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -41,7 +41,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - using the signalP, try to get the secreted protein sequences of organisms and include them on the datasets (also train them on the current models, just to see if the convolutional network actually recognises the signal peptide of the sequences)
 
 
-##  `r "2019-12-03" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-03" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -55,7 +55,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - Installed the SignalP 5.0, and read the instruction.
 
 
-##  `r "2019-12-04" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-04" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -68,7 +68,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - Check the length of fungi sequences (apparently, the length of fungi dataset is very low, see the 0010_getting_info_data_each_class.Rmd), so its definitely the problem with code or method.
   
 
-##  `r "2019-12-05" -> curr_date; "2019-12-06" -> to_date; get_formatted_date(curr_date, to_date)`
+## `r "2019-12-05" -> curr_date; "2019-12-06" -> to_date; get_formatted_date(curr_date, to_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 
@@ -81,7 +81,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 ***
 
 
-##  `r "2019-12-09" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-09" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -101,7 +101,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - Try to get secreted data forthe organism.
 
 
-##  `r "2019-12-10" -> curr_date; "2019-12-12" -> to_date; get_formatted_date(curr_date, to_date)`
+## `r "2019-12-10" -> curr_date; "2019-12-12" -> to_date; get_formatted_date(curr_date, to_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 
@@ -112,7 +112,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 - Wrote a script to retrive the protein data using `library("rentrez")`, I tried created create a script to access the NCBI site, and read the html file using `readLines()`, but I found that using `rentrez` library is easier. 
 
 
-##  `r "2019-12-13" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-13" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -121,7 +121,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - investigated the bug on heatmap scripts (found that only conv1d_4 behaves differently, Ho: this is due to the fact that last convolutional layer is concatenation layer)
 - continued the process on getting the secreted protein data for different cases where the protein data does not have the Gene term and also if the protein data does not have genomic sequence in NCBI database. The script report is available on [0001_get_secreted_data.md](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/reports/getting-data-secreted/0001_get_secreted_data.md)
 
-##  `r "2019-12-16" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-16" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -135,7 +135,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   
 - updated new function to retrive protein datasets
 
-##  `r "2019-12-17" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-17" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -154,14 +154,14 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - Think about what it means with why some convolutional layers are differently activated. 
 - For retrieving data or in general, keep it in mind that if what we are doing is not specific in this topic, then there must be something has been developed before (need to develop a sense like this) -- ensEmbl database by EMBL.
 
-##  `r "2019-12-18" -> curr_date; get_formatted_date(curr_date)`
+## `r "2019-12-18" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 - apparently we can't use `biomaRt` package in R in ensEmbl genomes, we need to write query to retrieve the protein data
 - `biomaRt` can be only used for `ensemble.org`
 
-##  `r "2019-12-19" -> curr_date; "2019-12-20" -> to_date; get_formatted_date(curr_date, to_date)`
+## `r "2019-12-19" -> curr_date; "2019-12-20" -> to_date; get_formatted_date(curr_date, to_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date, to_date)`
 

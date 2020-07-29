@@ -29,7 +29,7 @@ git_path_list <- c(
 
 ### [Ruth Kristianingsih](https://github.com/ruthkr)
 
-##  `r "2020-04-01" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-04-01" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -44,7 +44,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
   - get accuracy given prediction results for multiple models in one dataframe: [`get_accuracy.R`](https://github.com/TeamMacLean/ruth-effectors-prediction/blob/master/scripts/r-scripts/r-functions/get_accuracy.R)
   
   
-##  `r "2020-04-02" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-04-02" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -53,7 +53,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - evaluating my data on effectorP 1.0 and 2.0
 - analysing the results on each dataset
 
-##  `r "2020-04-03" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-04-03" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -72,7 +72,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
 Note that the last two is also bacteria, I will focus more on presenting the one I have. 
 
-##  `r "2020-04-06" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-04-06" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -83,7 +83,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - try to make function that can ensemble both two results (from venn diagram) for fungi ensemble
 - start to make package in R for the prediction tool
 
-##   `r "2020-04-07" -> curr_date; "2020-04-08" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-04-07" -> curr_date; "2020-04-08" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -92,10 +92,10 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - evaluate the oomycete data using the oomycete effector predictor `effectR`
 - read the R package procedure 
 
-##   `r "2020-04-09" -> curr_date; "2020-04-13" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE, comment = "Easter Break")`
+## `r "2020-04-09" -> curr_date; "2020-04-13" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE, comment = "Easter Break")`
 
 
-##   `r "2020-04-14" -> curr_date; "2020-04-17" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-04-14" -> curr_date; "2020-04-17" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
 
@@ -105,7 +105,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_dat
 - compare the previous work and our model with our model (calculate several metrics), also confusion matrices
 - updating the report
 
-##  `r "2020-04-20" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-04-20" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -119,7 +119,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - think about what user may need and do
 - make user manual documentation
 
-##   `r "2020-04-20" -> curr_date; "2020-04-25" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-04-20" -> curr_date; "2020-04-25" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
 
@@ -131,7 +131,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_dat
 - completed the package 
 
 
-##  `r "2020-04-27" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-04-27" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 
@@ -144,7 +144,7 @@ Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
 - maybe defining the function init that initializes all model and paramaters
 
 
-##   `r "2020-04-28" -> curr_date; "2020-04-30" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-04-28" -> curr_date; "2020-04-30" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
 

@@ -21,7 +21,7 @@ source("formatting_functions.R")
 
 ### [Ruth Kristianingsih](https://github.com/ruthkr)
 
-##   `r "2020-03-02" -> curr_date; "2020-03-03" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-03-02" -> curr_date; "2020-03-03" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 #### Worked on
 
@@ -33,7 +33,7 @@ source("formatting_functions.R")
 - apparently lstm emb and gru emb needs to be trained longer (ran again on cluster)
 - analysed the results of cnn gru for oomycete and gru emb fungi
 
-##  `r "2020-03-04" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-04" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on
 
@@ -46,7 +46,7 @@ source("formatting_functions.R")
 - calculating heatmap matrices: bacteria cnn-lstm, fungi cnn-gru, and oomycete cnn-gru
 
 
-##  `r "2020-03-05" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-05" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -55,7 +55,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - ensemble the models that are already ready
 - continue doing the heatmap and that
 
-##  `r "2020-03-06" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-06" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on
 
@@ -63,7 +63,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
 ***
 
-##  `r "2020-03-09" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-09" -> curr_date; get_formatted_date(curr_date)`
 
 
 #### Weekly meeting
@@ -75,7 +75,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - learning rate/ dropout for overfitting models
 
 
-##   `r "2020-03-10" -> curr_date; "2020-03-11" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-03-10" -> curr_date; "2020-03-11" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -89,7 +89,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - cnn lstm all
   - gru emb all
 
-##  `r "2020-03-11" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-11" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on
 
@@ -98,7 +98,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - updated: cnn_bacteria needs more epochs
 - run the ensemble especially for bacteria, since they have finished already 
 
-##  `r "2020-03-12" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-12" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on
 
@@ -114,7 +114,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
   - present the results of convolutional and the plot of the results
   - hyperparameters analysis: result, random forest analysis
   
-##  `r "2020-03-13" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-13" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on
 
@@ -128,7 +128,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - bacteria ensembling model
 - keep manually tuning for each data (note for the tuning is on my notebook)
   
-##  `r "2020-03-16" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-16" -> curr_date; get_formatted_date(curr_date)`
 
 #### Weekly meeting 
 
@@ -140,7 +140,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - preparing report for meeting with Dan
 - finished first draft of report
 
-##   `r "2020-03-17" -> curr_date; "2020-03-18" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-03-17" -> curr_date; "2020-03-18" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 #### Worked on 
 
@@ -148,7 +148,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - running 2 different parameters for fungi
 - created join plot for all of the data (highly activated position) for all of the data
 
-##  `r "2020-03-19" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-19" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on 
 
@@ -156,7 +156,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - seq logo (learned about the different between using method bits and probability)
 - working on some models of fungi, since they are not quite good yet
 
-##  `r "2020-03-20" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-20" -> curr_date; get_formatted_date(curr_date)`
 
 #### Worked on 
 
@@ -165,7 +165,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - again for fungi models
 - running models for sucellular localisation (manual tuning)
 
-##  `r "2020-03-23" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-23" -> curr_date; get_formatted_date(curr_date)`
 
 #### Weekly meeting 
 
@@ -173,7 +173,7 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - for the subcellular localisation, since I already have cnn-lstm and dense, tried to make ensemble using both models, and also will try cnn-gru for random hyparparamters and see how the results
 - using the disopred to get the disordered protein and compare with the highly activated position using convolutional network
 
-##   `r "2020-03-24" -> curr_date; "2020-03-27" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+## `r "2020-03-24" -> curr_date; "2020-03-27" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
@@ -187,11 +187,11 @@ Commits: `r gitlogr::get_git_commit_count(curr_date)`
 - made reports on each task, and also for the disopred results
 
 
-##  `r "2020-03-30" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-30" -> curr_date; get_formatted_date(curr_date)`
 
 I took a sick day. 
 
-##  `r "2020-03-31" -> curr_date; get_formatted_date(curr_date)`
+## `r "2020-03-31" -> curr_date; get_formatted_date(curr_date)`
 
 Commits: `r gitlogr::get_git_commit_count(curr_date)`
 
