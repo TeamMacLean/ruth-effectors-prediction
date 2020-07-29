@@ -56,3 +56,16 @@ get_formatted_date <- function(curr_date, to_date = NULL, range = FALSE, comment
 
   return(date_text)
 }
+
+# Get total count of commits
+get_git_commit_count_from_path_list <- function(git_path_list, ...) {
+  git_count <- git_path_list %>%
+    purrr::map(
+      .f = function(path) {
+        gitlogr::get_git_commit_count(path = path, ...)
+      }
+    ) %>%
+    purrr::reduce(sum)
+
+  return(git_count)
+}
