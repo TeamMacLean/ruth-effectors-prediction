@@ -1,0 +1,225 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+
+git_path_list <- c(
+  here::here(), 
+  "~/Documents/Workspace/effector_class_ms", 
+  "~/Documents/Workspace/tsl-project-report", 
+  "~/Documents/Workspace/deepredeff", 
+  "~/Documents/Workspace/ruth-subcellular-localisation"
+)
+```
+
+
+# Month 2020 Lab Report <img src="figures/tsl-logo.png" align="right" width="120"/>
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+## `r "2020-01-01" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+## `r "2020-01-02" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+
+## `r "2020-01-03" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-04" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-05" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+***
+
+
+## `r "2020-01-08" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+## `r "2020-01-09" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-10" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-11" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-12" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+***
+
+
+## `r "2020-01-15" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+## `r "2020-01-16" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-17" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-18" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-19" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+***
+
+
+## `r "2020-01-22" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+## `r "2020-01-23" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-24" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-25" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-26" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+***
+
+
+## `r "2020-01-29" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+#### Worked on
+
+
+## `r "2020-01-30" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-31" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-31" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+
+## `r "2020-01-31" -> curr_date; get_formatted_date(curr_date)`
