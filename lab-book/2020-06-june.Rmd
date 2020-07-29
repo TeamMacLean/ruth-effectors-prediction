@@ -1,0 +1,159 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE, message=FALSE}
+# Knitr options
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/README-"
+)
+
+# Load packages
+library(tidyverse)
+
+# Formatting functions
+source("formatting_functions.R")
+
+git_path_list <- c(
+  here::here(), 
+  "~/Documents/Workspace/effector_class_ms", 
+  "~/Documents/Workspace/tsl-project-report", 
+  "~/Documents/Workspace/deepredeff", 
+  "~/Documents/Workspace/ruth-subcellular-localisation", 
+  "~/Documents/Workspace/ruth-effectors-prediction/"
+)
+```
+
+# June 2020 Lab Report <img src="figures/tsl-logo.png" align="right" width="120"/>
+
+### [Ruth Kristianingsih](https://github.com/ruthkr)
+
+
+## `r "2020-06-01" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+- the autoplot I have created for prediction is not useful, plot of distribution probability would be more useful
+- need to work fully on manuscripts: complete some missing parts on the reports, and redo all of the plots,to be generated from the chunks
+
+#### Worked on
+
+- finished the S3 objects for visualise convnet, also the draft of the vignette for that
+
+## `r "2020-06-02" -> curr_date; "2020-06-05" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+#### Worked on
+
+- fixed the plot in package, figure out the heatmap problem
+- complete the MS (redo all of the plots)
+- tried to test Ram data on deepredeff
+- running again test on other tools (found I tested wrong dataset)
+- tried to get some datasets from other tools and evaluated them on deepredeff
+
+***
+
+
+## `r "2020-06-08" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+- do not edit on something I am not asked for (MS)
+- run the positive datasets from other packages so that they can be included in MS
+- think about when I want to release and think about the roadmap of the package 
+
+
+
+## `r "2020-06-08" -> curr_date; "2020-06-12" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+- running some positive datasets from EffectorP, DeepT3, EffectiveT3, and effectR to be included in MS
+- completed missing parts in MS
+- continued the vignette, readme, and testing on deepredeff
+
+***
+
+
+## `r "2020-06-15" -> curr_date; "2020-06-17" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+3 days of annual leave
+
+## `r "2020-06-18" -> curr_date; "2020-06-19" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+
+#### Worked on
+
+- setting up the continous integration in Travis CI and Github Action
+- setting up test coverage
+- complete some additional test that have not been done before (97% completed now)
+- fix the python configuration since for some operating sysem, tensorflow can't be found
+- followed steps on releasing package in R package book
+
+***
+
+
+## `r "2020-06-22" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+- version of the package is wrong 
+- make better tutorial for end user (explain more about limitation, dataset, output)
+- ask some student or user to read teh tutorial and give feedback
+
+## `r "2020-06-22" -> curr_date; "2020-06-26" -> to_date; get_formatted_date(curr_date, to_date, range = TRUE)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date, to_date)`
+
+#### Worked on
+
+- set the Python requirements (Tensorflow and Keras) for users so that it will be easy for them while installing Deepredeff
+- make vignettes that is more easier for user to understand
+- contacted some students (Angus, Ola, Davies, Alice) to review the tutorials
+- make a short list of questions in google form for feedback
+- fixing the Python, TF installation in Windows
+
+***
+
+
+## `r "2020-06-29" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Weekly catchup meeting
+
+There are some corrections on the package:
+
+  - don't make it like I force the users to use Tensorflow, make the alternative in the tutorial if someone already have reticulate
+  - try to tidy up a bit the last chunck in quick start (maybe using reprex)
+  - change model to taxon, and model with the model I have, also show the class predictor
+  - change any pathogenity type to taxon
+  - sigmoid called is s-score
+  - put summary with more explanation
+  - plot: any color blind free color pallette, label with capital 
+  - no need to show the command (echo = False) on the more examples in "more on predicting with deepredeff"
+  - better organization in the "more on predicting with deepredeff" sine it seems like I made it for each taxon, specific format need to be used
+  
+
+## `r "2020-06-30" -> curr_date; get_formatted_date(curr_date)`
+
+Commits: `r get_git_commit_count_from_path_list(git_path_list, curr_date)`
+
+#### Worked on
+
+- the structure of the function `predict_effector()`
+- summary(), not just using return cat(), but using print.summary() so that user can actually access the value of the summary. 
+- writting new test functions
